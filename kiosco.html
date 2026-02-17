@@ -93,7 +93,13 @@
     .nav-item.active { background: rgba(124,58,237,0.35); border-left: 3px solid var(--violet-electric); }
     .bar-chart-bar { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .touch-target { min-height: 44px; min-width: 44px; }
+    .inventory-scroll { -webkit-overflow-scrolling: touch; }
+    @media (max-width: 640px) {
+      .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+      .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+      #metricVentas, #metricTrans, #metricTicket, #metricProductos { font-size: 1.25rem; }
+    }
   </style>
 </head>
 <body class="relative">
@@ -111,7 +117,7 @@
           <p class="text-xs text-white/60">Sistema Premium</p>
         </div>
       </div>
-      <button id="cartBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95">
+      <button id="cartBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95 touch-target">
         <i data-lucide="shopping-cart" class="w-5 h-5"></i>
         <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7c3aed] text-xs font-bold flex items-center justify-center">0</span>
       </button>
@@ -121,25 +127,25 @@
   <!-- Navigation -->
   <nav class="sticky top-[60px] z-40 glass border-b border-white/10 overflow-x-auto scrollbar-hide">
     <div class="flex gap-1 p-2 min-w-max">
-      <button data-nav="dashboard" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+      <button data-nav="dashboard" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
       </button>
-      <button data-nav="scanner" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+      <button data-nav="scanner" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="scan" class="w-4 h-4"></i> Escáner
       </button>
-      <button data-nav="inventory" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+      <button data-nav="inventory" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="package" class="w-4 h-4"></i> Inventario
       </button>
-      <button data-nav="caja" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+      <button data-nav="caja" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="receipt" class="w-4 h-4"></i> Cierre
       </button>
-      <button data-nav="deudores" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+      <button data-nav="deudores" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="users" class="w-4 h-4"></i> Deudores VIP
       </button>
     </div>
   </nav>
 
-  <main class="relative z-10 px-4 py-6 pb-24 max-w-7xl mx-auto" style="padding-bottom: max(6rem, env(safe-area-inset-bottom, 0) + 2rem)">
+  <main class="relative z-10 px-3 sm:px-4 py-4 sm:py-6 pb-20 sm:pb-24 max-w-7xl mx-auto" style="padding-bottom: max(5rem, env(safe-area-inset-bottom, 0) + 1.5rem)">
     
     <!-- Dashboard Holográfico -->
     <section id="panel-dashboard" class="panel">
@@ -149,7 +155,7 @@
             <i data-lucide="activity" class="w-5 h-5 text-[#a78bfa]"></i>
             Métricas del día
           </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             <div class="glass rounded-xl p-4 border border-white/10">
               <p class="text-xs text-white/60 mb-1">Ventas</p>
               <p id="metricVentas" class="text-2xl font-bold text-[#a78bfa]">$0</p>
@@ -201,6 +207,15 @@
                 <div id="chartTransf" class="bar-chart-bar h-full bg-gradient-to-r from-[#8b5cf6] to-[#c4b5fd] rounded-full" style="width:0%"></div>
               </div>
             </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Fiado</span>
+                <span id="chartFiadoPct">0%</span>
+              </div>
+              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="chartFiado" class="bar-chart-bar h-full bg-gradient-to-r from-[#ec4899] to-[#f472b6] rounded-full" style="width:0%"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -227,14 +242,16 @@
           </div>
         </div>
         <p class="text-center text-sm text-white/60 mt-4">Apunta la cámara al código de barras</p>
-        <div class="mt-4 flex gap-3">
-          <button id="startScanner" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95">
+        <div class="mt-4 flex flex-col sm:flex-row gap-3">
+          <button id="startScanner" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95 touch-target">
             <i data-lucide="camera" class="w-5 h-5"></i> Activar cámara
           </button>
-          <input type="text" id="manualCode" placeholder="Código manual" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-          <button id="manualAdd" class="btn-neomorphic rounded-xl px-4 py-3 transition-transform active:scale-95">
-            <i data-lucide="plus" class="w-5 h-5"></i>
-          </button>
+          <div class="flex gap-2">
+            <input type="text" id="manualCode" placeholder="Código manual" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" inputmode="numeric">
+            <button id="manualAdd" class="btn-neomorphic rounded-xl px-4 py-3 transition-transform active:scale-95 touch-target">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -246,13 +263,13 @@
           <i data-lucide="package-search" class="w-5 h-5 text-[#a78bfa]"></i>
           Gestor de inventario
         </h2>
-        <div class="flex gap-2 mb-4">
-          <input type="text" id="searchInventory" placeholder="Buscar producto..." class="flex-1 glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-          <button id="addProduct" class="btn-glow rounded-xl px-4 py-2.5 flex items-center gap-2">
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <input type="text" id="searchInventory" placeholder="Buscar producto..." class="flex-1 glass rounded-xl px-4 py-3 sm:py-2.5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" autocomplete="off">
+          <button id="addProduct" class="btn-glow rounded-xl px-4 py-3 sm:py-2.5 flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Agregar
           </button>
         </div>
-        <div id="inventoryList" class="space-y-3 max-h-[60vh] overflow-y-auto">
+        <div id="inventoryList" class="inventory-scroll space-y-2 sm:space-y-3 max-h-[55vh] sm:max-h-[60vh] overflow-y-auto">
           <!-- productos dinámicos -->
         </div>
       </div>
@@ -277,6 +294,10 @@
           <div class="flex justify-between py-3 border-b border-white/10">
             <span>Transferencia</span>
             <span id="cajaTransf" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between py-3 border-b border-white/10">
+            <span>Fiado</span>
+            <span id="cajaFiado" class="font-bold">$0</span>
           </div>
           <div class="flex justify-between py-4 text-lg">
             <span class="font-semibold">Total</span>
@@ -338,7 +359,7 @@
             <i data-lucide="shopping-bag" class="w-5 h-5 text-[#a78bfa]"></i>
             Carrito
           </h3>
-          <button id="closeCart" class="btn-neomorphic rounded-xl p-2">
+          <button id="closeCart" class="btn-neomorphic rounded-xl p-2.5 touch-target">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
@@ -350,13 +371,14 @@
             <span>Total</span>
             <span id="cartTotal" class="font-bold text-[#a78bfa]">$0</span>
           </div>
-          <div class="flex gap-2">
-            <select id="paymentMethod" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] bg-[#1e1b4b]/80">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <select id="paymentMethod" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] bg-[#1e1b4b]/80 text-base touch-target">
               <option value="efectivo">Efectivo</option>
               <option value="tarjeta">Tarjeta</option>
               <option value="transferencia">Transferencia</option>
+              <option value="fiado">Fiado</option>
             </select>
-            <button id="completeSale" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
+            <button id="completeSale" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target">
               <i data-lucide="credit-card" class="w-5 h-5"></i> Cobrar
             </button>
           </div>
@@ -398,18 +420,23 @@
     const state = {
       products: {},
       cart: [],
-      ventas: { efectivo: 0, tarjeta: 0, transferencia: 0 },
+      ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 },
       transacciones: 0
     };
 
     const STORAGE = {
       key: 'ferriol_os_data',
       save() {
-        localStorage.setItem(this.key, JSON.stringify(state));
+        const toSave = { ...state, ventas: { efectivo: state.ventas.efectivo || 0, tarjeta: state.ventas.tarjeta || 0, transferencia: state.ventas.transferencia || 0, fiado: state.ventas.fiado || 0 } };
+        localStorage.setItem(this.key, JSON.stringify(toSave));
       },
       load() {
         const data = localStorage.getItem(this.key);
-        if (data) Object.assign(state, JSON.parse(data));
+        if (data) {
+          const parsed = JSON.parse(data);
+          Object.assign(state, parsed);
+          state.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, ...state.ventas };
+        }
       }
     };
 
@@ -456,18 +483,23 @@
       list.innerHTML = items.map(p => {
         const status = getStockStatus(p.stock);
         return `
-          <div class="glass rounded-xl p-4 flex gap-4 items-center border border-white/10" data-codigo="${p.codigo}">
-            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7c3aed]/30 to-[#1e1b4b] flex items-center justify-center shrink-0">
-              <i data-lucide="package" class="w-7 h-7 text-[#a78bfa]"></i>
+          <div class="glass rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4 items-center border border-white/10" data-codigo="${p.codigo}">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#7c3aed]/30 to-[#1e1b4b] flex items-center justify-center shrink-0">
+              <i data-lucide="package" class="w-6 h-6 sm:w-7 sm:h-7 text-[#a78bfa]"></i>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="font-semibold truncate">${p.nombre}</p>
-              <p class="text-sm text-white/60">$${p.precio} · Cód: ${p.codigo}</p>
-              <span class="inline-block mt-2 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
+              <p class="font-semibold truncate text-sm sm:text-base">${p.nombre}</p>
+              <p class="text-xs sm:text-sm text-white/60">$${p.precio} · ${p.codigo}</p>
+              <span class="inline-block mt-1.5 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
             </div>
-            <button class="add-to-cart-btn btn-glow rounded-xl p-2 shrink-0" data-codigo="${p.codigo}" title="Agregar al carrito">
-              <i data-lucide="plus" class="w-5 h-5"></i>
-            </button>
+            <div class="flex gap-1 shrink-0">
+              <button class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target" data-codigo="${p.codigo}" title="Agregar">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+              </button>
+              <button class="delete-product-btn rounded-xl p-2.5 touch-target bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30" data-codigo="${p.codigo}" title="Eliminar">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -475,6 +507,17 @@
       list.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.onclick = () => addToCart(btn.dataset.codigo);
       });
+      list.querySelectorAll('.delete-product-btn').forEach(btn => {
+        btn.onclick = () => deleteProduct(btn.dataset.codigo);
+      });
+    }
+
+    function deleteProduct(codigo) {
+      if (confirm('¿Eliminar este producto?')) {
+        delete state.products[codigo];
+        STORAGE.save();
+        renderInventory();
+      }
     }
 
     function addToCart(codigo) {
@@ -512,7 +555,7 @@
             <p class="text-sm text-white/60">$${item.precio} x ${item.cant}</p>
           </div>
           <p class="font-semibold">$${item.precio * item.cant}</p>
-          <button class="remove-cart text-red-400 p-1" data-idx="${idx}">
+          <button class="remove-cart text-red-400 p-2 touch-target rounded-lg hover:bg-red-500/20" data-idx="${idx}">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
           </button>
         </div>
@@ -541,26 +584,31 @@
     }
 
     function updateDashboard() {
-      const total = state.ventas.efectivo + state.ventas.tarjeta + state.ventas.transferencia;
+      const fiado = state.ventas.fiado || 0;
+      const total = (state.ventas.efectivo || 0) + (state.ventas.tarjeta || 0) + (state.ventas.transferencia || 0) + fiado;
       const productosVendidos = Object.values(state.products).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
       document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
       document.getElementById('metricTrans').textContent = state.transacciones;
       document.getElementById('metricTicket').textContent = state.transacciones ? `$${Math.round(total / state.transacciones)}` : '$0';
       document.getElementById('metricProductos').textContent = productosVendidos;
 
-      const pctEf = total ? Math.round((state.ventas.efectivo / total) * 100) : 0;
-      const pctTj = total ? Math.round((state.ventas.tarjeta / total) * 100) : 0;
-      const pctTr = total ? Math.round((state.ventas.transferencia / total) * 100) : 0;
+      const pctEf = total ? Math.round(((state.ventas.efectivo || 0) / total) * 100) : 0;
+      const pctTj = total ? Math.round(((state.ventas.tarjeta || 0) / total) * 100) : 0;
+      const pctTr = total ? Math.round(((state.ventas.transferencia || 0) / total) * 100) : 0;
+      const pctFd = total ? Math.round((fiado / total) * 100) : 0;
       document.getElementById('chartEfectivo').style.width = pctEf + '%';
       document.getElementById('chartEfectivoPct').textContent = pctEf + '%';
       document.getElementById('chartTarjeta').style.width = pctTj + '%';
       document.getElementById('chartTarjetaPct').textContent = pctTj + '%';
       document.getElementById('chartTransf').style.width = pctTr + '%';
       document.getElementById('chartTransfPct').textContent = pctTr + '%';
+      document.getElementById('chartFiado').style.width = pctFd + '%';
+      document.getElementById('chartFiadoPct').textContent = pctFd + '%';
 
-      document.getElementById('cajaEfectivo').textContent = `$${state.ventas.efectivo.toLocaleString('es-AR')}`;
-      document.getElementById('cajaTarjeta').textContent = `$${state.ventas.tarjeta.toLocaleString('es-AR')}`;
-      document.getElementById('cajaTransf').textContent = `$${state.ventas.transferencia.toLocaleString('es-AR')}`;
+      document.getElementById('cajaEfectivo').textContent = `$${(state.ventas.efectivo || 0).toLocaleString('es-AR')}`;
+      document.getElementById('cajaTarjeta').textContent = `$${(state.ventas.tarjeta || 0).toLocaleString('es-AR')}`;
+      document.getElementById('cajaTransf').textContent = `$${(state.ventas.transferencia || 0).toLocaleString('es-AR')}`;
+      document.getElementById('cajaFiado').textContent = `$${fiado.toLocaleString('es-AR')}`;
       document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
     }
 
@@ -653,18 +701,20 @@
 
     // Generar ticket digital
     document.getElementById('generateTicket').onclick = async () => {
-      const total = state.ventas.efectivo + state.ventas.tarjeta + state.ventas.transferencia;
+      const fiado = state.ventas.fiado || 0;
+      const total = (state.ventas.efectivo || 0) + (state.ventas.tarjeta || 0) + (state.ventas.transferencia || 0) + fiado;
       const t = document.getElementById('ticketContent');
       t.classList.remove('hidden');
       document.getElementById('ticketFecha').textContent = new Date().toLocaleString('es-AR');
       document.getElementById('ticketBody').innerHTML = `
-        <p>Efectivo: $${state.ventas.efectivo.toLocaleString('es-AR')}</p>
-        <p>Tarjeta: $${state.ventas.tarjeta.toLocaleString('es-AR')}</p>
-        <p>Transferencia: $${state.ventas.transferencia.toLocaleString('es-AR')}</p>
+        <p>Efectivo: $${(state.ventas.efectivo || 0).toLocaleString('es-AR')}</p>
+        <p>Tarjeta: $${(state.ventas.tarjeta || 0).toLocaleString('es-AR')}</p>
+        <p>Transferencia: $${(state.ventas.transferencia || 0).toLocaleString('es-AR')}</p>
+        <p>Fiado: $${fiado.toLocaleString('es-AR')}</p>
         <p>Transacciones: ${state.transacciones}</p>
       `;
       document.getElementById('ticketTotal').textContent = `TOTAL: $${total.toLocaleString('es-AR')}`;
-      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${state.ventas.efectivo.toLocaleString('es-AR')}\nTarjeta: $${state.ventas.tarjeta.toLocaleString('es-AR')}\nTransferencia: $${state.ventas.transferencia.toLocaleString('es-AR')}\nTransacciones: ${state.transacciones}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
+      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(state.ventas.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(state.ventas.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(state.ventas.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransacciones: ${state.transacciones}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
       if (navigator.share) {
         try {
           await navigator.share({
@@ -680,7 +730,7 @@
 
     document.getElementById('cerrarCaja').onclick = () => {
       if (confirm('¿Reiniciar caja? Se mantendrá el inventario.')) {
-        state.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0 };
+        state.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
         state.transacciones = 0;
         updateDashboard();
         STORAGE.save();
