@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1e1b4b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Ferriol OS — Sistema de Gestión Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --indigo-deep: #1e1b4b;
+      --indigo-mid: #3730a3;
+      --violet-electric: #7c3aed;
+      --violet-light: #a78bfa;
+      --white-pure: #ffffff;
+      --glass-bg: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.18);
+      --glow-violet: rgba(124,58,237,0.4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #0f0a1e 0%, #1e1b4b 40%, #312e81 70%, #1e1b4b 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--white-pure);
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,58,237,0.25), transparent),
+                  radial-gradient(ellipse 60% 40% at 100% 100%, rgba(167,139,250,0.15), transparent);
+      pointer-events: none; z-index: 0;
+    }
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+    }
+    .glass-strong {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-neomorphic {
+      background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-neomorphic:active {
+      box-shadow: inset 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    .btn-glow {
+      background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid));
+      box-shadow: 0 0 24px var(--glow-violet);
+    }
+    .laser-line { animation: laser-sweep 2s linear infinite; }
+    @keyframes laser-sweep {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100%); opacity: 0.8; }
+    }
+    .scan-corner { border-color: var(--violet-electric); }
+    .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px var(--glow-violet); }
+      50% { box-shadow: 0 0 40px var(--glow-violet); }
+    }
+    .slide-up { animation: slideUp 0.35s ease-out forwards; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .scale-in { animation: scaleIn 0.25s ease-out forwards; }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .status-alto { background: rgba(34,197,94,0.25); color: #86efac; border-color: rgba(34,197,94,0.5); }
+    .status-critico { background: rgba(245,158,11,0.25); color: #fcd34d; border-color: rgba(245,158,11,0.5); }
+    .status-agotado { background: rgba(239,68,68,0.25); color: #fca5a5; border-color: rgba(239,68,68,0.5); }
+    .nav-item.active { background: rgba(124,58,237,0.35); border-left: 3px solid var(--violet-electric); }
+    .bar-chart-bar { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="relative">
+  <div class="fixed inset-0 z-0 pointer-events-none bg-[length:60px_60px]" style="background-image: linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass-strong border-b border-white/10 px-4 py-3" style="padding-top: max(0.75rem, env(safe-area-inset-top, 0))">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl btn-glow flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg tracking-tight">Ferriol OS</h1>
+          <p class="text-xs text-white/60">Sistema Premium</p>
+        </div>
+      </div>
+      <button id="cartBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95">
+        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+        <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7c3aed] text-xs font-bold flex items-center justify-center">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="sticky top-[60px] z-40 glass border-b border-white/10 overflow-x-auto scrollbar-hide">
+    <div class="flex gap-1 p-2 min-w-max">
+      <button data-nav="dashboard" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+      </button>
+      <button data-nav="scanner" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+        <i data-lucide="scan" class="w-4 h-4"></i> Escáner
+      </button>
+      <button data-nav="inventory" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+        <i data-lucide="package" class="w-4 h-4"></i> Inventario
+      </button>
+      <button data-nav="caja" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+        <i data-lucide="receipt" class="w-4 h-4"></i> Cierre
+      </button>
+      <button data-nav="deudores" class="nav-item flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap">
+        <i data-lucide="users" class="w-4 h-4"></i> Deudores VIP
+      </button>
+    </div>
+  </nav>
+
+  <main class="relative z-10 px-4 py-6 pb-24 max-w-7xl mx-auto" style="padding-bottom: max(6rem, env(safe-area-inset-bottom, 0) + 2rem)">
+    
+    <!-- Dashboard Holográfico -->
+    <section id="panel-dashboard" class="panel">
+      <div class="space-y-6">
+        <div class="glass rounded-2xl p-6 slide-up">
+          <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+            <i data-lucide="activity" class="w-5 h-5 text-[#a78bfa]"></i>
+            Métricas del día
+          </h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="glass rounded-xl p-4 border border-white/10">
+              <p class="text-xs text-white/60 mb-1">Ventas</p>
+              <p id="metricVentas" class="text-2xl font-bold text-[#a78bfa]">$0</p>
+            </div>
+            <div class="glass rounded-xl p-4 border border-white/10">
+              <p class="text-xs text-white/60 mb-1">Transacciones</p>
+              <p id="metricTrans" class="text-2xl font-bold">0</p>
+            </div>
+            <div class="glass rounded-xl p-4 border border-white/10">
+              <p class="text-xs text-white/60 mb-1">Ticket medio</p>
+              <p id="metricTicket" class="text-2xl font-bold">$0</p>
+            </div>
+            <div class="glass rounded-xl p-4 border border-white/10">
+              <p class="text-xs text-white/60 mb-1">Productos vendidos</p>
+              <p id="metricProductos" class="text-2xl font-bold">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-6 slide-up" style="animation-delay: 0.05s">
+          <h3 class="font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-[#a78bfa]"></i>
+            Ventas por método de pago
+          </h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Efectivo</span>
+                <span id="chartEfectivoPct">0%</span>
+              </div>
+              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="chartEfectivo" class="bar-chart-bar h-full bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] rounded-full" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Tarjeta</span>
+                <span id="chartTarjetaPct">0%</span>
+              </div>
+              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="chartTarjeta" class="bar-chart-bar h-full bg-gradient-to-r from-[#6366f1] to-[#818cf8] rounded-full" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Transferencia</span>
+                <span id="chartTransfPct">0%</span>
+              </div>
+              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="chartTransf" class="bar-chart-bar h-full bg-gradient-to-r from-[#8b5cf6] to-[#c4b5fd] rounded-full" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Escáner Inteligente -->
+    <section id="panel-scanner" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="scan-line" class="w-5 h-5 text-[#a78bfa]"></i>
+          Escáner de códigos
+        </h2>
+        <div class="relative aspect-square max-w-sm mx-auto rounded-2xl overflow-hidden border-2 border-[#7c3aed]/50 pulse-glow bg-black/40">
+          <video id="scannerVideo" class="w-full h-full object-cover" playsinline muted></video>
+          <canvas id="scannerCanvas" class="hidden"></canvas>
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="w-[85%] h-[85%] border-2 border-dashed border-[#7c3aed] rounded-xl relative overflow-hidden">
+              <div class="laser-line absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#7c3aed] to-transparent"></div>
+              <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 scan-corner"></div>
+              <div class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 scan-corner"></div>
+              <div class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 scan-corner"></div>
+              <div class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 scan-corner"></div>
+            </div>
+          </div>
+        </div>
+        <p class="text-center text-sm text-white/60 mt-4">Apunta la cámara al código de barras</p>
+        <div class="mt-4 flex gap-3">
+          <button id="startScanner" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95">
+            <i data-lucide="camera" class="w-5 h-5"></i> Activar cámara
+          </button>
+          <input type="text" id="manualCode" placeholder="Código manual" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          <button id="manualAdd" class="btn-neomorphic rounded-xl px-4 py-3 transition-transform active:scale-95">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Inventario -->
+    <section id="panel-inventory" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="package-search" class="w-5 h-5 text-[#a78bfa]"></i>
+          Gestor de inventario
+        </h2>
+        <div class="flex gap-2 mb-4">
+          <input type="text" id="searchInventory" placeholder="Buscar producto..." class="flex-1 glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          <button id="addProduct" class="btn-glow rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i> Agregar
+          </button>
+        </div>
+        <div id="inventoryList" class="space-y-3 max-h-[60vh] overflow-y-auto">
+          <!-- productos dinámicos -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Cierre de caja -->
+    <section id="panel-caja" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="banknote" class="w-5 h-5 text-[#a78bfa]"></i>
+          Cierre de caja ejecutivo
+        </h2>
+        <div id="cajaSummary" class="space-y-4 mb-6">
+          <div class="flex justify-between py-3 border-b border-white/10">
+            <span>Efectivo</span>
+            <span id="cajaEfectivo" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between py-3 border-b border-white/10">
+            <span>Tarjeta</span>
+            <span id="cajaTarjeta" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between py-3 border-b border-white/10">
+            <span>Transferencia</span>
+            <span id="cajaTransf" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between py-4 text-lg">
+            <span class="font-semibold">Total</span>
+            <span id="cajaTotal" class="font-bold text-[#a78bfa] text-xl">$0</span>
+          </div>
+        </div>
+        <button id="generateTicket" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 mb-3">
+          <i data-lucide="share-2" class="w-5 h-5"></i> Generar ticket digital
+        </button>
+        <button id="cerrarCaja" class="w-full btn-neomorphic rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
+          <i data-lucide="check-circle" class="w-5 h-5"></i> Cerrar caja y reiniciar
+        </button>
+      </div>
+    </section>
+
+    <!-- Deudores VIP -->
+    <section id="panel-deudores" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="user-check" class="w-5 h-5 text-[#a78bfa]"></i>
+          Deudores VIP — Cobro por WhatsApp
+        </h2>
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="block text-sm text-white/70 mb-2">Cliente</label>
+            <input type="text" id="deudorNombre" placeholder="Nombre del cliente" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          </div>
+          <div>
+            <label class="block text-sm text-white/70 mb-2">Teléfono (con código país)</label>
+            <input type="tel" id="deudorTel" placeholder="5493513703186" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          </div>
+          <div>
+            <label class="block text-sm text-white/70 mb-2">Monto adeudado</label>
+            <input type="number" id="deudorMonto" placeholder="0" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          </div>
+          <div>
+            <label class="block text-sm text-white/70 mb-2">Nivel de confianza</label>
+            <select id="deudorConfianza" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] bg-[#1e1b4b]/80">
+              <option value="amigo">Amigo / Cliente frecuente</option>
+              <option value="regular">Cliente regular</option>
+              <option value="nuevo">Cliente nuevo</option>
+            </select>
+          </div>
+        </div>
+        <button id="sendWhatsApp" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar cobro por WhatsApp
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Carrito flotante -->
+  <div id="cartDrawer" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="cartOverlay"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md glass-strong border-l border-white/10 transform translate-x-full transition-transform duration-300 ease-out" id="cartPanel">
+      <div class="p-6 h-full flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="font-bold text-xl flex items-center gap-2">
+            <i data-lucide="shopping-bag" class="w-5 h-5 text-[#a78bfa]"></i>
+            Carrito
+          </h3>
+          <button id="closeCart" class="btn-neomorphic rounded-xl p-2">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div id="cartItems" class="flex-1 overflow-y-auto space-y-3">
+          <!-- items dinámicos -->
+        </div>
+        <div class="mt-6 pt-6 border-t border-white/10">
+          <div class="flex justify-between text-lg mb-4">
+            <span>Total</span>
+            <span id="cartTotal" class="font-bold text-[#a78bfa]">$0</span>
+          </div>
+          <div class="flex gap-2">
+            <select id="paymentMethod" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] bg-[#1e1b4b]/80">
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="transferencia">Transferencia</option>
+            </select>
+            <button id="completeSale" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
+              <i data-lucide="credit-card" class="w-5 h-5"></i> Cobrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal agregar producto -->
+  <div id="productModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" id="modalOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md scale-in">
+      <h3 class="font-bold text-lg mb-4">Nuevo producto</h3>
+      <div class="space-y-4">
+        <input type="text" id="prodNombre" placeholder="Nombre" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="text" id="prodCodigo" placeholder="Código" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="number" id="prodPrecio" placeholder="Precio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="number" id="prodStock" placeholder="Stock" value="10" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <button id="saveProduct" class="w-full btn-glow rounded-xl py-3 font-semibold">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Digital (oculto para compartir) -->
+  <div id="ticketContent" class="hidden p-6 bg-white text-gray-900 max-w-sm font-mono text-sm">
+    <div class="text-center border-b-2 border-gray-800 pb-4 mb-4">
+      <h2 class="text-xl font-bold">FERRIOL OS</h2>
+      <p class="text-xs text-gray-500">Ticket Digital - Cierre de Caja</p>
+      <p id="ticketFecha" class="text-xs mt-2"></p>
+    </div>
+    <div id="ticketBody" class="space-y-2"></div>
+    <div class="mt-4 pt-4 border-t-2 border-gray-800 text-center font-bold text-lg" id="ticketTotal"></div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // Estado global
+    const state = {
+      products: {},
+      cart: [],
+      ventas: { efectivo: 0, tarjeta: 0, transferencia: 0 },
+      transacciones: 0
+    };
+
+    const STORAGE = {
+      key: 'ferriol_os_data',
+      save() {
+        localStorage.setItem(this.key, JSON.stringify(state));
+      },
+      load() {
+        const data = localStorage.getItem(this.key);
+        if (data) Object.assign(state, JSON.parse(data));
+      }
+    };
+
+    // Productos demo
+    const defaultProducts = {
+      '123456': { nombre: 'Café Premium', precio: 850, stock: 50, codigo: '123456', stockInicial: 50 },
+      '789012': { nombre: 'Alfajor Artesanal', precio: 450, stock: 3, codigo: '789012', stockInicial: 3 },
+      '345678': { nombre: 'Agua Mineral', precio: 320, stock: 20, codigo: '345678', stockInicial: 20 }
+    };
+
+    function initData() {
+      STORAGE.load();
+      if (Object.keys(state.products).length === 0) state.products = JSON.parse(JSON.stringify(defaultProducts));
+      Object.values(state.products).forEach(p => { if (!p.stockInicial) p.stockInicial = p.stock; });
+      STORAGE.save();
+    }
+
+    function getStockStatus(stock) {
+      if (stock <= 0) return { label: 'Agotado', class: 'status-agotado' };
+      if (stock <= 5) return { label: 'Crítico', class: 'status-critico' };
+      return { label: 'Stock Alto', class: 'status-alto' };
+    }
+
+    function playBeep() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 1200;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.1);
+    }
+
+    function renderInventory() {
+      const list = document.getElementById('inventoryList');
+      const search = document.getElementById('searchInventory')?.value?.toLowerCase() || '';
+      const items = Object.values(state.products).filter(p => 
+        p.nombre.toLowerCase().includes(search) || (p.codigo || '').includes(search)
+      );
+      list.innerHTML = items.map(p => {
+        const status = getStockStatus(p.stock);
+        return `
+          <div class="glass rounded-xl p-4 flex gap-4 items-center border border-white/10" data-codigo="${p.codigo}">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7c3aed]/30 to-[#1e1b4b] flex items-center justify-center shrink-0">
+              <i data-lucide="package" class="w-7 h-7 text-[#a78bfa]"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold truncate">${p.nombre}</p>
+              <p class="text-sm text-white/60">$${p.precio} · Cód: ${p.codigo}</p>
+              <span class="inline-block mt-2 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
+            </div>
+            <button class="add-to-cart-btn btn-glow rounded-xl p-2 shrink-0" data-codigo="${p.codigo}" title="Agregar al carrito">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+      list.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.onclick = () => addToCart(btn.dataset.codigo);
+      });
+    }
+
+    function addToCart(codigo) {
+      const p = state.products[codigo];
+      if (!p || p.stock <= 0) return;
+      const existing = state.cart.find(i => i.codigo === codigo);
+      if (existing) existing.cant++;
+      else state.cart.push({ ...p, cant: 1 });
+      playBeep();
+      updateCartUI();
+      STORAGE.save();
+      document.getElementById('cartPanel').classList.add('translate-x-0');
+      document.getElementById('cartDrawer').classList.remove('hidden');
+      document.getElementById('cartDrawer').classList.add('flex');
+    }
+
+    function removeFromCart(idx) {
+      state.cart.splice(idx, 1);
+      updateCartUI();
+      STORAGE.save();
+    }
+
+    function updateCartUI() {
+      const count = state.cart.reduce((a, i) => a + i.cant, 0);
+      document.getElementById('cartCount').textContent = count;
+      const itemsEl = document.getElementById('cartItems');
+      const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
+      itemsEl.innerHTML = state.cart.map((item, idx) => `
+        <div class="flex items-center gap-3 glass rounded-xl p-3">
+          <div class="w-10 h-10 rounded-lg bg-[#7c3aed]/30 flex items-center justify-center">
+            <i data-lucide="package" class="w-5 h-5 text-[#a78bfa]"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium truncate">${item.nombre}</p>
+            <p class="text-sm text-white/60">$${item.precio} x ${item.cant}</p>
+          </div>
+          <p class="font-semibold">$${item.precio * item.cant}</p>
+          <button class="remove-cart text-red-400 p-1" data-idx="${idx}">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+      document.getElementById('cartTotal').textContent = `$${total.toLocaleString('es-AR')}`;
+      lucide.createIcons();
+      itemsEl.querySelectorAll('.remove-cart').forEach(btn => {
+        btn.onclick = () => removeFromCart(parseInt(btn.dataset.idx));
+      });
+    }
+
+    function completeSale() {
+      if (state.cart.length === 0) return;
+      const method = document.getElementById('paymentMethod').value;
+      const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
+      state.ventas[method] += total;
+      state.transacciones++;
+      state.cart.forEach(item => {
+        if (state.products[item.codigo]) state.products[item.codigo].stock -= item.cant;
+      });
+      state.cart = [];
+      updateCartUI();
+      updateDashboard();
+      closeCart();
+      STORAGE.save();
+    }
+
+    function updateDashboard() {
+      const total = state.ventas.efectivo + state.ventas.tarjeta + state.ventas.transferencia;
+      const productosVendidos = Object.values(state.products).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
+      document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
+      document.getElementById('metricTrans').textContent = state.transacciones;
+      document.getElementById('metricTicket').textContent = state.transacciones ? `$${Math.round(total / state.transacciones)}` : '$0';
+      document.getElementById('metricProductos').textContent = productosVendidos;
+
+      const pctEf = total ? Math.round((state.ventas.efectivo / total) * 100) : 0;
+      const pctTj = total ? Math.round((state.ventas.tarjeta / total) * 100) : 0;
+      const pctTr = total ? Math.round((state.ventas.transferencia / total) * 100) : 0;
+      document.getElementById('chartEfectivo').style.width = pctEf + '%';
+      document.getElementById('chartEfectivoPct').textContent = pctEf + '%';
+      document.getElementById('chartTarjeta').style.width = pctTj + '%';
+      document.getElementById('chartTarjetaPct').textContent = pctTj + '%';
+      document.getElementById('chartTransf').style.width = pctTr + '%';
+      document.getElementById('chartTransfPct').textContent = pctTr + '%';
+
+      document.getElementById('cajaEfectivo').textContent = `$${state.ventas.efectivo.toLocaleString('es-AR')}`;
+      document.getElementById('cajaTarjeta').textContent = `$${state.ventas.tarjeta.toLocaleString('es-AR')}`;
+      document.getElementById('cajaTransf').textContent = `$${state.ventas.transferencia.toLocaleString('es-AR')}`;
+      document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
+    }
+
+    function openCart() {
+      document.getElementById('cartDrawer').classList.remove('hidden');
+      document.getElementById('cartDrawer').classList.add('flex');
+      setTimeout(() => document.getElementById('cartPanel').classList.add('translate-x-0'), 10);
+    }
+
+    function closeCart() {
+      document.getElementById('cartPanel').classList.remove('translate-x-0');
+      setTimeout(() => {
+        document.getElementById('cartDrawer').classList.add('hidden');
+        document.getElementById('cartDrawer').classList.remove('flex');
+      }, 300);
+    }
+
+    // Navegación
+    document.querySelectorAll('[data-nav]').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('panel-' + btn.dataset.nav).classList.remove('hidden');
+      };
+    });
+    document.querySelector('[data-nav="dashboard"]').click();
+
+    // Carrito
+    document.getElementById('cartBtn').onclick = openCart;
+    document.getElementById('closeCart').onclick = closeCart;
+    document.getElementById('cartOverlay').onclick = closeCart;
+    document.getElementById('completeSale').onclick = completeSale;
+
+    // Manual add
+    const doManualAdd = () => {
+      const code = document.getElementById('manualCode').value.trim();
+      if (code) addToCart(code);
+      document.getElementById('manualCode').value = '';
+    };
+    document.getElementById('manualAdd').onclick = doManualAdd;
+    document.getElementById('manualCode').addEventListener('keydown', e => { if (e.key === 'Enter') doManualAdd(); });
+
+    // Escáner con BarcodeDetector
+    let scannerStream = null;
+    let scanInterval = null;
+    let lastScannedCode = '';
+    let lastScanTime = 0;
+    const video = document.getElementById('scannerVideo');
+    const canvas = document.getElementById('scannerCanvas');
+    const ctx = canvas.getContext('2d');
+
+    async function scanFrame() {
+      if (!scannerStream || video.readyState !== 4) return;
+      if (typeof BarcodeDetector === 'undefined') return;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      try {
+        const codes = await new BarcodeDetector().detect(canvas);
+        if (codes.length) {
+          const code = codes[0].rawValue;
+          const now = Date.now();
+          if (state.products[code] && (code !== lastScannedCode || now - lastScanTime > 1500)) {
+            lastScannedCode = code;
+            lastScanTime = now;
+            addToCart(code);
+            playBeep();
+          }
+        }
+      } catch (_) {}
+    }
+
+    document.getElementById('startScanner').onclick = async () => {
+      try {
+        scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = scannerStream;
+        await video.play();
+        if (typeof BarcodeDetector !== 'undefined') {
+          scanInterval = setInterval(scanFrame, 300);
+        }
+      } catch (e) {
+        alert('No se pudo acceder a la cámara');
+      }
+    };
+
+    window.addEventListener('visibilitychange', () => {
+      if (document.hidden && scanInterval) clearInterval(scanInterval);
+    });
+
+    // Generar ticket digital
+    document.getElementById('generateTicket').onclick = async () => {
+      const total = state.ventas.efectivo + state.ventas.tarjeta + state.ventas.transferencia;
+      const t = document.getElementById('ticketContent');
+      t.classList.remove('hidden');
+      document.getElementById('ticketFecha').textContent = new Date().toLocaleString('es-AR');
+      document.getElementById('ticketBody').innerHTML = `
+        <p>Efectivo: $${state.ventas.efectivo.toLocaleString('es-AR')}</p>
+        <p>Tarjeta: $${state.ventas.tarjeta.toLocaleString('es-AR')}</p>
+        <p>Transferencia: $${state.ventas.transferencia.toLocaleString('es-AR')}</p>
+        <p>Transacciones: ${state.transacciones}</p>
+      `;
+      document.getElementById('ticketTotal').textContent = `TOTAL: $${total.toLocaleString('es-AR')}`;
+      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${state.ventas.efectivo.toLocaleString('es-AR')}\nTarjeta: $${state.ventas.tarjeta.toLocaleString('es-AR')}\nTransferencia: $${state.ventas.transferencia.toLocaleString('es-AR')}\nTransacciones: ${state.transacciones}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Cierre de Caja - Ferriol OS',
+            text: texto
+          });
+        } catch (e) { if (e.name !== 'AbortError') navigator.clipboard?.writeText(texto); }
+      } else {
+        navigator.clipboard?.writeText(texto);
+      }
+      t.classList.add('hidden');
+    };
+
+    document.getElementById('cerrarCaja').onclick = () => {
+      if (confirm('¿Reiniciar caja? Se mantendrá el inventario.')) {
+        state.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0 };
+        state.transacciones = 0;
+        updateDashboard();
+        STORAGE.save();
+      }
+    };
+
+    // WhatsApp Deudores
+    const templates = {
+      amigo: (nombre, monto) => `Hola ${nombre}! 👋 Espero que estés bien. Te recuerdo que tenés un saldo pendiente de $${monto}. Cuando puedas lo pasás? Gracias!`,
+      regular: (nombre, monto) => `Hola ${nombre}, te contactamos para recordarte el saldo pendiente de $${monto}. Podés acercarte o transferir cuando te sea cómodo.`,
+      nuevo: (nombre, monto) => `Buenos días ${nombre}. Le recordamos que tiene un saldo pendiente de $${monto}. Quedamos atentos.`
+    };
+    document.getElementById('sendWhatsApp').onclick = () => {
+      const tel = document.getElementById('deudorTel').value.replace(/\D/g, '');
+      const nombre = document.getElementById('deudorNombre').value || 'Cliente';
+      const monto = document.getElementById('deudorMonto').value || '0';
+      const conf = document.getElementById('deudorConfianza').value;
+      const msg = encodeURIComponent(templates[conf](nombre, monto));
+      window.open(`https://wa.me/${tel}?text=${msg}`, '_blank');
+    };
+
+    // Modal producto
+    document.getElementById('addProduct').onclick = () => {
+      document.getElementById('productModal').classList.remove('hidden');
+      document.getElementById('productModal').classList.add('flex');
+    };
+    document.getElementById('modalOverlay').onclick = () => {
+      document.getElementById('productModal').classList.add('hidden');
+      document.getElementById('productModal').classList.remove('flex');
+    };
+    document.getElementById('saveProduct').onclick = () => {
+      const nombre = document.getElementById('prodNombre').value.trim();
+      const codigo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
+      const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
+      const stock = parseInt(document.getElementById('prodStock').value) || 0;
+      if (nombre && precio) {
+        state.products[codigo] = { nombre, codigo, precio, stock, stockInicial: stock };
+        STORAGE.save();
+        renderInventory();
+        document.getElementById('productModal').classList.add('hidden');
+        document.getElementById('productModal').classList.remove('flex');
+      }
+    };
+
+    document.getElementById('searchInventory').addEventListener('input', renderInventory);
+
+    // Init
+    initData();
+    renderInventory();
+    updateCartUI();
+    updateDashboard();
+  </script>
+</body>
+</html>
