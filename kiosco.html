@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#1e1b4b">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Ferriol OS — Sistema de Gestión Premium</title>
@@ -11,7 +12,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Para producción: construir CSS con Tailwind CLI (https://tailwindcss.com/docs/installation) -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    (function(){var w=console.warn;console.warn=function(m){if(typeof m==='string'&&m.indexOf('should not be used in production')!==-1)return;w.apply(console,arguments);};})();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -1415,10 +1420,15 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
         if (authErr) {
           let msg = authErr.message || authErr.error_description || 'Error de autenticación';
-          if (msg === 'Invalid login credentials') msg = 'Email o contraseña incorrectos. Probá "¿Olvidaste tu contraseña?" para crear una nueva.';
-          else if (msg && (msg.includes('Email not confirmed') || msg.includes('email not confirmed'))) msg = 'Confirmá tu email primero. Revisá tu bandeja de entrada (y spam) por el correo de Supabase.';
-          else if (authErr.status === 400) msg = 'Error 400: ' + msg + ' (verificá en Supabase: Authentication → Providers → Email)';
-          console.error('Supabase auth error:', authErr);
+          const invalidCreds = (msg === 'Invalid login credentials') || (authErr.status === 400 && typeof msg === 'string' && msg.toLowerCase().includes('invalid'));
+          if (invalidCreds) {
+            msg = 'Email o contraseña incorrectos. Revisá los datos o usá "¿Olvidaste tu contraseña?" para restablecerla.';
+          } else if (msg && (msg.includes('Email not confirmed') || msg.includes('email not confirmed'))) {
+            msg = 'Confirmá tu email primero. Revisá tu bandeja (y spam) por el correo de Supabase.';
+          } else if (authErr.status === 400) {
+            msg = 'Error al iniciar sesión. Verificá en Supabase: Authentication → Providers → Email habilitado.';
+          }
+          if (!invalidCreds) console.error('Supabase auth error:', authErr);
           errEl.textContent = msg;
           errEl.classList.add('show');
           return;
