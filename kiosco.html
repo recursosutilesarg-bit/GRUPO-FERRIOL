@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --indigo-deep: #1e1b4b;
@@ -107,6 +108,11 @@
     .login-glass .login-err { background: rgba(239,68,68,0.2); color: #fca5a5; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
     .login-glass .login-err.show { display: block; }
     .login-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 1rem; text-align: center; }
+    /* Interruptor membresía (toggle switch) */
+    .toggle-switch { position: relative; width: 52px; height: 28px; flex-shrink: 0; background: rgba(239,68,68,0.4); border-radius: 9999px; cursor: pointer; transition: background 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+    .toggle-switch.active { background: rgba(34,197,94,0.5); }
+    .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .toggle-switch.active::after { transform: translateX(24px); }
     @media (max-width: 640px) {
       .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
       .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
@@ -126,7 +132,13 @@
         <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="current-password">
         <button type="submit" class="btn-login">Entrar</button>
       </form>
-      <p class="login-hint">Demo: admin@ferriol.com / admin123 (súper) · kiosco1@test.com / kiosco1 (kiosquero)</p>
+      <p class="login-hint"><a href="#" id="showSignUp" class="text-[#a78bfa]">Crear cuenta</a></p>
+      <div id="signUpBox" class="hidden mt-4 pt-4 border-t border-white/10">
+        <p class="text-sm text-white/70 mb-2">Nueva cuenta (kiosquero). Después en Supabase podés dar rol super al admin.</p>
+        <input type="email" id="signUpEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <input type="password" id="signUpPassword" placeholder="Contraseña (mín. 6)" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <button type="button" id="doSignUp" class="btn-login w-full py-2">Crear y entrar</button>
+      </div>
     </div>
   </div>
 
@@ -416,23 +428,40 @@
 
     <!-- Panel Súper: lista de kiosqueros -->
     <section id="panel-super" class="panel hidden">
-      <div class="glass rounded-2xl p-6 slide-up">
-        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
-          <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
-          Kiosqueros — Activar / Desactivar acceso
-        </h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead>
-              <tr class="border-b border-white/10">
-                <th class="py-3 pr-4 text-xs text-white/60 uppercase">Kiosco</th>
-                <th class="py-3 pr-4 text-xs text-white/60 uppercase">Email</th>
-                <th class="py-3 pr-4 text-xs text-white/60 uppercase">Estado</th>
-                <th class="py-3 text-xs text-white/60 uppercase">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="superKiosquerosList"></tbody>
-          </table>
+      <div class="glass rounded-2xl p-6 slide-up space-y-8">
+        <div>
+          <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+            <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
+            Kiosqueros — Membresías
+          </h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-white/10">
+                  <th class="py-3 pr-4 text-xs text-white/60 uppercase">Kiosco</th>
+                  <th class="py-3 pr-4 text-xs text-white/60 uppercase">Usuario (email)</th>
+                  <th class="py-3 pr-4 text-xs text-white/60 uppercase">Estado</th>
+                  <th class="py-3 text-xs text-white/60 uppercase">Membresía</th>
+                </tr>
+              </thead>
+              <tbody id="superKiosquerosList"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="border-t border-white/10 pt-6">
+          <h3 class="font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="user-plus" class="w-4 h-4 text-[#a78bfa]"></i>
+            Crear nuevo usuario
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <input type="email" id="newUserEmail" placeholder="Email (usuario)" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+            <input type="password" id="newUserPassword" placeholder="Contraseña" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+            <input type="text" id="newUserKioscoName" placeholder="Nombre del kiosco (opcional)" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+            <button type="button" id="btnCreateUser" class="btn-glow rounded-xl py-3 px-4 font-semibold flex items-center justify-center gap-2">
+              <i data-lucide="user-plus" class="w-4 h-4"></i> Crear usuario
+            </button>
+          </div>
+          <p id="createUserMsg" class="text-sm text-white/60 hidden"></p>
         </div>
       </div>
     </section>
@@ -506,53 +535,79 @@
   <script>
     lucide.createIcons();
 
-    // ——— SaaS: usuarios (preparado para Firebase/Supabase) ———
-    const DEFAULT_WHATSAPP = 'Hola {cliente}, te recordamos que tenés un saldo de ${monto} en nuestro kiosco. ¡Gracias!';
-    let USERS = [
-      { id: 'super-1', email: 'admin@ferriol.com', password: 'admin123', role: 'super', active: true, kioscoName: '', whatsappMessage: '' },
-      { id: 'kiosco-1', email: 'kiosco1@test.com', password: 'kiosco1', role: 'kiosquero', active: true, kioscoName: 'Kiosco del Barrio', whatsappMessage: DEFAULT_WHATSAPP },
-      { id: 'kiosco-2', email: 'kiosco2@test.com', password: 'kiosco2', role: 'kiosquero', active: false, kioscoName: 'Almacén Central', whatsappMessage: DEFAULT_WHATSAPP }
-    ];
+    // ——— Supabase: pegá tu Project URL y anon key acá ———
+    const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';   // ej: https://xxxxx.supabase.co
+    const SUPABASE_ANON_KEY = 'sb_publishable_mPFbzQG4AyfpuWiasAy-3A_dF4Ufg94';  // clave anon public
+    const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL !== 'https://ctvdrqxnrrjfwifixecf.supabase.co')
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
-    const USER_KEY = 'ferriol_user';
-    const USERS_KEY = 'ferriol_saas_users';
-    const DATA_KEY = 'ferriol_saas_data';
+    const DEFAULT_WHATSAPP = 'Hola {cliente}, te recordamos que tenés un saldo de ${monto} en nuestro kiosco. ¡Gracias!';
 
     let currentUser = null;
+    let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
 
-    function loadUsers() {
-      const saved = localStorage.getItem(USERS_KEY);
-      if (saved) {
-        try { USERS = JSON.parse(saved); } catch (_) {}
-      }
+    async function loadDataFromSupabase() {
+      if (!supabase || !currentUser?.id) return;
+      const uid = currentUser.id;
+      const [prodsRes, cajaRes] = await Promise.all([
+        supabase.from('products').select('*').eq('user_id', uid),
+        supabase.from('caja').select('*').eq('user_id', uid).maybeSingle()
+      ]);
+      const products = {};
+      (prodsRes.data || []).forEach(p => {
+        products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock };
+      });
+      const caja = cajaRes.data;
+      _dataCache = {
+        products,
+        ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 },
+        transacciones: caja ? (caja.transacciones || 0) : 0,
+        deudores: []
+      };
     }
-    function saveUsers() {
-      localStorage.setItem(USERS_KEY, JSON.stringify(USERS));
+
+    async function saveDataToSupabase(updates) {
+      if (!supabase || !currentUser?.id) return;
+      const uid = currentUser.id;
+      if (updates.products !== undefined) {
+        await supabase.from('products').delete().eq('user_id', uid);
+        const rows = Object.entries(updates.products).map(([codigo, p]) => ({
+          user_id: uid,
+          codigo,
+          nombre: p.nombre,
+          precio: p.precio || 0,
+          stock: p.stock || 0,
+          stock_inicial: p.stockInicial ?? p.stock ?? 0
+        }));
+        if (rows.length) await supabase.from('products').insert(rows);
+      }
+      if (updates.ventas !== undefined || updates.transacciones !== undefined) {
+        const v = updates.ventas || _dataCache.ventas;
+        const t = updates.transacciones !== undefined ? updates.transacciones : _dataCache.transacciones;
+        await supabase.from('caja').upsert({
+          user_id: uid,
+          efectivo: v.efectivo || 0,
+          tarjeta: v.tarjeta || 0,
+          transferencia: v.transferencia || 0,
+          fiado: v.fiado || 0,
+          transacciones: t
+        }, { onConflict: 'user_id' });
+      }
     }
 
     function getData() {
-      const raw = localStorage.getItem(DATA_KEY);
-      let data = { byUser: {} };
-      if (raw) try { data = JSON.parse(raw); } catch (_) {}
-      const uid = currentUser?.id;
-      if (!uid) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
-      if (!data.byUser[uid]) {
-        data.byUser[uid] = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
-      }
-      const d = data.byUser[uid];
+      if (!currentUser?.id) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+      const d = _dataCache;
       d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
       d.deudores = d.deudores || [];
       return d;
     }
     function setData(updates) {
-      const raw = localStorage.getItem(DATA_KEY);
-      let data = { byUser: {} };
-      if (raw) try { data = JSON.parse(raw); } catch (_) {}
-      const uid = currentUser?.id;
-      if (!uid) return;
-      if (!data.byUser[uid]) data.byUser[uid] = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
-      Object.assign(data.byUser[uid], updates);
-      localStorage.setItem(DATA_KEY, JSON.stringify(data));
+      if (!currentUser?.id) return;
+      Object.assign(_dataCache, updates);
+      if (updates.ventas) _dataCache.ventas = { ..._dataCache.ventas, ...updates.ventas };
+      saveDataToSupabase(updates);
     }
 
     // Estado en memoria (cart es por sesión; products/ventas vienen de getData)
@@ -566,8 +621,8 @@
       '345678': { nombre: 'Agua Mineral', precio: 320, stock: 20, codigo: '345678', stockInicial: 20 }
     };
 
-    function initData() {
-      loadUsers();
+    async function initData() {
+      await loadDataFromSupabase();
       const d = getData();
       if (Object.keys(d.products).length === 0) {
         d.products = JSON.parse(JSON.stringify(defaultProducts));
@@ -907,58 +962,104 @@
       }
     };
 
+  
     document.getElementById('searchInventory').addEventListener('input', renderInventory);
 
-    // ——— Login / Logout / SaaS ———
-    function showApp() {
-      const isSuper = currentUser && currentUser.role === 'super';
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('appWrap').classList.remove('hidden');
-      document.querySelectorAll('.kiosquero-only').forEach(el => el.style.display = isSuper ? 'none' : '');
-      document.getElementById('navKiosquero').classList.toggle('hidden', isSuper);
-      document.getElementById('navSuper').classList.toggle('hidden', !isSuper);
-      document.getElementById('headerTitle').textContent = (!isSuper && currentUser.kioscoName) ? currentUser.kioscoName : 'Ferriol OS';
-      document.getElementById('headerSub').textContent = isSuper ? 'Administración' : 'Sistema Premium';
-      if (isSuper) {
+   // --- Login / Logout / SaaS ---
+async function showApp() { // <--- AGREGAMOS 'async' ACÁ
+    const isSuper = currentUser && currentUser.role === 'super';
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appWrap').classList.remove('hidden');
+    document.querySelectorAll('.kiosquero-only').forEach(el => el.style.display = isSuper ? 'none' : '');
+    document.getElementById('navKiosquero').classList.toggle('hidden', isSuper);
+    document.getElementById('navSuper').classList.toggle('hidden', !isSuper);
+    document.getElementById('headerTitle').textContent = (!isSuper && currentUser.kioscoName) ? currentUser.kioscoName : 'FERRIOL OS';
+    document.getElementById('headerSub').textContent = isSuper ? 'Administración' : 'Sistema Premium';
+
+    if (isSuper) {
         goToPanel('super');
         lucide.createIcons();
-      } else {
-        initData();
+    } else {
+        await initData(); // <--- AHORA EL 'await' SÍ FUNCIONA
         renderInventory();
         updateCartUI();
         updateDashboard();
         goToPanel('dashboard');
         lucide.createIcons();
-      }
     }
+} // <--- ASEGURATE DE QUE ESTA LLAVE CIERRE TODO EL BLOQUE
 
-    document.getElementById('loginForm').onsubmit = (e) => {
+    document.getElementById('loginForm').onsubmit = async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value.trim();
       const pass = document.getElementById('loginPassword').value;
-      loadUsers();
-      const u = USERS.find(x => x.email === email && x.password === pass);
       const errEl = document.getElementById('loginErr');
-      if (!u) {
-        errEl.textContent = 'Email o contraseña incorrectos';
+      errEl.classList.remove('show');
+      if (!supabase) {
+        errEl.textContent = 'Configurá SUPABASE_URL y SUPABASE_ANON_KEY en el código.';
         errEl.classList.add('show');
         return;
       }
-      if (u.role === 'kiosquero' && !u.active) {
+      const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (authErr) {
+        errEl.textContent = authErr.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : authErr.message;
+        errEl.classList.add('show');
+        return;
+      }
+      const uid = authData.user.id;
+      let { data: profile } = await supabase.from('profiles').select('*').eq('id', uid).single();
+      if (!profile) {
+        await supabase.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
+        const r = await supabase.from('profiles').select('*').eq('id', uid).single();
+        profile = r.data;
+      }
+      if (profile.role === 'kiosquero' && !profile.active) {
+        await supabase.auth.signOut();
         errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
         errEl.classList.add('show');
         return;
       }
-      currentUser = { id: u.id, email: u.email, role: u.role, active: u.active, kioscoName: u.kioscoName || '', whatsappMessage: u.whatsappMessage || DEFAULT_WHATSAPP };
-      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-      errEl.classList.remove('show');
-      showApp();
+      currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
+      await showApp();
     };
 
-    document.getElementById('logoutBtn').onclick = () => {
+    document.getElementById('showSignUp').onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('signUpBox').classList.toggle('hidden');
+    };
+    document.getElementById('doSignUp').onclick = async () => {
+      const email = document.getElementById('signUpEmail').value.trim();
+      const password = document.getElementById('signUpPassword').value;
+      const errEl = document.getElementById('loginErr');
+      errEl.classList.remove('show');
+      if (!email || !password || password.length < 6) {
+        errEl.textContent = 'Email y contraseña (mín. 6 caracteres) son obligatorios.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (!supabase) {
+        errEl.textContent = 'Configurá Supabase en el código.';
+        errEl.classList.add('show');
+        return;
+      }
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        errEl.textContent = error.message;
+        errEl.classList.add('show');
+        return;
+      }
+      errEl.textContent = 'Cuenta creada. Iniciá sesión. Para ser admin: en Supabase → SQL Editor ejecutá: update profiles set role = \'super\' where email = \'tu@email.com\';';
+      errEl.classList.add('show');
+      errEl.classList.remove('text-red-300');
+      errEl.style.color = '#86efac';
+      document.getElementById('signUpBox').classList.add('hidden');
+    };
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      if (supabase) await supabase.auth.signOut();
       currentUser = null;
       state.cart = [];
-      localStorage.removeItem(USER_KEY);
+      _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
       document.getElementById('appWrap').classList.add('hidden');
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('loginPassword').value = '';
@@ -969,58 +1070,98 @@
       document.getElementById('configKioscoName').value = currentUser.kioscoName || '';
       document.getElementById('configWhatsappMsg').value = currentUser.whatsappMessage || DEFAULT_WHATSAPP;
     }
-    function saveConfig() {
+    async function saveConfig() {
       if (!currentUser || currentUser.role === 'super') return;
       const kioscoName = document.getElementById('configKioscoName').value.trim();
       const whatsappMessage = document.getElementById('configWhatsappMsg').value.trim() || DEFAULT_WHATSAPP;
+      if (supabase) {
+        await supabase.from('profiles').update({ kiosco_name: kioscoName, whatsapp_message: whatsappMessage }).eq('id', currentUser.id);
+      }
       currentUser.kioscoName = kioscoName;
       currentUser.whatsappMessage = whatsappMessage;
-      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-      const u = USERS.find(x => x.id === currentUser.id);
-      if (u) { u.kioscoName = kioscoName; u.whatsappMessage = whatsappMessage; saveUsers(); }
       document.getElementById('headerTitle').textContent = kioscoName || 'Ferriol OS';
     }
-    document.getElementById('saveConfig').onclick = saveConfig;
+    document.getElementById('saveConfig').onclick = () => saveConfig();
 
-    function renderSuper() {
-      loadUsers();
-      const list = USERS.filter(u => u.role === 'kiosquero');
+    async function renderSuper() {
+      if (!supabase) return;
+      const { data: list } = await supabase.from('profiles').select('id, email, role, active, kiosco_name').eq('role', 'kiosquero');
       const tbody = document.getElementById('superKiosquerosList');
-      tbody.innerHTML = list.map(u => `
+      tbody.innerHTML = (list || []).map(u => `
         <tr class="border-b border-white/10">
-          <td class="py-3 pr-4">${u.kioscoName || '—'}</td>
-          <td class="py-3 pr-4">${u.email}</td>
+          <td class="py-3 pr-4">${(u.kiosco_name || '—').replace(/</g, '&lt;')}</td>
+          <td class="py-3 pr-4">${(u.email || '').replace(/</g, '&lt;')}</td>
           <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs ${u.active ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${u.active ? 'Activo' : 'Inactivo'}</span></td>
-          <td class="py-3"><button type="button" class="toggle-kiosco px-3 py-1 rounded-lg text-sm ${u.active ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : 'bg-green-500/20 text-green-300 hover:bg-green-500/30'}" data-id="${u.id}" data-active="${u.active}">${u.active ? 'Desactivar' : 'Activar'}</button></td>
+          <td class="py-3">
+            <button type="button" class="toggle-switch ${u.active ? 'active' : ''}" data-id="${u.id}" title="${u.active ? 'Desactivar membresía' : 'Activar membresía'}"></button>
+          </td>
         </tr>
       `).join('');
-      tbody.querySelectorAll('.toggle-kiosco').forEach(btn => {
-        btn.onclick = () => {
-          const u = USERS.find(x => x.id === btn.dataset.id);
-          if (u) { u.active = !u.active; saveUsers(); renderSuper(); lucide.createIcons(); }
+      tbody.querySelectorAll('.toggle-switch').forEach(el => {
+        el.onclick = async () => {
+          const id = el.dataset.id;
+          const row = (list || []).find(u => u.id === id);
+          if (!row || !supabase) return;
+          const newActive = !row.active;
+          await supabase.from('profiles').update({ active: newActive }).eq('id', id);
+          row.active = newActive;
+          renderSuper();
+          lucide.createIcons();
         };
       });
       lucide.createIcons();
     }
 
-    // Init: si hay usuario guardado, mostrar app; si no, mostrar login
-    (function() {
-      const saved = localStorage.getItem(USER_KEY);
-      if (saved) {
-        try {
-          currentUser = JSON.parse(saved);
-          loadUsers();
-          const u = USERS.find(x => x.id === currentUser.id);
-          if (u) {
-            currentUser.kioscoName = u.kioscoName || currentUser.kioscoName || '';
-            currentUser.whatsappMessage = u.whatsappMessage || currentUser.whatsappMessage || DEFAULT_WHATSAPP;
-            currentUser.active = u.active;
-          }
-          showApp();
-        } catch (_) {
-          localStorage.removeItem(USER_KEY);
-        }
+    document.getElementById('btnCreateUser').onclick = async () => {
+      const email = document.getElementById('newUserEmail').value.trim();
+      const password = document.getElementById('newUserPassword').value;
+      const kioscoName = document.getElementById('newUserKioscoName').value.trim();
+      const msgEl = document.getElementById('createUserMsg');
+      msgEl.classList.add('hidden');
+      if (!email) {
+        msgEl.textContent = 'El email (usuario) es obligatorio.';
+        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        return;
       }
+      if (!password || password.length < 4) {
+        msgEl.textContent = 'La contraseña es obligatoria y debe tener al menos 4 caracteres.';
+        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        return;
+      }
+      if (!supabase) {
+        msgEl.textContent = 'Supabase no está configurado.';
+        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        return;
+      }
+      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({ email, password });
+      if (signUpErr) {
+        msgEl.textContent = signUpErr.message.includes('already registered') ? 'Ya existe un usuario con ese email.' : signUpErr.message;
+        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        return;
+      }
+      const newId = signUpData.user?.id;
+      if (newId) {
+        await supabase.from('profiles').update({ kiosco_name: kioscoName || '' }).eq('id', newId);
+      }
+      document.getElementById('newUserEmail').value = '';
+      document.getElementById('newUserPassword').value = '';
+      document.getElementById('newUserKioscoName').value = '';
+      msgEl.textContent = 'Usuario creado. Ya puede iniciar sesión con ese email y contraseña.';
+      msgEl.classList.remove('hidden'); msgEl.classList.remove('text-red-300'); msgEl.classList.add('text-green-300');
+      renderSuper();
+      lucide.createIcons();
+    };
+
+    (async function init() {
+      if (!supabase) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      const uid = session.user.id;
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', uid).single();
+      if (!profile) return;
+      if (profile.role === 'kiosquero' && !profile.active) return;
+      currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
+      await showApp();
     })();
   </script>
 </body>
