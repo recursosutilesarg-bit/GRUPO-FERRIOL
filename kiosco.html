@@ -575,6 +575,8 @@
           <!-- items dinámicos -->
         </div>
         <div class="mt-6 pt-6 border-t border-white/10">
+          <label class="block text-sm text-white/70 mb-2">Nombre del cliente</label>
+          <input type="text" id="cartClientName" placeholder="Ej: Juan, María..." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-4">
           <div class="flex justify-between text-lg mb-4">
             <span>Total</span>
             <span id="cartTotal" class="font-bold text-[#a78bfa]">$0</span>
@@ -892,6 +894,15 @@
       const existing = state.cart.find(i => i.codigo === codigo);
       if (existing) existing.cant++;
       else state.cart.push({ ...p, cant: 1 });
+      const cartQty = state.cart.find(i => i.codigo === codigo).cant;
+      const stockInicial = p.stockInicial || p.stock || 1;
+      const remaining = Math.max(0, p.stock - cartQty);
+      const pct = stockInicial > 0 ? (remaining / stockInicial) : 0;
+      if (pct <= 0.2 && pct > 0) {
+        showStockWarning('¡Queda poco stock! ' + p.nombre + ' — menos del 20%');
+      } else if (remaining === 0) {
+        showStockWarning('¡Última unidad! ' + p.nombre);
+      }
       playBeep();
       updateCartUI();
       document.getElementById('cartPanel').classList.add('translate-x-0');
@@ -933,6 +944,9 @@
 
     function openPaymentModal() {
       if (state.cart.length === 0) return;
+      const cartClient = document.getElementById('cartClientName');
+      const paymentClient = document.getElementById('paymentClientName');
+      if (cartClient && paymentClient) paymentClient.value = cartClient.value.trim();
       document.getElementById('paymentModal').classList.remove('hidden');
       document.getElementById('paymentModal').classList.add('flex');
       lucide.createIcons();
@@ -1059,6 +1073,16 @@
       lucide.createIcons();
       setTimeout(() => { el.classList.add('hidden'); el.classList.remove('flex'); }, 2200);
     }
+    function showStockWarning(msg) {
+      const el = document.getElementById('scanToast');
+      const text = document.getElementById('scanToastText');
+      text.textContent = msg;
+      text.className = 'glass-strong rounded-xl px-4 py-3 text-sm font-medium shadow-lg text-amber-300';
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+      lucide.createIcons();
+      setTimeout(() => { el.classList.add('hidden'); el.classList.remove('flex'); }, 2000);
+    }
 
     function openVentasProductosModal() {
       const list = state.transaccionesList || [];
@@ -1126,6 +1150,7 @@
         const client = document.getElementById('paymentClientName')?.value?.trim() || '';
         completeSaleWithMethod(btn.dataset.payment, client);
         document.getElementById('paymentClientName').value = '';
+        document.getElementById('cartClientName').value = '';
       };
     });
 
