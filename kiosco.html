@@ -95,6 +95,18 @@
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     .touch-target { min-height: 44px; min-width: 44px; }
     .inventory-scroll { -webkit-overflow-scrolling: touch; }
+    /* Login SaaS — glassmorphism */
+    #loginScreen { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: linear-gradient(135deg, #0f0a1e 0%, #1e1b4b 50%, #312e81 100%); }
+    #loginScreen.hidden { display: none; }
+    .login-glass { background: rgba(30,27,75,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 24px var(--glow-violet); }
+    .login-glass h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .login-glass .sub { font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 1.5rem; }
+    .login-glass input { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; color: #fff; margin-bottom: 1rem; font-size: 1rem; }
+    .login-glass input:focus { outline: none; border-color: var(--violet-electric); box-shadow: 0 0 0 3px var(--glow-violet); }
+    .login-glass .btn-login { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border-radius: 0.5rem; border: none; cursor: pointer; margin-top: 0.5rem; }
+    .login-glass .login-err { background: rgba(239,68,68,0.2); color: #fca5a5; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+    .login-glass .login-err.show { display: block; }
+    .login-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 1rem; text-align: center; }
     @media (max-width: 640px) {
       .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
       .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
@@ -103,9 +115,25 @@
   </style>
 </head>
 <body class="relative">
+  <!-- Login SaaS (se oculta cuando hay usuario) -->
+  <div id="loginScreen">
+    <div class="login-glass">
+      <h1>Ferriol OS</h1>
+      <p class="sub">Sistema de gestión para kioscos — SaaS</p>
+      <div id="loginErr" class="login-err"></div>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
+        <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="current-password">
+        <button type="submit" class="btn-login">Entrar</button>
+      </form>
+      <p class="login-hint">Demo: admin@ferriol.com / admin123 (súper) · kiosco1@test.com / kiosco1 (kiosquero)</p>
+    </div>
+  </div>
+
+  <div id="appWrap" class="hidden">
   <div class="fixed inset-0 z-0 pointer-events-none bg-[length:60px_60px]" style="background-image: linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);"></div>
 
-  <!-- Header -->
+  <!-- Header (kiosquero: carrito + config; súper: solo kiosqueros + salir) -->
   <header class="sticky top-0 z-50 glass-strong border-b border-white/10 px-4 py-3" style="padding-top: max(0.75rem, env(safe-area-inset-top, 0))">
     <div class="flex items-center justify-between max-w-7xl mx-auto">
       <div class="flex items-center gap-3">
@@ -113,19 +141,24 @@
           <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg tracking-tight">Ferriol OS</h1>
-          <p class="text-xs text-white/60">Sistema Premium</p>
+          <h1 class="font-bold text-lg tracking-tight" id="headerTitle">Ferriol OS</h1>
+          <p class="text-xs text-white/60" id="headerSub">Sistema Premium</p>
         </div>
       </div>
-      <button id="cartBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95 touch-target">
-        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-        <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7c3aed] text-xs font-bold flex items-center justify-center">0</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="cartBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95 touch-target kiosquero-only">
+          <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7c3aed] text-xs font-bold flex items-center justify-center">0</span>
+        </button>
+        <button id="logoutBtn" class="btn-neomorphic rounded-xl p-2.5 touch-target" title="Cerrar sesión">
+          <i data-lucide="log-out" class="w-5 h-5"></i>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Navigation -->
-  <nav class="sticky top-[60px] z-40 glass border-b border-white/10 overflow-x-auto scrollbar-hide">
+  <!-- Navigation kiosquero -->
+  <nav id="navKiosquero" class="sticky top-[60px] z-40 glass border-b border-white/10 overflow-x-auto scrollbar-hide">
     <div class="flex gap-1 p-2 min-w-max">
       <button data-nav="dashboard" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
@@ -141,6 +174,18 @@
       </button>
       <button data-nav="deudores" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
         <i data-lucide="users" class="w-4 h-4"></i> Deudores VIP
+      </button>
+      <button data-nav="config" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
+        <i data-lucide="settings" class="w-4 h-4"></i> Ajustes
+      </button>
+    </div>
+  </nav>
+
+  <!-- Navigation súper (solo panel Kiosqueros) -->
+  <nav id="navSuper" class="sticky top-[60px] z-40 glass border-b border-white/10 hidden">
+    <div class="flex gap-1 p-2">
+      <button data-nav="super" class="nav-item active flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium touch-target">
+        <i data-lucide="crown" class="w-4 h-4"></i> Kiosqueros
       </button>
     </div>
   </nav>
@@ -347,6 +392,50 @@
         </button>
       </div>
     </section>
+
+    <!-- Config (solo kiosquero) -->
+    <section id="panel-config" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="settings" class="w-5 h-5 text-[#a78bfa]"></i>
+          Configuración del kiosco
+        </h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-white/70 mb-2">Nombre del kiosco</label>
+            <input type="text" id="configKioscoName" placeholder="Ej: Kiosco del Barrio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          </div>
+          <div>
+            <label class="block text-sm text-white/70 mb-2">Mensaje de cobro por WhatsApp (usá <code class="text-[#a78bfa]">{cliente}</code> y <code class="text-[#a78bfa]">{monto}</code>)</label>
+            <textarea id="configWhatsappMsg" rows="4" placeholder="Hola {cliente}, tenés un saldo de ${monto}..." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] resize-y"></textarea>
+          </div>
+          <button id="saveConfig" class="btn-glow rounded-xl py-3 px-6 font-semibold">Guardar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel Súper: lista de kiosqueros -->
+    <section id="panel-super" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
+          Kiosqueros — Activar / Desactivar acceso
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-white/10">
+                <th class="py-3 pr-4 text-xs text-white/60 uppercase">Kiosco</th>
+                <th class="py-3 pr-4 text-xs text-white/60 uppercase">Email</th>
+                <th class="py-3 pr-4 text-xs text-white/60 uppercase">Estado</th>
+                <th class="py-3 text-xs text-white/60 uppercase">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="superKiosquerosList"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Carrito flotante -->
@@ -412,35 +501,65 @@
     <div id="ticketBody" class="space-y-2"></div>
     <div class="mt-4 pt-4 border-t-2 border-gray-800 text-center font-bold text-lg" id="ticketTotal"></div>
   </div>
+  </div><!-- /#appWrap -->
 
   <script>
     lucide.createIcons();
 
-    // Estado global
-    const state = {
-      products: {},
-      cart: [],
-      ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 },
-      transacciones: 0
-    };
+    // ——— SaaS: usuarios (preparado para Firebase/Supabase) ———
+    const DEFAULT_WHATSAPP = 'Hola {cliente}, te recordamos que tenés un saldo de ${monto} en nuestro kiosco. ¡Gracias!';
+    let USERS = [
+      { id: 'super-1', email: 'admin@ferriol.com', password: 'admin123', role: 'super', active: true, kioscoName: '', whatsappMessage: '' },
+      { id: 'kiosco-1', email: 'kiosco1@test.com', password: 'kiosco1', role: 'kiosquero', active: true, kioscoName: 'Kiosco del Barrio', whatsappMessage: DEFAULT_WHATSAPP },
+      { id: 'kiosco-2', email: 'kiosco2@test.com', password: 'kiosco2', role: 'kiosquero', active: false, kioscoName: 'Almacén Central', whatsappMessage: DEFAULT_WHATSAPP }
+    ];
 
-    const STORAGE = {
-      key: 'ferriol_os_data',
-      save() {
-        const toSave = { ...state, ventas: { efectivo: state.ventas.efectivo || 0, tarjeta: state.ventas.tarjeta || 0, transferencia: state.ventas.transferencia || 0, fiado: state.ventas.fiado || 0 } };
-        localStorage.setItem(this.key, JSON.stringify(toSave));
-      },
-      load() {
-        const data = localStorage.getItem(this.key);
-        if (data) {
-          const parsed = JSON.parse(data);
-          Object.assign(state, parsed);
-          state.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, ...state.ventas };
-        }
+    const USER_KEY = 'ferriol_user';
+    const USERS_KEY = 'ferriol_saas_users';
+    const DATA_KEY = 'ferriol_saas_data';
+
+    let currentUser = null;
+
+    function loadUsers() {
+      const saved = localStorage.getItem(USERS_KEY);
+      if (saved) {
+        try { USERS = JSON.parse(saved); } catch (_) {}
       }
+    }
+    function saveUsers() {
+      localStorage.setItem(USERS_KEY, JSON.stringify(USERS));
+    }
+
+    function getData() {
+      const raw = localStorage.getItem(DATA_KEY);
+      let data = { byUser: {} };
+      if (raw) try { data = JSON.parse(raw); } catch (_) {}
+      const uid = currentUser?.id;
+      if (!uid) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+      if (!data.byUser[uid]) {
+        data.byUser[uid] = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+      }
+      const d = data.byUser[uid];
+      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
+      d.deudores = d.deudores || [];
+      return d;
+    }
+    function setData(updates) {
+      const raw = localStorage.getItem(DATA_KEY);
+      let data = { byUser: {} };
+      if (raw) try { data = JSON.parse(raw); } catch (_) {}
+      const uid = currentUser?.id;
+      if (!uid) return;
+      if (!data.byUser[uid]) data.byUser[uid] = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+      Object.assign(data.byUser[uid], updates);
+      localStorage.setItem(DATA_KEY, JSON.stringify(data));
+    }
+
+    // Estado en memoria (cart es por sesión; products/ventas vienen de getData)
+    const state = {
+      cart: []
     };
 
-    // Productos demo
     const defaultProducts = {
       '123456': { nombre: 'Café Premium', precio: 850, stock: 50, codigo: '123456', stockInicial: 50 },
       '789012': { nombre: 'Alfajor Artesanal', precio: 450, stock: 3, codigo: '789012', stockInicial: 3 },
@@ -448,10 +567,13 @@
     };
 
     function initData() {
-      STORAGE.load();
-      if (Object.keys(state.products).length === 0) state.products = JSON.parse(JSON.stringify(defaultProducts));
-      Object.values(state.products).forEach(p => { if (!p.stockInicial) p.stockInicial = p.stock; });
-      STORAGE.save();
+      loadUsers();
+      const d = getData();
+      if (Object.keys(d.products).length === 0) {
+        d.products = JSON.parse(JSON.stringify(defaultProducts));
+        Object.values(d.products).forEach(p => { if (!p.stockInicial) p.stockInicial = p.stock; });
+        setData(d);
+      }
     }
 
     function getStockStatus(stock) {
@@ -477,7 +599,8 @@
     function renderInventory() {
       const list = document.getElementById('inventoryList');
       const search = document.getElementById('searchInventory')?.value?.toLowerCase() || '';
-      const items = Object.values(state.products).filter(p => 
+      const data = getData();
+      const items = Object.values(data.products || {}).filter(p => 
         p.nombre.toLowerCase().includes(search) || (p.codigo || '').includes(search)
       );
       list.innerHTML = items.map(p => {
@@ -514,21 +637,22 @@
 
     function deleteProduct(codigo) {
       if (confirm('¿Eliminar este producto?')) {
-        delete state.products[codigo];
-        STORAGE.save();
+        const d = getData();
+        delete d.products[codigo];
+        setData(d);
         renderInventory();
       }
     }
 
     function addToCart(codigo) {
-      const p = state.products[codigo];
+      const d = getData();
+      const p = (d.products || {})[codigo];
       if (!p || p.stock <= 0) return;
       const existing = state.cart.find(i => i.codigo === codigo);
       if (existing) existing.cant++;
       else state.cart.push({ ...p, cant: 1 });
       playBeep();
       updateCartUI();
-      STORAGE.save();
       document.getElementById('cartPanel').classList.add('translate-x-0');
       document.getElementById('cartDrawer').classList.remove('hidden');
       document.getElementById('cartDrawer').classList.add('flex');
@@ -537,7 +661,6 @@
     function removeFromCart(idx) {
       state.cart.splice(idx, 1);
       updateCartUI();
-      STORAGE.save();
     }
 
     function updateCartUI() {
@@ -571,30 +694,34 @@
       if (state.cart.length === 0) return;
       const method = document.getElementById('paymentMethod').value;
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
-      state.ventas[method] += total;
-      state.transacciones++;
+      const d = getData();
+      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
+      d.ventas[method] = (d.ventas[method] || 0) + total;
+      d.transacciones = (d.transacciones || 0) + 1;
       state.cart.forEach(item => {
-        if (state.products[item.codigo]) state.products[item.codigo].stock -= item.cant;
+        if (d.products[item.codigo]) d.products[item.codigo].stock -= item.cant;
       });
       state.cart = [];
+      setData(d);
       updateCartUI();
       updateDashboard();
       closeCart();
-      STORAGE.save();
     }
 
     function updateDashboard() {
-      const fiado = state.ventas.fiado || 0;
-      const total = (state.ventas.efectivo || 0) + (state.ventas.tarjeta || 0) + (state.ventas.transferencia || 0) + fiado;
-      const productosVendidos = Object.values(state.products).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
+      const d = getData();
+      const ventas = d.ventas || {};
+      const fiado = ventas.fiado || 0;
+      const total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado;
+      const productosVendidos = Object.values(d.products || {}).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
       document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
-      document.getElementById('metricTrans').textContent = state.transacciones;
-      document.getElementById('metricTicket').textContent = state.transacciones ? `$${Math.round(total / state.transacciones)}` : '$0';
+      document.getElementById('metricTrans').textContent = d.transacciones || 0;
+      document.getElementById('metricTicket').textContent = (d.transacciones && d.transacciones > 0) ? `$${Math.round(total / d.transacciones)}` : '$0';
       document.getElementById('metricProductos').textContent = productosVendidos;
 
-      const pctEf = total ? Math.round(((state.ventas.efectivo || 0) / total) * 100) : 0;
-      const pctTj = total ? Math.round(((state.ventas.tarjeta || 0) / total) * 100) : 0;
-      const pctTr = total ? Math.round(((state.ventas.transferencia || 0) / total) * 100) : 0;
+      const pctEf = total ? Math.round(((ventas.efectivo || 0) / total) * 100) : 0;
+      const pctTj = total ? Math.round(((ventas.tarjeta || 0) / total) * 100) : 0;
+      const pctTr = total ? Math.round(((ventas.transferencia || 0) / total) * 100) : 0;
       const pctFd = total ? Math.round((fiado / total) * 100) : 0;
       document.getElementById('chartEfectivo').style.width = pctEf + '%';
       document.getElementById('chartEfectivoPct').textContent = pctEf + '%';
@@ -605,9 +732,9 @@
       document.getElementById('chartFiado').style.width = pctFd + '%';
       document.getElementById('chartFiadoPct').textContent = pctFd + '%';
 
-      document.getElementById('cajaEfectivo').textContent = `$${(state.ventas.efectivo || 0).toLocaleString('es-AR')}`;
-      document.getElementById('cajaTarjeta').textContent = `$${(state.ventas.tarjeta || 0).toLocaleString('es-AR')}`;
-      document.getElementById('cajaTransf').textContent = `$${(state.ventas.transferencia || 0).toLocaleString('es-AR')}`;
+      document.getElementById('cajaEfectivo').textContent = `$${(ventas.efectivo || 0).toLocaleString('es-AR')}`;
+      document.getElementById('cajaTarjeta').textContent = `$${(ventas.tarjeta || 0).toLocaleString('es-AR')}`;
+      document.getElementById('cajaTransf').textContent = `$${(ventas.transferencia || 0).toLocaleString('es-AR')}`;
       document.getElementById('cajaFiado').textContent = `$${fiado.toLocaleString('es-AR')}`;
       document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
     }
@@ -626,16 +753,20 @@
       }, 300);
     }
 
-    // Navegación
+    // Navegación (incluye config y super)
+    function goToPanel(name) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const btn = document.querySelector('[data-nav="' + name + '"]');
+      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+      const panel = document.getElementById('panel-' + name);
+      if (panel) panel.classList.remove('hidden');
+      if (name === 'config') fillConfigForm();
+      if (name === 'super') renderSuper();
+    }
     document.querySelectorAll('[data-nav]').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
-        document.getElementById('panel-' + btn.dataset.nav).classList.remove('hidden');
-      };
+      btn.onclick = () => goToPanel(btn.dataset.nav);
     });
-    document.querySelector('[data-nav="dashboard"]').click();
 
     // Carrito
     document.getElementById('cartBtn').onclick = openCart;
@@ -672,7 +803,8 @@
         if (codes.length) {
           const code = codes[0].rawValue;
           const now = Date.now();
-          if (state.products[code] && (code !== lastScannedCode || now - lastScanTime > 1500)) {
+          const data = getData();
+          if (data.products && data.products[code] && (code !== lastScannedCode || now - lastScanTime > 1500)) {
             lastScannedCode = code;
             lastScanTime = now;
             addToCart(code);
@@ -701,20 +833,22 @@
 
     // Generar ticket digital
     document.getElementById('generateTicket').onclick = async () => {
-      const fiado = state.ventas.fiado || 0;
-      const total = (state.ventas.efectivo || 0) + (state.ventas.tarjeta || 0) + (state.ventas.transferencia || 0) + fiado;
+      const d = getData();
+      const v = d.ventas || {};
+      const fiado = v.fiado || 0;
+      const total = (v.efectivo || 0) + (v.tarjeta || 0) + (v.transferencia || 0) + fiado;
       const t = document.getElementById('ticketContent');
       t.classList.remove('hidden');
       document.getElementById('ticketFecha').textContent = new Date().toLocaleString('es-AR');
       document.getElementById('ticketBody').innerHTML = `
-        <p>Efectivo: $${(state.ventas.efectivo || 0).toLocaleString('es-AR')}</p>
-        <p>Tarjeta: $${(state.ventas.tarjeta || 0).toLocaleString('es-AR')}</p>
-        <p>Transferencia: $${(state.ventas.transferencia || 0).toLocaleString('es-AR')}</p>
+        <p>Efectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}</p>
+        <p>Tarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}</p>
+        <p>Transferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}</p>
         <p>Fiado: $${fiado.toLocaleString('es-AR')}</p>
-        <p>Transacciones: ${state.transacciones}</p>
+        <p>Transacciones: ${d.transacciones || 0}</p>
       `;
       document.getElementById('ticketTotal').textContent = `TOTAL: $${total.toLocaleString('es-AR')}`;
-      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(state.ventas.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(state.ventas.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(state.ventas.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransacciones: ${state.transacciones}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
+      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransacciones: ${d.transacciones || 0}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
       if (navigator.share) {
         try {
           await navigator.share({
@@ -730,26 +864,22 @@
 
     document.getElementById('cerrarCaja').onclick = () => {
       if (confirm('¿Reiniciar caja? Se mantendrá el inventario.')) {
-        state.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
-        state.transacciones = 0;
+        const d = getData();
+        d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
+        d.transacciones = 0;
+        setData(d);
         updateDashboard();
-        STORAGE.save();
       }
     };
 
-    // WhatsApp Deudores
-    const templates = {
-      amigo: (nombre, monto) => `Hola ${nombre}! 👋 Espero que estés bien. Te recuerdo que tenés un saldo pendiente de $${monto}. Cuando puedas lo pasás? Gracias!`,
-      regular: (nombre, monto) => `Hola ${nombre}, te contactamos para recordarte el saldo pendiente de $${monto}. Podés acercarte o transferir cuando te sea cómodo.`,
-      nuevo: (nombre, monto) => `Buenos días ${nombre}. Le recordamos que tiene un saldo pendiente de $${monto}. Quedamos atentos.`
-    };
+    // WhatsApp Deudores — usa mensaje configurado en Ajustes ({cliente}, {monto})
     document.getElementById('sendWhatsApp').onclick = () => {
       const tel = document.getElementById('deudorTel').value.replace(/\D/g, '');
       const nombre = document.getElementById('deudorNombre').value || 'Cliente';
       const monto = document.getElementById('deudorMonto').value || '0';
-      const conf = document.getElementById('deudorConfianza').value;
-      const msg = encodeURIComponent(templates[conf](nombre, monto));
-      window.open(`https://wa.me/${tel}?text=${msg}`, '_blank');
+      const template = (currentUser && currentUser.whatsappMessage) ? currentUser.whatsappMessage : DEFAULT_WHATSAPP;
+      const msg = template.replace(/\{cliente\}/gi, nombre).replace(/\{monto\}/gi, monto);
+      window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
     // Modal producto
@@ -767,8 +897,10 @@
       const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
       const stock = parseInt(document.getElementById('prodStock').value) || 0;
       if (nombre && precio) {
-        state.products[codigo] = { nombre, codigo, precio, stock, stockInicial: stock };
-        STORAGE.save();
+        const d = getData();
+        d.products = d.products || {};
+        d.products[codigo] = { nombre, codigo, precio, stock, stockInicial: stock };
+        setData(d);
         renderInventory();
         document.getElementById('productModal').classList.add('hidden');
         document.getElementById('productModal').classList.remove('flex');
@@ -777,11 +909,119 @@
 
     document.getElementById('searchInventory').addEventListener('input', renderInventory);
 
-    // Init
-    initData();
-    renderInventory();
-    updateCartUI();
-    updateDashboard();
+    // ——— Login / Logout / SaaS ———
+    function showApp() {
+      const isSuper = currentUser && currentUser.role === 'super';
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appWrap').classList.remove('hidden');
+      document.querySelectorAll('.kiosquero-only').forEach(el => el.style.display = isSuper ? 'none' : '');
+      document.getElementById('navKiosquero').classList.toggle('hidden', isSuper);
+      document.getElementById('navSuper').classList.toggle('hidden', !isSuper);
+      document.getElementById('headerTitle').textContent = (!isSuper && currentUser.kioscoName) ? currentUser.kioscoName : 'Ferriol OS';
+      document.getElementById('headerSub').textContent = isSuper ? 'Administración' : 'Sistema Premium';
+      if (isSuper) {
+        goToPanel('super');
+        lucide.createIcons();
+      } else {
+        initData();
+        renderInventory();
+        updateCartUI();
+        updateDashboard();
+        goToPanel('dashboard');
+        lucide.createIcons();
+      }
+    }
+
+    document.getElementById('loginForm').onsubmit = (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+      loadUsers();
+      const u = USERS.find(x => x.email === email && x.password === pass);
+      const errEl = document.getElementById('loginErr');
+      if (!u) {
+        errEl.textContent = 'Email o contraseña incorrectos';
+        errEl.classList.add('show');
+        return;
+      }
+      if (u.role === 'kiosquero' && !u.active) {
+        errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
+        errEl.classList.add('show');
+        return;
+      }
+      currentUser = { id: u.id, email: u.email, role: u.role, active: u.active, kioscoName: u.kioscoName || '', whatsappMessage: u.whatsappMessage || DEFAULT_WHATSAPP };
+      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+      errEl.classList.remove('show');
+      showApp();
+    };
+
+    document.getElementById('logoutBtn').onclick = () => {
+      currentUser = null;
+      state.cart = [];
+      localStorage.removeItem(USER_KEY);
+      document.getElementById('appWrap').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('loginPassword').value = '';
+    };
+
+    function fillConfigForm() {
+      if (!currentUser || currentUser.role === 'super') return;
+      document.getElementById('configKioscoName').value = currentUser.kioscoName || '';
+      document.getElementById('configWhatsappMsg').value = currentUser.whatsappMessage || DEFAULT_WHATSAPP;
+    }
+    function saveConfig() {
+      if (!currentUser || currentUser.role === 'super') return;
+      const kioscoName = document.getElementById('configKioscoName').value.trim();
+      const whatsappMessage = document.getElementById('configWhatsappMsg').value.trim() || DEFAULT_WHATSAPP;
+      currentUser.kioscoName = kioscoName;
+      currentUser.whatsappMessage = whatsappMessage;
+      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+      const u = USERS.find(x => x.id === currentUser.id);
+      if (u) { u.kioscoName = kioscoName; u.whatsappMessage = whatsappMessage; saveUsers(); }
+      document.getElementById('headerTitle').textContent = kioscoName || 'Ferriol OS';
+    }
+    document.getElementById('saveConfig').onclick = saveConfig;
+
+    function renderSuper() {
+      loadUsers();
+      const list = USERS.filter(u => u.role === 'kiosquero');
+      const tbody = document.getElementById('superKiosquerosList');
+      tbody.innerHTML = list.map(u => `
+        <tr class="border-b border-white/10">
+          <td class="py-3 pr-4">${u.kioscoName || '—'}</td>
+          <td class="py-3 pr-4">${u.email}</td>
+          <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs ${u.active ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${u.active ? 'Activo' : 'Inactivo'}</span></td>
+          <td class="py-3"><button type="button" class="toggle-kiosco px-3 py-1 rounded-lg text-sm ${u.active ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : 'bg-green-500/20 text-green-300 hover:bg-green-500/30'}" data-id="${u.id}" data-active="${u.active}">${u.active ? 'Desactivar' : 'Activar'}</button></td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('.toggle-kiosco').forEach(btn => {
+        btn.onclick = () => {
+          const u = USERS.find(x => x.id === btn.dataset.id);
+          if (u) { u.active = !u.active; saveUsers(); renderSuper(); lucide.createIcons(); }
+        };
+      });
+      lucide.createIcons();
+    }
+
+    // Init: si hay usuario guardado, mostrar app; si no, mostrar login
+    (function() {
+      const saved = localStorage.getItem(USER_KEY);
+      if (saved) {
+        try {
+          currentUser = JSON.parse(saved);
+          loadUsers();
+          const u = USERS.find(x => x.id === currentUser.id);
+          if (u) {
+            currentUser.kioscoName = u.kioscoName || currentUser.kioscoName || '';
+            currentUser.whatsappMessage = u.whatsappMessage || currentUser.whatsappMessage || DEFAULT_WHATSAPP;
+            currentUser.active = u.active;
+          }
+          showApp();
+        } catch (_) {
+          localStorage.removeItem(USER_KEY);
+        }
+      }
+    })();
   </script>
 </body>
 </html>
