@@ -579,9 +579,14 @@
             <span>Total</span>
             <span id="cartTotal" class="font-bold text-[#a78bfa]">$0</span>
           </div>
-          <button id="completeSale" class="w-full btn-glow rounded-xl py-4 font-semibold flex items-center justify-center gap-2 touch-target text-base">
-            <i data-lucide="credit-card" class="w-5 h-5"></i> Cobrar
-          </button>
+          <div class="flex flex-col gap-2">
+            <button id="completeSale" class="w-full btn-glow rounded-xl py-4 font-semibold flex items-center justify-center gap-2 touch-target text-base">
+              <i data-lucide="credit-card" class="w-5 h-5"></i> Cobrar
+            </button>
+            <button id="addAnotherProduct" class="w-full btn-neomorphic rounded-xl py-3 font-medium flex items-center justify-center gap-2 touch-target text-base">
+              <i data-lucide="plus-circle" class="w-5 h-5"></i> Agregar otro producto
+            </button>
+          </div>
           <p class="text-xs text-white/50 mt-2 text-center">Elegí el método de pago al tocar Cobrar</p>
         </div>
       </div>
@@ -622,16 +627,21 @@
     </div>
   </div>
 
-  <!-- Modal agregar producto -->
+  <!-- Modal agregar/editar producto -->
   <div id="productModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" id="modalOverlay"></div>
     <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md scale-in">
-      <h3 class="font-bold text-lg mb-4">Nuevo producto</h3>
+      <h3 class="font-bold text-lg mb-4" id="productModalTitle">Nuevo producto</h3>
+      <input type="hidden" id="prodEditCodigo" value="">
       <div class="space-y-4">
         <input type="text" id="prodNombre" placeholder="Nombre" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         <input type="text" id="prodCodigo" placeholder="Código" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         <input type="number" id="prodPrecio" placeholder="Precio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-        <input type="number" id="prodStock" placeholder="Stock" value="10" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="number" id="prodStock" placeholder="Stock actual" value="10" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <div id="prodStockInicialWrap" class="hidden">
+          <label class="block text-xs text-white/60 mb-1">Stock inicial (solo referencia)</label>
+          <input type="number" id="prodStockInicial" placeholder="Ej. 50" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        </div>
         <button id="saveProduct" class="w-full btn-glow rounded-xl py-3 font-semibold">Guardar</button>
       </div>
     </div>
@@ -824,7 +834,10 @@
               <span class="inline-block mt-1.5 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
             </div>
             <div class="flex gap-1 shrink-0">
-              <button class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target" data-codigo="${p.codigo}" title="Agregar">
+              <button class="edit-product-btn rounded-xl p-2.5 touch-target bg-white/10 border border-white/20 hover:bg-[#7c3aed]/30" data-codigo="${p.codigo}" title="Editar">
+                <i data-lucide="pencil" class="w-5 h-5"></i>
+              </button>
+              <button class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target" data-codigo="${p.codigo}" title="Agregar al carrito">
                 <i data-lucide="plus" class="w-5 h-5"></i>
               </button>
               <button class="delete-product-btn rounded-xl p-2.5 touch-target bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30" data-codigo="${p.codigo}" title="Eliminar">
@@ -835,12 +848,32 @@
         `;
       }).join('');
       lucide.createIcons();
+      list.querySelectorAll('.edit-product-btn').forEach(btn => {
+        btn.onclick = () => openEditProduct(btn.dataset.codigo);
+      });
       list.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.onclick = () => addToCart(btn.dataset.codigo);
       });
       list.querySelectorAll('.delete-product-btn').forEach(btn => {
         btn.onclick = () => deleteProduct(btn.dataset.codigo);
       });
+    }
+
+    function openEditProduct(codigo) {
+      const d = getData();
+      const p = (d.products || {})[codigo];
+      if (!p) return;
+      document.getElementById('productModalTitle').textContent = 'Editar producto';
+      document.getElementById('prodEditCodigo').value = codigo;
+      document.getElementById('prodNombre').value = p.nombre || '';
+      document.getElementById('prodCodigo').value = p.codigo || '';
+      document.getElementById('prodPrecio').value = p.precio ?? '';
+      document.getElementById('prodStock').value = p.stock ?? '';
+      document.getElementById('prodStockInicialWrap').classList.remove('hidden');
+      const siEl = document.getElementById('prodStockInicial');
+      siEl.value = p.stockInicial ?? p.stock ?? '';
+      document.getElementById('productModal').classList.remove('hidden');
+      document.getElementById('productModal').classList.add('flex');
     }
 
     function deleteProduct(codigo) {
@@ -1256,6 +1289,14 @@
         alert('Llegaste al límite de 200 productos. Eliminá alguno para agregar uno nuevo.');
         return;
       }
+      document.getElementById('productModalTitle').textContent = 'Nuevo producto';
+      document.getElementById('prodEditCodigo').value = '';
+      document.getElementById('prodNombre').value = '';
+      document.getElementById('prodCodigo').value = '';
+      document.getElementById('prodPrecio').value = '';
+      document.getElementById('prodStock').value = '10';
+      document.getElementById('prodStockInicial').value = '';
+      document.getElementById('prodStockInicialWrap').classList.add('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
     };
@@ -1263,25 +1304,48 @@
       document.getElementById('productModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('flex');
     };
+    document.getElementById('addAnotherProduct').onclick = () => {
+      closeCart();
+    };
     document.getElementById('saveProduct').onclick = () => {
       const nombre = document.getElementById('prodNombre').value.trim();
-      const codigo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
+      const codigoNuevo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
       const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
       const stock = parseInt(document.getElementById('prodStock').value) || 0;
+      const stockInicialWrap = document.getElementById('prodStockInicialWrap');
+      const stockInicialEl = document.getElementById('prodStockInicial');
+      const stockInicial = stockInicialWrap.classList.contains('hidden') ? stock : (parseInt(stockInicialEl.value) || stock);
+      const editCodigo = document.getElementById('prodEditCodigo').value.trim();
       const d = getData();
       d.products = d.products || {};
-      const isNew = !d.products[codigo];
+      const isNew = !editCodigo;
       if (isNew && Object.keys(d.products).length >= 200) {
         alert('Límite de 200 productos alcanzado.');
         return;
       }
-      if (nombre && precio) {
-        d.products[codigo] = { nombre, codigo, precio, stock, stockInicial: stock };
-        setData(d);
-        renderInventory();
-        document.getElementById('productModal').classList.add('hidden');
-        document.getElementById('productModal').classList.remove('flex');
+      if (!nombre || precio <= 0) return;
+      if (editCodigo) {
+        const oldProduct = d.products[editCodigo];
+        const stockInicialFinal = oldProduct && (stockInicialEl.value !== '' && !stockInicialWrap.classList.contains('hidden')) ? (parseInt(stockInicialEl.value) || oldProduct.stockInicial) : (oldProduct?.stockInicial ?? stock);
+        if (editCodigo !== codigoNuevo) {
+          delete d.products[editCodigo];
+        }
+        d.products[codigoNuevo] = { nombre, codigo: codigoNuevo, precio, stock, stockInicial: stockInicialFinal };
+        state.cart.forEach(item => {
+          if (item.codigo === editCodigo || item.codigo === codigoNuevo) {
+            item.codigo = codigoNuevo;
+            item.nombre = nombre;
+            item.precio = precio;
+          }
+        });
+      } else {
+        d.products[codigoNuevo] = { nombre, codigo: codigoNuevo, precio, stock, stockInicial: stockInicial || stock };
       }
+      setData(d);
+      renderInventory();
+      updateCartUI();
+      document.getElementById('productModal').classList.add('hidden');
+      document.getElementById('productModal').classList.remove('flex');
     };
 
   
