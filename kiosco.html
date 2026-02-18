@@ -966,7 +966,8 @@
     document.getElementById('searchInventory').addEventListener('input', renderInventory);
 
    // --- Login / Logout / SaaS ---
-async function showApp() { // <--- AGREGAMOS 'async' ACÁ
+// --- FUNCIÓN showApp CORREGIDA (ahora SÍ es async) ---
+async function showApp() {  // ← FALTABA EL 'async' ACÁ
     const isSuper = currentUser && currentUser.role === 'super';
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('appWrap').classList.remove('hidden');
@@ -980,48 +981,81 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         goToPanel('super');
         lucide.createIcons();
     } else {
-        await initData(); // <--- AHORA EL 'await' SÍ FUNCIONA
+        await initData(); // ← AHORA EL 'await' SÍ FUNCIONA
         renderInventory();
         updateCartUI();
         updateDashboard();
         goToPanel('dashboard');
         lucide.createIcons();
     }
-} // <--- ASEGURATE DE QUE ESTA LLAVE CIERRE TODO EL BLOQUE
+}
 
-    document.getElementById('loginForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      const pass = document.getElementById('loginPassword').value;
-      const errEl = document.getElementById('loginErr');
-      errEl.classList.remove('show');
-      if (!supabase) {
+// --- FUNCIÓN saveProduct (ESTABA BIEN, pero aquí está completa) ---
+document.getElementById('saveProduct').onclick = () => {
+    const nombre = document.getElementById('prodNombre').value.trim();
+    const codigo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
+    const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
+    const stock = parseInt(document.getElementById('prodStock').value) || 0;
+    if (nombre && precio) {
+        const d = getData();
+        d.products = d.products || {};
+        d.products[codigo] = { nombre, codigo, precio, stock, stockInicial: stock };
+        setData(d);
+        renderInventory();
+        document.getElementById('productModal').classList.add('hidden');
+        document.getElementById('productModal').classList.remove('flex');
+    }
+};
+
+// --- FUNCIÓN loginForm.onsubmit (ESTABA BIEN, aquí completa) ---
+document.getElementById('loginForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginErr');
+    errEl.classList.remove('show');
+    
+    if (!supabase) {
         errEl.textContent = 'Configurá SUPABASE_URL y SUPABASE_ANON_KEY en el código.';
         errEl.classList.add('show');
         return;
-      }
-      const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pass });
-      if (authErr) {
+    }
+    
+    const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pass });
+    
+    if (authErr) {
         errEl.textContent = authErr.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : authErr.message;
         errEl.classList.add('show');
         return;
-      }
-      const uid = authData.user.id;
-      let { data: profile } = await supabase.from('profiles').select('*').eq('id', uid).single();
-      if (!profile) {
+    }
+    
+    const uid = authData.user.id;
+    let { data: profile } = await supabase.from('profiles').select('*').eq('id', uid).single();
+    
+    if (!profile) {
         await supabase.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
         const r = await supabase.from('profiles').select('*').eq('id', uid).single();
         profile = r.data;
-      }
-      if (profile.role === 'kiosquero' && !profile.active) {
+    }
+    
+    if (profile.role === 'kiosquero' && !profile.active) {
         await supabase.auth.signOut();
         errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
         errEl.classList.add('show');
         return;
-      }
-      currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
-      await showApp();
+    }
+    
+    currentUser = { 
+        id: profile.id, 
+        email: profile.email, 
+        role: profile.role, 
+        active: profile.active, 
+        kioscoName: profile.kiosco_name || '', 
+        whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP 
     };
+    
+    await showApp();  // ← AHORA ESTO FUNCIONA PORQUE showApp() ES async
+};
 
     document.getElementById('showSignUp').onclick = (e) => {
       e.preventDefault();
