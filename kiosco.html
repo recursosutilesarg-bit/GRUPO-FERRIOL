@@ -564,6 +564,8 @@
     // ——— Supabase: pegá tu Project URL y anon key acá ———
     const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
+    // URL de tu app en producción (para enlaces de recuperar contraseña)
+    const APP_URL = 'https://recursosutilesarg-bit.github.io/GRUPO-FERRIOL/kiosco.html';
     const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY)
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
@@ -1120,7 +1122,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         errEl.classList.add('show');
         return;
       }
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+      const redirectUrl = (APP_URL && !APP_URL.includes('TU-USUARIO')) ? APP_URL : window.location.href;
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
       if (error) {
         errEl.textContent = error.message;
         errEl.classList.add('show');
