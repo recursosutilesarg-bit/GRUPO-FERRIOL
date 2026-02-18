@@ -143,7 +143,16 @@
         </div>
         <button type="button" id="loginBtn" class="btn-login">Entrar</button>
       </form>
-      <p class="login-hint"><a href="#" id="showSignUp" class="text-[#a78bfa]">Crear cuenta</a></p>
+      <p class="login-hint">
+        <a href="#" id="showSignUp" class="text-[#a78bfa]">Crear cuenta</a>
+        <span class="mx-2">·</span>
+        <a href="#" id="forgotPwd" class="text-[#a78bfa]">¿Olvidaste tu contraseña?</a>
+      </p>
+      <div id="resetPwdBox" class="hidden mt-4 pt-4 border-t border-white/10">
+        <p class="text-sm text-white/70 mb-2">Ingresá tu email y te enviamos un enlace para restablecer la contraseña.</p>
+        <input type="email" id="resetPwdEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <button type="button" id="doResetPwd" class="btn-login w-full py-2">Enviar enlace</button>
+      </div>
       <div id="signUpBox" class="hidden mt-4 pt-4 border-t border-white/10">
         <p class="text-sm text-white/70 mb-2">Nueva cuenta (kiosquero). Después en Supabase podés dar rol super al admin.</p>
         <input type="email" id="signUpEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
@@ -1008,7 +1017,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
     async function doLogin() {
       const email = document.getElementById('loginEmail').value.trim();
-      const pass = document.getElementById('loginPassword').value;
+      const pass = document.getElementById('loginPassword').value.trim();
       const errEl = document.getElementById('loginErr');
       errEl.classList.remove('show');
       errEl.style.color = '#fca5a5';
@@ -1021,7 +1030,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
         if (authErr) {
           let msg = authErr.message;
-          if (msg === 'Invalid login credentials') msg = 'Email o contraseña incorrectos';
+          if (msg === 'Invalid login credentials') msg = 'Email o contraseña incorrectos. Probá "¿Olvidaste tu contraseña?" para crear una nueva.';
           else if (msg && (msg.includes('Email not confirmed') || msg.includes('email not confirmed'))) msg = 'Confirmá tu email primero. Revisá tu bandeja de entrada (y spam) por el correo de Supabase.';
           errEl.textContent = msg;
           errEl.classList.add('show');
@@ -1087,7 +1096,40 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
     document.getElementById('showSignUp').onclick = (e) => {
       e.preventDefault();
+      document.getElementById('resetPwdBox').classList.add('hidden');
       document.getElementById('signUpBox').classList.toggle('hidden');
+    };
+    document.getElementById('forgotPwd').onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('signUpBox').classList.add('hidden');
+      document.getElementById('resetPwdBox').classList.toggle('hidden');
+      document.getElementById('resetPwdEmail').value = document.getElementById('loginEmail').value;
+    };
+    document.getElementById('doResetPwd').onclick = async () => {
+      const email = document.getElementById('resetPwdEmail').value.trim();
+      const errEl = document.getElementById('loginErr');
+      errEl.classList.remove('show');
+      errEl.style.color = '#fca5a5';
+      if (!email) {
+        errEl.textContent = 'Ingresá tu email.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (!supabaseClient) {
+        errEl.textContent = 'Supabase no está configurado.';
+        errEl.classList.add('show');
+        return;
+      }
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+      if (error) {
+        errEl.textContent = error.message;
+        errEl.classList.add('show');
+        return;
+      }
+      errEl.textContent = 'Revisá tu email. Te enviamos un enlace para restablecer la contraseña.';
+      errEl.style.color = '#86efac';
+      errEl.classList.add('show');
+      document.getElementById('resetPwdBox').classList.add('hidden');
     };
     document.getElementById('doSignUp').onclick = async () => {
       const email = document.getElementById('signUpEmail').value.trim();
