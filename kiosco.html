@@ -105,13 +105,14 @@
     .login-glass input { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; color: #fff; margin-bottom: 1rem; font-size: 1rem; }
     .login-glass input:focus { outline: none; border-color: var(--violet-electric); box-shadow: 0 0 0 3px var(--glow-violet); }
     .login-glass .btn-login { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border-radius: 0.5rem; border: none; cursor: pointer; margin-top: 0.5rem; }
-    .login-glass .login-err { background: rgba(239,68,68,0.2); color: #fca5a5; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
-    .login-glass .login-err.show { display: block; }
+    .login-glass .login-err { background: rgba(239,68,68,0.3); color: #fca5a5; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.95rem; margin-bottom: 1rem; display: none; border: 1px solid rgba(239,68,68,0.5); }
+    .login-glass .login-err.show { display: block !important; }
     .login-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 1rem; text-align: center; }
     .password-wrap { position: relative; margin-bottom: 1rem; }
     .password-wrap input { margin-bottom: 0; padding-right: 2.75rem; }
-    .password-wrap .toggle-pwd { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.8); cursor: pointer; padding: 0.35rem; border-radius: 0.35rem; z-index: 10; min-width: 36px; min-height: 36px; font-size: 1.1rem; }
+    .password-wrap .toggle-pwd { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.8); cursor: pointer; padding: 0.35rem 0.5rem; border-radius: 0.35rem; z-index: 10; min-height: 36px; font-size: 0.9rem; display: flex; align-items: center; user-select: none; }
     .password-wrap .toggle-pwd:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .password-wrap .pwd-checkbox { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
     /* Interruptor membresía (toggle switch) */
     .toggle-switch { position: relative; width: 52px; height: 28px; flex-shrink: 0; background: rgba(239,68,68,0.4); border-radius: 9999px; cursor: pointer; transition: background 0.2s; border: 1px solid rgba(255,255,255,0.1); }
     .toggle-switch.active { background: rgba(34,197,94,0.5); }
@@ -135,7 +136,10 @@
         <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
         <div class="password-wrap">
           <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="current-password">
-          <button type="button" id="toggleLoginPwd" class="toggle-pwd" title="Ver contraseña">Ver</button>
+          <label class="toggle-pwd" for="showLoginPwd" title="Ver contraseña">
+            <input type="checkbox" id="showLoginPwd" class="pwd-checkbox">
+            <span class="pwd-label">Ver</span>
+          </label>
         </div>
         <button type="button" id="loginBtn" class="btn-login">Entrar</button>
       </form>
@@ -145,7 +149,10 @@
         <input type="email" id="signUpEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
         <div class="password-wrap">
           <input type="password" id="signUpPassword" placeholder="Contraseña (mín. 6)" class="w-full login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
-          <button type="button" id="toggleSignUpPwd" class="toggle-pwd" title="Ver contraseña">Ver</button>
+          <label class="toggle-pwd" for="showSignUpPwd" title="Ver contraseña">
+            <input type="checkbox" id="showSignUpPwd" class="pwd-checkbox">
+            <span class="pwd-label">Ver</span>
+          </label>
         </div>
         <button type="button" id="doSignUp" class="btn-login w-full py-2">Crear y entrar</button>
       </div>
@@ -546,9 +553,9 @@
     lucide.createIcons();
 
     // ——— Supabase: pegá tu Project URL y anon key acá ———
-    const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';   // ej: https://xxxxx.supabase.co
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';  // clave anon public
-    const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY)
+    const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
+    const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY)
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
 
@@ -558,11 +565,11 @@
     let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
 
     async function loadDataFromSupabase() {
-      if (!supabase || !currentUser?.id) return;
+      if (!supabaseClient || !currentUser?.id) return;
       const uid = currentUser.id;
       const [prodsRes, cajaRes] = await Promise.all([
-        supabase.from('products').select('*').eq('user_id', uid),
-        supabase.from('caja').select('*').eq('user_id', uid).maybeSingle()
+        supabaseClient.from('products').select('*').eq('user_id', uid),
+        supabaseClient.from('caja').select('*').eq('user_id', uid).maybeSingle()
       ]);
       const products = {};
       (prodsRes.data || []).forEach(p => {
@@ -578,10 +585,10 @@
     }
 
     async function saveDataToSupabase(updates) {
-      if (!supabase || !currentUser?.id) return;
+      if (!supabaseClient || !currentUser?.id) return;
       const uid = currentUser.id;
       if (updates.products !== undefined) {
-        await supabase.from('products').delete().eq('user_id', uid);
+        await supabaseClient.from('products').delete().eq('user_id', uid);
         const rows = Object.entries(updates.products).map(([codigo, p]) => ({
           user_id: uid,
           codigo,
@@ -590,12 +597,12 @@
           stock: p.stock || 0,
           stock_inicial: p.stockInicial ?? p.stock ?? 0
         }));
-        if (rows.length) await supabase.from('products').insert(rows);
+        if (rows.length) await supabaseClient.from('products').insert(rows);
       }
       if (updates.ventas !== undefined || updates.transacciones !== undefined) {
         const v = updates.ventas || _dataCache.ventas;
         const t = updates.transacciones !== undefined ? updates.transacciones : _dataCache.transacciones;
-        await supabase.from('caja').upsert({
+        await supabaseClient.from('caja').upsert({
           user_id: uid,
           efectivo: v.efectivo || 0,
           tarjeta: v.tarjeta || 0,
@@ -1005,33 +1012,36 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       const errEl = document.getElementById('loginErr');
       errEl.classList.remove('show');
       errEl.style.color = '#fca5a5';
-      if (!supabase) {
+      if (!supabaseClient) {
         errEl.textContent = 'Configurá SUPABASE_URL y SUPABASE_ANON_KEY en el código.';
         errEl.classList.add('show');
         return;
       }
       try {
-        const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pass });
+        const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
         if (authErr) {
-          errEl.textContent = authErr.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : authErr.message;
+          let msg = authErr.message;
+          if (msg === 'Invalid login credentials') msg = 'Email o contraseña incorrectos';
+          else if (msg && (msg.includes('Email not confirmed') || msg.includes('email not confirmed'))) msg = 'Confirmá tu email primero. Revisá tu bandeja de entrada (y spam) por el correo de Supabase.';
+          errEl.textContent = msg;
           errEl.classList.add('show');
           return;
         }
         const uid = authData.user.id;
-        let { data: profile, error: profileErr } = await supabase.from('profiles').select('*').eq('id', uid).single();
+        let { data: profile, error: profileErr } = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
         if (profileErr && profileErr.code !== 'PGRST116') {
           errEl.textContent = 'Error al leer perfil: ' + (profileErr.message || 'verificá RLS en la tabla profiles');
           errEl.classList.add('show');
           return;
         }
         if (!profile) {
-          const { error: insertErr } = await supabase.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
+          const { error: insertErr } = await supabaseClient.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
           if (insertErr) {
             errEl.textContent = 'Error al crear perfil: ' + (insertErr.message || 'creá la tabla profiles y sus políticas RLS');
             errEl.classList.add('show');
             return;
           }
-          const r = await supabase.from('profiles').select('*').eq('id', uid).single();
+          const r = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
           profile = r.data;
           if (!profile) {
             errEl.textContent = 'No se pudo obtener el perfil. Revisá RLS en Supabase (profiles).';
@@ -1040,7 +1050,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           }
         }
         if (profile.role === 'kiosquero' && !profile.active) {
-          await supabase.auth.signOut();
+          await supabaseClient.auth.signOut();
           errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
           errEl.classList.add('show');
           return;
@@ -1049,26 +1059,31 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         await showApp();
       } catch (err) {
         console.error('Error en login:', err);
-        errEl.textContent = 'Error inesperado: ' + (err.message || String(err));
+        const msg = 'Error inesperado: ' + (err.message || String(err));
+        errEl.textContent = msg;
         errEl.classList.add('show');
+        alert(msg);
       }
     }
     document.getElementById('loginBtn').onclick = doLogin;
     document.getElementById('loginForm').onsubmit = (e) => { e.preventDefault(); doLogin(); };
 
-    function setupPasswordToggle(btnId, inputId) {
-      const btn = document.getElementById(btnId);
+    function setupPasswordToggle(checkboxId, inputId) {
+      const checkbox = document.getElementById(checkboxId);
       const input = document.getElementById(inputId);
-      if (!btn || !input) return;
-      btn.onclick = () => {
-        const isPassword = input.type === 'password';
-        input.type = isPassword ? 'text' : 'password';
-        btn.textContent = isPassword ? 'Ocultar' : 'Ver';
-        btn.title = isPassword ? 'Ocultar contraseña' : 'Ver contraseña';
-      };
+      const label = checkbox ? checkbox.closest('label') : null;
+      const labelSpan = label ? label.querySelector('.pwd-label') : null;
+      if (!checkbox || !input) return;
+      function sync() {
+        const show = checkbox.checked;
+        input.type = show ? 'text' : 'password';
+        if (labelSpan) labelSpan.textContent = show ? 'Ocultar' : 'Ver';
+        if (label) label.title = show ? 'Ocultar contraseña' : 'Ver contraseña';
+      }
+      checkbox.addEventListener('change', sync);
     }
-    setupPasswordToggle('toggleLoginPwd', 'loginPassword');
-    setupPasswordToggle('toggleSignUpPwd', 'signUpPassword');
+    setupPasswordToggle('showLoginPwd', 'loginPassword');
+    setupPasswordToggle('showSignUpPwd', 'signUpPassword');
 
     document.getElementById('showSignUp').onclick = (e) => {
       e.preventDefault();
@@ -1084,12 +1099,12 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         errEl.classList.add('show');
         return;
       }
-      if (!supabase) {
+      if (!supabaseClient) {
         errEl.textContent = 'Configurá Supabase en el código.';
         errEl.classList.add('show');
         return;
       }
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
       if (error) {
         errEl.textContent = error.message;
         errEl.classList.add('show');
@@ -1103,7 +1118,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     };
 
     document.getElementById('logoutBtn').onclick = async () => {
-      if (supabase) await supabase.auth.signOut();
+      if (supabaseClient) await supabaseClient.auth.signOut();
       currentUser = null;
       state.cart = [];
       _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
@@ -1121,8 +1136,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (!currentUser || currentUser.role === 'super') return;
       const kioscoName = document.getElementById('configKioscoName').value.trim();
       const whatsappMessage = document.getElementById('configWhatsappMsg').value.trim() || DEFAULT_WHATSAPP;
-      if (supabase) {
-        await supabase.from('profiles').update({ kiosco_name: kioscoName, whatsapp_message: whatsappMessage }).eq('id', currentUser.id);
+      if (supabaseClient) {
+        await supabaseClient.from('profiles').update({ kiosco_name: kioscoName, whatsapp_message: whatsappMessage }).eq('id', currentUser.id);
       }
       currentUser.kioscoName = kioscoName;
       currentUser.whatsappMessage = whatsappMessage;
@@ -1131,8 +1146,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     document.getElementById('saveConfig').onclick = () => saveConfig();
 
     async function renderSuper() {
-      if (!supabase) return;
-      const { data: list } = await supabase.from('profiles').select('id, email, role, active, kiosco_name').eq('role', 'kiosquero');
+      if (!supabaseClient) return;
+      const { data: list } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name').eq('role', 'kiosquero');
       const tbody = document.getElementById('superKiosquerosList');
       tbody.innerHTML = (list || []).map(u => `
         <tr class="border-b border-white/10">
@@ -1148,9 +1163,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         el.onclick = async () => {
           const id = el.dataset.id;
           const row = (list || []).find(u => u.id === id);
-          if (!row || !supabase) return;
+          if (!row || !supabaseClient) return;
           const newActive = !row.active;
-          await supabase.from('profiles').update({ active: newActive }).eq('id', id);
+          await supabaseClient.from('profiles').update({ active: newActive }).eq('id', id);
           row.active = newActive;
           renderSuper();
           lucide.createIcons();
@@ -1175,12 +1190,12 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
         return;
       }
-      if (!supabase) {
+      if (!supabaseClient) {
         msgEl.textContent = 'Supabase no está configurado.';
         msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
         return;
       }
-      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({ email, password });
+      const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({ email, password });
       if (signUpErr) {
         msgEl.textContent = signUpErr.message.includes('already registered') ? 'Ya existe un usuario con ese email.' : signUpErr.message;
         msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
@@ -1188,7 +1203,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       }
       const newId = signUpData.user?.id;
       if (newId) {
-        await supabase.from('profiles').update({ kiosco_name: kioscoName || '' }).eq('id', newId);
+        await supabaseClient.from('profiles').update({ kiosco_name: kioscoName || '' }).eq('id', newId);
       }
       document.getElementById('newUserEmail').value = '';
       document.getElementById('newUserPassword').value = '';
@@ -1200,11 +1215,11 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     };
 
     (async function init() {
-      if (!supabase) return;
-      const { data: { session } } = await supabase.auth.getSession();
+      if (!supabaseClient) return;
+      const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session?.user) return;
       const uid = session.user.id;
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', uid).single();
+      const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
       if (!profile) return;
       if (profile.role === 'kiosquero' && !profile.active) return;
       currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
