@@ -229,9 +229,9 @@
           <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
           <span class="truncate w-full text-center">Inicio</span>
         </button>
-        <button data-nav="inventory" class="bottom-nav-btn nav-item flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Inventario">
+        <button data-nav="inventory" class="bottom-nav-btn nav-item flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Productos">
           <i data-lucide="package" class="w-5 h-5 shrink-0"></i>
-          <span class="truncate w-full text-center">Inventario</span>
+          <span class="truncate w-full text-center">Productos</span>
         </button>
         <div class="flex-shrink-0 flex items-center justify-center px-1">
           <button data-nav="scanner" id="scannerCircleBtn" class="scanner-circle btn-glow pulse-glow flex items-center justify-center rounded-full w-14 h-14 sm:w-16 sm:h-16 touch-target" title="Escanear">
@@ -261,14 +261,16 @@
             Métricas del día
           </h2>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-            <div class="glass rounded-xl p-4 border border-white/10">
+            <button type="button" id="btnVentasCard" class="glass rounded-xl p-4 border border-white/10 text-left transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
               <p class="text-xs text-white/60 mb-1">Ventas</p>
               <p id="metricVentas" class="text-2xl font-bold text-[#a78bfa]">$0</p>
-            </div>
-            <div class="glass rounded-xl p-4 border border-white/10">
+              <p class="text-xs text-white/50 mt-1">Ver productos vendidos</p>
+            </button>
+            <button type="button" id="btnTransCard" class="glass rounded-xl p-4 border border-white/10 text-left transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
               <p class="text-xs text-white/60 mb-1">Transacciones</p>
               <p id="metricTrans" class="text-2xl font-bold">0</p>
-            </div>
+              <p class="text-xs text-white/50 mt-1">Ver detalle</p>
+            </button>
             <div class="glass rounded-xl p-4 border border-white/10">
               <p class="text-xs text-white/60 mb-1">Ticket medio</p>
               <p id="metricTicket" class="text-2xl font-bold">$0</p>
@@ -288,7 +290,7 @@
             <div>
               <div class="flex justify-between text-sm mb-1">
                 <span>Efectivo</span>
-                <span id="chartEfectivoPct">0%</span>
+                <span id="chartEfectivoPct" class="font-medium">$0</span>
               </div>
               <div class="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div id="chartEfectivo" class="bar-chart-bar h-full bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] rounded-full" style="width:0%"></div>
@@ -297,7 +299,7 @@
             <div>
               <div class="flex justify-between text-sm mb-1">
                 <span>Tarjeta</span>
-                <span id="chartTarjetaPct">0%</span>
+                <span id="chartTarjetaPct" class="font-medium">$0</span>
               </div>
               <div class="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div id="chartTarjeta" class="bar-chart-bar h-full bg-gradient-to-r from-[#6366f1] to-[#818cf8] rounded-full" style="width:0%"></div>
@@ -306,7 +308,7 @@
             <div>
               <div class="flex justify-between text-sm mb-1">
                 <span>Transferencia</span>
-                <span id="chartTransfPct">0%</span>
+                <span id="chartTransfPct" class="font-medium">$0</span>
               </div>
               <div class="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div id="chartTransf" class="bar-chart-bar h-full bg-gradient-to-r from-[#8b5cf6] to-[#c4b5fd] rounded-full" style="width:0%"></div>
@@ -315,7 +317,7 @@
             <div>
               <div class="flex justify-between text-sm mb-1">
                 <span>Fiado</span>
-                <span id="chartFiadoPct">0%</span>
+                <span id="chartFiadoPct" class="font-medium">$0</span>
               </div>
               <div class="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div id="chartFiado" class="bar-chart-bar h-full bg-gradient-to-r from-[#ec4899] to-[#f472b6] rounded-full" style="width:0%"></div>
@@ -324,7 +326,7 @@
             <div>
               <div class="flex justify-between text-sm mb-1">
                 <span>Transf. pendiente</span>
-                <span id="chartTransfPendPct">0%</span>
+                <span id="chartTransfPendPct" class="font-medium">$0</span>
               </div>
               <div class="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div id="chartTransfPend" class="bar-chart-bar h-full bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] rounded-full" style="width:0%"></div>
@@ -370,13 +372,14 @@
       </div>
     </section>
 
-    <!-- Inventario -->
+    <!-- Productos (antes Inventario) -->
     <section id="panel-inventory" class="panel hidden">
       <div class="glass rounded-2xl p-6 slide-up">
         <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
           <i data-lucide="package-search" class="w-5 h-5 text-[#a78bfa]"></i>
-          Gestor de inventario
+          Productos
         </h2>
+        <p class="text-xs text-white/50 mb-2">Máximo 200 productos. Buscá o agregá uno nuevo.</p>
         <div class="flex flex-col sm:flex-row gap-2 mb-4">
           <input type="text" id="searchInventory" placeholder="Buscar producto..." class="flex-1 glass rounded-xl px-4 py-3 sm:py-2.5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" autocomplete="off">
           <button id="addProduct" class="btn-glow rounded-xl px-4 py-3 sm:py-2.5 flex items-center justify-center gap-2 touch-target">
@@ -588,9 +591,10 @@
   <!-- Modal método de pago (tras tocar Cobrar) -->
   <div id="paymentModal" class="fixed inset-0 z-[65] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="paymentModalOverlay"></div>
-    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in">
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in max-h-[90vh] overflow-y-auto">
       <h3 class="font-bold text-lg mb-2 text-center">¿Cómo cobra?</h3>
-      <p class="text-sm text-white/60 text-center mb-6">Elegí el método de pago</p>
+      <p class="text-sm text-white/60 text-center mb-2">Elegí el método de pago</p>
+      <input type="text" id="paymentClientName" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
       <div class="grid grid-cols-2 gap-3">
         <button data-payment="efectivo" class="payment-option glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target transition-all">
           <i data-lucide="banknote" class="w-8 h-8 text-[#a78bfa]"></i>
@@ -631,6 +635,37 @@
         <button id="saveProduct" class="w-full btn-glow rounded-xl py-3 font-semibold">Guardar</button>
       </div>
     </div>
+  </div>
+
+  <!-- Modal Productos vendidos del día -->
+  <div id="ventasProductosModal" class="fixed inset-0 z-[64] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="ventasProductosOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md max-h-[85vh] flex flex-col scale-in">
+      <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+        <i data-lucide="package" class="w-5 h-5 text-[#a78bfa]"></i>
+        Productos vendidos hoy
+      </h3>
+      <div id="ventasProductosList" class="flex-1 overflow-y-auto space-y-2 text-sm"></div>
+      <button id="closeVentasProductos" class="mt-4 btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal Detalle de transacciones -->
+  <div id="transaccionesModal" class="fixed inset-0 z-[64] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="transaccionesOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md max-h-[85vh] flex flex-col scale-in">
+      <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+        <i data-lucide="receipt" class="w-5 h-5 text-[#a78bfa]"></i>
+        Transacciones del día
+      </h3>
+      <div id="transaccionesList" class="flex-1 overflow-y-auto space-y-4 text-sm"></div>
+      <button id="closeTransacciones" class="mt-4 btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Toast (escáner: producto no encontrado / agregado) -->
+  <div id="scanToast" class="fixed bottom-24 left-4 right-4 z-[80] hidden items-center justify-center pointer-events-none">
+    <span id="scanToastText" class="glass-strong rounded-xl px-4 py-3 text-sm font-medium shadow-lg"></span>
   </div>
 
   <!-- Ticket Digital (oculto para compartir) -->
@@ -727,9 +762,10 @@
       saveDataToSupabase(updates);
     }
 
-    // Estado en memoria (cart es por sesión; products/ventas vienen de getData)
+    // Estado en memoria (cart + lista de transacciones del día hasta cierre de caja)
     const state = {
-      cart: []
+      cart: [],
+      transaccionesList: []  // { id, method, client, items: [{ nombre, codigo, precio, cant }], total }
     };
 
     const defaultProducts = {
@@ -872,8 +908,16 @@
       document.getElementById('paymentModal').classList.add('hidden');
       document.getElementById('paymentModal').classList.remove('flex');
     }
-    function completeSaleWithMethod(method) {
+    function completeSaleWithMethod(method, clientName) {
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
+      const items = state.cart.map(i => ({ nombre: i.nombre, codigo: i.codigo, precio: i.precio, cant: i.cant }));
+      state.transaccionesList.push({
+        id: Date.now(),
+        method,
+        client: clientName || '—',
+        items: [...items],
+        total
+      });
       const d = getData();
       d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
       d.ventas[method] = (d.ventas[method] || 0) + total;
@@ -905,23 +949,24 @@
       document.getElementById('metricTicket').textContent = (d.transacciones && d.transacciones > 0) ? `$${Math.round(total / d.transacciones)}` : '$0';
       document.getElementById('metricProductos').textContent = productosVendidos;
 
-      const pctEf = total ? Math.round(((ventas.efectivo || 0) / total) * 100) : 0;
-      const pctTj = total ? Math.round(((ventas.tarjeta || 0) / total) * 100) : 0;
-      const pctTr = total ? Math.round(((ventas.transferencia || 0) / total) * 100) : 0;
+      const vEf = ventas.efectivo || 0, vTj = ventas.tarjeta || 0, vTr = ventas.transferencia || 0, vTp = transfPend || 0;
+      const pctEf = total ? Math.round((vEf / total) * 100) : 0;
+      const pctTj = total ? Math.round((vTj / total) * 100) : 0;
+      const pctTr = total ? Math.round((vTr / total) * 100) : 0;
       const pctFd = total ? Math.round((fiado / total) * 100) : 0;
       const pctTp = total ? Math.round((transfPend / total) * 100) : 0;
       document.getElementById('chartEfectivo').style.width = pctEf + '%';
-      document.getElementById('chartEfectivoPct').textContent = pctEf + '%';
+      document.getElementById('chartEfectivoPct').textContent = `$${vEf.toLocaleString('es-AR')}`;
       document.getElementById('chartTarjeta').style.width = pctTj + '%';
-      document.getElementById('chartTarjetaPct').textContent = pctTj + '%';
+      document.getElementById('chartTarjetaPct').textContent = `$${vTj.toLocaleString('es-AR')}`;
       document.getElementById('chartTransf').style.width = pctTr + '%';
-      document.getElementById('chartTransfPct').textContent = pctTr + '%';
+      document.getElementById('chartTransfPct').textContent = `$${vTr.toLocaleString('es-AR')}`;
       document.getElementById('chartFiado').style.width = pctFd + '%';
-      document.getElementById('chartFiadoPct').textContent = pctFd + '%';
+      document.getElementById('chartFiadoPct').textContent = `$${fiado.toLocaleString('es-AR')}`;
       const chartTpEl = document.getElementById('chartTransfPend');
       const chartTpPctEl = document.getElementById('chartTransfPendPct');
       if (chartTpEl) chartTpEl.style.width = pctTp + '%';
-      if (chartTpPctEl) chartTpPctEl.textContent = pctTp + '%';
+      if (chartTpPctEl) chartTpPctEl.textContent = `$${vTp.toLocaleString('es-AR')}`;
 
       document.getElementById('cajaEfectivo').textContent = `$${(ventas.efectivo || 0).toLocaleString('es-AR')}`;
       document.getElementById('cajaTarjeta').textContent = `$${(ventas.tarjeta || 0).toLocaleString('es-AR')}`;
@@ -970,27 +1015,135 @@
     document.getElementById('completeSale').onclick = completeSale;
     document.getElementById('closePaymentModal').onclick = closePaymentModal;
     document.getElementById('paymentModalOverlay').onclick = closePaymentModal;
+
+    function showScanToast(msg, isError) {
+      const el = document.getElementById('scanToast');
+      const text = document.getElementById('scanToastText');
+      text.textContent = msg;
+      text.className = 'glass-strong rounded-xl px-4 py-3 text-sm font-medium shadow-lg ' + (isError ? 'text-red-300' : 'text-green-300');
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+      lucide.createIcons();
+      setTimeout(() => { el.classList.add('hidden'); el.classList.remove('flex'); }, 2200);
+    }
+
+    function openVentasProductosModal() {
+      const list = state.transaccionesList || [];
+      const agg = {};
+      list.forEach(t => t.items.forEach(it => {
+        const k = it.codigo;
+        if (!agg[k]) agg[k] = { nombre: it.nombre, codigo: it.codigo, cant: 0 };
+        agg[k].cant += it.cant;
+      }));
+      const items = Object.values(agg).sort((a, b) => b.cant - a.cant);
+      const el = document.getElementById('ventasProductosList');
+      if (items.length === 0) {
+        el.innerHTML = '<p class="text-white/60 py-4 text-center">Aún no hay productos vendidos hoy.</p>';
+      } else {
+        el.innerHTML = items.map(p => `
+          <div class="glass rounded-xl p-3 flex justify-between items-center">
+            <span class="font-medium truncate flex-1">${p.nombre}</span>
+            <span class="text-[#a78bfa] font-semibold shrink-0 ml-2">${p.cant} un.</span>
+          </div>
+        `).join('');
+      }
+      document.getElementById('ventasProductosModal').classList.remove('hidden');
+      document.getElementById('ventasProductosModal').classList.add('flex');
+      lucide.createIcons();
+    }
+    function openTransaccionesModal() {
+      const list = state.transaccionesList || [];
+      const methodLabels = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', fiado: 'Fiado', transferencia_pendiente: 'Transf. pendiente' };
+      const el = document.getElementById('transaccionesList');
+      if (list.length === 0) {
+        el.innerHTML = '<p class="text-white/60 py-4 text-center">Aún no hay transacciones hoy.</p>';
+      } else {
+        el.innerHTML = list.slice().reverse().map(t => `
+          <div class="glass rounded-xl p-4 border border-white/10">
+            <div class="flex justify-between items-start mb-2">
+              <span class="px-2 py-0.5 rounded text-xs bg-[#7c3aed]/30">${methodLabels[t.method] || t.method}</span>
+              <span class="font-bold text-[#a78bfa]">$${t.total.toLocaleString('es-AR')}</span>
+            </div>
+            <p class="text-white/60 text-xs mb-2">Cliente: ${t.client || '—'}</p>
+            <ul class="space-y-1 text-xs">
+              ${t.items.map(i => `<li>${i.nombre} x ${i.cant} — $${(i.precio * i.cant).toLocaleString('es-AR')}</li>`).join('')}
+            </ul>
+          </div>
+        `).join('');
+      }
+      document.getElementById('transaccionesModal').classList.remove('hidden');
+      document.getElementById('transaccionesModal').classList.add('flex');
+      lucide.createIcons();
+    }
+    document.getElementById('btnVentasCard').onclick = openVentasProductosModal;
+    document.getElementById('btnTransCard').onclick = openTransaccionesModal;
+    document.getElementById('closeVentasProductos').onclick = () => {
+      document.getElementById('ventasProductosModal').classList.add('hidden');
+      document.getElementById('ventasProductosModal').classList.remove('flex');
+    };
+    document.getElementById('ventasProductosOverlay').onclick = () => document.getElementById('closeVentasProductos').click();
+    document.getElementById('closeTransacciones').onclick = () => {
+      document.getElementById('transaccionesModal').classList.add('hidden');
+      document.getElementById('transaccionesModal').classList.remove('flex');
+    };
+    document.getElementById('transaccionesOverlay').onclick = () => document.getElementById('closeTransacciones').click();
+
     document.querySelectorAll('[data-payment]').forEach(btn => {
-      btn.onclick = () => completeSaleWithMethod(btn.dataset.payment);
+      btn.onclick = () => {
+        const client = document.getElementById('paymentClientName')?.value?.trim() || '';
+        completeSaleWithMethod(btn.dataset.payment, client);
+        document.getElementById('paymentClientName').value = '';
+      };
     });
 
-    // Manual add
+    // Manual add (usa misma búsqueda que escáner para códigos con/sin ceros)
     const doManualAdd = () => {
       const code = document.getElementById('manualCode').value.trim();
-      if (code) addToCart(code);
+      if (!code) return;
+      const data = getData();
+      const found = findProductByCode(data.products, code);
+      if (found && found.product.stock > 0) {
+        addToCart(found.codigo);
+        playBeep();
+        showScanToast('Agregado: ' + found.product.nombre, false);
+      } else if (found && found.product.stock <= 0) {
+        showScanToast('Sin stock: ' + found.product.nombre, true);
+      } else {
+        showScanToast('Producto no encontrado', true);
+      }
       document.getElementById('manualCode').value = '';
     };
     document.getElementById('manualAdd').onclick = doManualAdd;
     document.getElementById('manualCode').addEventListener('keydown', e => { if (e.key === 'Enter') doManualAdd(); });
 
-    // Escáner con BarcodeDetector
+    // Escáner con BarcodeDetector — normaliza código para mejorar detección
     let scannerStream = null;
     let scanInterval = null;
     let lastScannedCode = '';
     let lastScanTime = 0;
+    const SCAN_COOLDOWN_MS = 2500;
     const video = document.getElementById('scannerVideo');
     const canvas = document.getElementById('scannerCanvas');
     const ctx = canvas.getContext('2d');
+
+    function normalizeBarcode(raw) {
+      return String(raw || '').trim().replace(/\s/g, '');
+    }
+    function findProductByCode(products, code) {
+      if (!products || !code) return null;
+      const n = normalizeBarcode(code);
+      if (products[n]) return { codigo: n, product: products[n] };
+      const stripZeros = s => String(s).replace(/^0+/, '') || s;
+      const nStripped = stripZeros(n);
+      for (const [k, p] of Object.entries(products)) {
+        if (k === n || stripZeros(k) === nStripped) return { codigo: k, product: p };
+      }
+      if (n.length >= 3) {
+        const match = Object.keys(products).find(k => k.endsWith(n) || n.endsWith(k) || k.includes(n) || n.includes(k));
+        if (match) return { codigo: match, product: products[match] };
+      }
+      return null;
+    }
 
     async function scanFrame() {
       if (!scannerStream || video.readyState !== 4) return;
@@ -1001,14 +1154,25 @@
       try {
         const codes = await new BarcodeDetector().detect(canvas);
         if (codes.length) {
-          const code = codes[0].rawValue;
+          const rawCode = codes[0].rawValue;
           const now = Date.now();
+          if (rawCode === lastScannedCode && now - lastScanTime < SCAN_COOLDOWN_MS) return;
           const data = getData();
-          if (data.products && data.products[code] && (code !== lastScannedCode || now - lastScanTime > 1500)) {
-            lastScannedCode = code;
+          const found = findProductByCode(data.products, rawCode);
+          if (found && found.product.stock > 0) {
+            lastScannedCode = rawCode;
             lastScanTime = now;
-            addToCart(code);
+            addToCart(found.codigo);
             playBeep();
+            showScanToast('Agregado: ' + found.product.nombre, false);
+          } else if (found && found.product.stock <= 0) {
+            lastScannedCode = rawCode;
+            lastScanTime = now;
+            showScanToast('Sin stock: ' + found.product.nombre, true);
+          } else {
+            lastScannedCode = rawCode;
+            lastScanTime = now;
+            showScanToast('Producto no encontrado (código: ' + normalizeBarcode(rawCode) + ')', true);
           }
         }
       } catch (_) {}
@@ -1020,7 +1184,7 @@
         video.srcObject = scannerStream;
         await video.play();
         if (typeof BarcodeDetector !== 'undefined') {
-          scanInterval = setInterval(scanFrame, 300);
+          scanInterval = setInterval(scanFrame, 400);
         }
       } catch (e) {
         alert('No se pudo acceder a la cámara');
@@ -1069,6 +1233,7 @@
         const d = getData();
         d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
         d.transacciones = 0;
+        state.transaccionesList = [];
         setData(d);
         updateDashboard();
       }
@@ -1086,6 +1251,11 @@
 
     // Modal producto
     document.getElementById('addProduct').onclick = () => {
+      const d = getData();
+      if (Object.keys(d.products || {}).length >= 200) {
+        alert('Llegaste al límite de 200 productos. Eliminá alguno para agregar uno nuevo.');
+        return;
+      }
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
     };
@@ -1098,9 +1268,14 @@
       const codigo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
       const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
       const stock = parseInt(document.getElementById('prodStock').value) || 0;
+      const d = getData();
+      d.products = d.products || {};
+      const isNew = !d.products[codigo];
+      if (isNew && Object.keys(d.products).length >= 200) {
+        alert('Límite de 200 productos alcanzado.');
+        return;
+      }
       if (nombre && precio) {
-        const d = getData();
-        d.products = d.products || {};
         d.products[codigo] = { nombre, codigo, precio, stock, stockInicial: stock };
         setData(d);
         renderInventory();
@@ -1314,6 +1489,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (supabaseClient) await supabaseClient.auth.signOut();
       currentUser = null;
       state.cart = [];
+      state.transaccionesList = [];
       _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [] };
       document.getElementById('appWrap').classList.add('hidden');
       document.getElementById('loginScreen').classList.remove('hidden');
