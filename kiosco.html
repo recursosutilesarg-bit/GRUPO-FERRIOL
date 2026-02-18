@@ -995,32 +995,54 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       const pass = document.getElementById('loginPassword').value;
       const errEl = document.getElementById('loginErr');
       errEl.classList.remove('show');
+      errEl.style.color = '#fca5a5';
       if (!supabase) {
         errEl.textContent = 'Configurá SUPABASE_URL y SUPABASE_ANON_KEY en el código.';
         errEl.classList.add('show');
         return;
       }
-      const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pass });
-      if (authErr) {
-        errEl.textContent = authErr.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : authErr.message;
+      try {
+        const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pass });
+        if (authErr) {
+          errEl.textContent = authErr.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : authErr.message;
+          errEl.classList.add('show');
+          return;
+        }
+        const uid = authData.user.id;
+        let { data: profile, error: profileErr } = await supabase.from('profiles').select('*').eq('id', uid).single();
+        if (profileErr && profileErr.code !== 'PGRST116') {
+          errEl.textContent = 'Error al leer perfil: ' + (profileErr.message || 'verificá RLS en la tabla profiles');
+          errEl.classList.add('show');
+          return;
+        }
+        if (!profile) {
+          const { error: insertErr } = await supabase.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
+          if (insertErr) {
+            errEl.textContent = 'Error al crear perfil: ' + (insertErr.message || 'creá la tabla profiles y sus políticas RLS');
+            errEl.classList.add('show');
+            return;
+          }
+          const r = await supabase.from('profiles').select('*').eq('id', uid).single();
+          profile = r.data;
+          if (!profile) {
+            errEl.textContent = 'No se pudo obtener el perfil. Revisá RLS en Supabase (profiles).';
+            errEl.classList.add('show');
+            return;
+          }
+        }
+        if (profile.role === 'kiosquero' && !profile.active) {
+          await supabase.auth.signOut();
+          errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
+          errEl.classList.add('show');
+          return;
+        }
+        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
+        await showApp();
+      } catch (err) {
+        console.error('Error en login:', err);
+        errEl.textContent = 'Error inesperado: ' + (err.message || String(err));
         errEl.classList.add('show');
-        return;
       }
-      const uid = authData.user.id;
-      let { data: profile } = await supabase.from('profiles').select('*').eq('id', uid).single();
-      if (!profile) {
-        await supabase.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
-        const r = await supabase.from('profiles').select('*').eq('id', uid).single();
-        profile = r.data;
-      }
-      if (profile.role === 'kiosquero' && !profile.active) {
-        await supabase.auth.signOut();
-        errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
-        errEl.classList.add('show');
-        return;
-      }
-      currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
-      await showApp();
     };
 
     document.getElementById('showSignUp').onclick = (e) => {
