@@ -96,6 +96,12 @@
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     .touch-target { min-height: 44px; min-width: 44px; }
     .inventory-scroll { -webkit-overflow-scrolling: touch; }
+    /* Barra inferior moderna */
+    .bottom-nav-bar { border-radius: 1.25rem 1.25rem 0 0; }
+    .bottom-nav-btn { color: rgba(255,255,255,0.7); }
+    .bottom-nav-btn:hover, .bottom-nav-btn.active { color: #fff; background: rgba(124,58,237,0.25); }
+    .scanner-circle { border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 0 0 4px rgba(124,58,237,0.3); }
+    .scanner-circle:active { transform: scale(0.95); }
     /* Login SaaS — glassmorphism */
     #loginScreen { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: linear-gradient(135deg, #0f0a1e 0%, #1e1b4b 50%, #312e81 100%); }
     #loginScreen.hidden { display: none; }
@@ -206,31 +212,7 @@
     </div>
   </header>
 
-  <!-- Navigation kiosquero -->
-  <nav id="navKiosquero" class="sticky top-[60px] z-40 glass border-b border-white/10 overflow-x-auto scrollbar-hide">
-    <div class="flex gap-1 p-2 min-w-max">
-      <button data-nav="dashboard" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
-        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
-      </button>
-      <button data-nav="scanner" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
-        <i data-lucide="scan" class="w-4 h-4"></i> Escáner
-      </button>
-      <button data-nav="inventory" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
-        <i data-lucide="package" class="w-4 h-4"></i> Inventario
-      </button>
-      <button data-nav="caja" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
-        <i data-lucide="receipt" class="w-4 h-4"></i> Cierre
-      </button>
-      <button data-nav="deudores" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
-        <i data-lucide="users" class="w-4 h-4"></i> Deudores VIP
-      </button>
-      <button data-nav="config" class="nav-item flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap touch-target">
-        <i data-lucide="settings" class="w-4 h-4"></i> Ajustes
-      </button>
-    </div>
-  </nav>
-
-  <!-- Navigation súper (solo panel Kiosqueros) -->
+  <!-- Navigation súper (solo panel Kiosqueros) — arriba solo para super -->
   <nav id="navSuper" class="sticky top-[60px] z-40 glass border-b border-white/10 hidden">
     <div class="flex gap-1 p-2">
       <button data-nav="super" class="nav-item active flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium touch-target">
@@ -239,7 +221,36 @@
     </div>
   </nav>
 
-  <main class="relative z-10 px-3 sm:px-4 py-4 sm:py-6 pb-20 sm:pb-24 max-w-7xl mx-auto" style="padding-bottom: max(5rem, env(safe-area-inset-bottom, 0) + 1.5rem)">
+  <!-- Barra inferior kiosquero: 4 botones + círculo escáner al centro -->
+  <nav id="navKiosquero" class="fixed bottom-0 left-0 right-0 z-40 kiosquero-only" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0)); padding-left: env(safe-area-inset-left, 0); padding-right: env(safe-area-inset-right, 0);">
+    <div class="bottom-nav-bar glass-strong border-t border-white/10 px-2 py-3 max-w-2xl mx-auto">
+      <div class="flex items-center justify-between gap-1">
+        <button data-nav="dashboard" class="bottom-nav-btn nav-item flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Inicio">
+          <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Inicio</span>
+        </button>
+        <button data-nav="inventory" class="bottom-nav-btn nav-item flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Inventario">
+          <i data-lucide="package" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Inventario</span>
+        </button>
+        <div class="flex-shrink-0 flex items-center justify-center px-1">
+          <button data-nav="scanner" id="scannerCircleBtn" class="scanner-circle btn-glow pulse-glow flex items-center justify-center rounded-full w-14 h-14 sm:w-16 sm:h-16 touch-target" title="Escanear">
+            <i data-lucide="scan" class="w-7 h-7 sm:w-8 sm:h-8 text-white"></i>
+          </button>
+        </div>
+        <button data-nav="caja" class="bottom-nav-btn nav-item flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Cierre de caja">
+          <i data-lucide="receipt" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Cierre</span>
+        </button>
+        <button data-nav="mas" class="bottom-nav-btn nav-item flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Deudores y Ajustes">
+          <i data-lucide="menu" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Más</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="relative z-10 px-3 sm:px-4 py-4 sm:py-6 max-w-7xl mx-auto" style="padding-bottom: max(6.5rem, env(safe-area-inset-bottom, 0) + 6rem)">
     
     <!-- Dashboard Holográfico -->
     <section id="panel-dashboard" class="panel">
@@ -308,6 +319,15 @@
               </div>
               <div class="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div id="chartFiado" class="bar-chart-bar h-full bg-gradient-to-r from-[#ec4899] to-[#f472b6] rounded-full" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Transf. pendiente</span>
+                <span id="chartTransfPendPct">0%</span>
+              </div>
+              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div id="chartTransfPend" class="bar-chart-bar h-full bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] rounded-full" style="width:0%"></div>
               </div>
             </div>
           </div>
@@ -393,6 +413,10 @@
             <span>Fiado</span>
             <span id="cajaFiado" class="font-bold">$0</span>
           </div>
+          <div class="flex justify-between py-3 border-b border-white/10">
+            <span>Transferir pendiente</span>
+            <span id="cajaTransfPend" class="font-bold">$0</span>
+          </div>
           <div class="flex justify-between py-4 text-lg">
             <span class="font-semibold">Total</span>
             <span id="cajaTotal" class="font-bold text-[#a78bfa] text-xl">$0</span>
@@ -439,6 +463,32 @@
         <button id="sendWhatsApp" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
           <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar cobro por WhatsApp
         </button>
+      </div>
+    </section>
+
+    <!-- Más (Deudores + Config) — pantalla de acceso rápido -->
+    <section id="panel-mas" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-6 flex items-center gap-2">
+          <i data-lucide="menu" class="w-5 h-5 text-[#a78bfa]"></i>
+          Más opciones
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button data-nav="deudores" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
+            <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
+              <i data-lucide="users" class="w-7 h-7 text-[#a78bfa]"></i>
+            </div>
+            <span class="font-semibold text-base">Deudores VIP</span>
+            <span class="text-xs text-white/60">Cobro por WhatsApp</span>
+          </button>
+          <button data-nav="config" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
+            <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
+              <i data-lucide="settings" class="w-7 h-7 text-[#a78bfa]"></i>
+            </div>
+            <span class="font-semibold text-base">Configuración</span>
+            <span class="text-xs text-white/60">Nombre y mensajes</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -526,19 +576,45 @@
             <span>Total</span>
             <span id="cartTotal" class="font-bold text-[#a78bfa]">$0</span>
           </div>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <select id="paymentMethod" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] bg-[#1e1b4b]/80 text-base touch-target">
-              <option value="efectivo">Efectivo</option>
-              <option value="tarjeta">Tarjeta</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="fiado">Fiado</option>
-            </select>
-            <button id="completeSale" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target">
-              <i data-lucide="credit-card" class="w-5 h-5"></i> Cobrar
-            </button>
-          </div>
+          <button id="completeSale" class="w-full btn-glow rounded-xl py-4 font-semibold flex items-center justify-center gap-2 touch-target text-base">
+            <i data-lucide="credit-card" class="w-5 h-5"></i> Cobrar
+          </button>
+          <p class="text-xs text-white/50 mt-2 text-center">Elegí el método de pago al tocar Cobrar</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal método de pago (tras tocar Cobrar) -->
+  <div id="paymentModal" class="fixed inset-0 z-[65] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="paymentModalOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in">
+      <h3 class="font-bold text-lg mb-2 text-center">¿Cómo cobra?</h3>
+      <p class="text-sm text-white/60 text-center mb-6">Elegí el método de pago</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button data-payment="efectivo" class="payment-option glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target transition-all">
+          <i data-lucide="banknote" class="w-8 h-8 text-[#a78bfa]"></i>
+          <span class="font-medium text-sm">Efectivo</span>
+        </button>
+        <button data-payment="tarjeta" class="payment-option glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target transition-all">
+          <i data-lucide="credit-card" class="w-8 h-8 text-[#a78bfa]"></i>
+          <span class="font-medium text-sm">Tarjeta</span>
+        </button>
+        <button data-payment="transferencia" class="payment-option glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target transition-all">
+          <i data-lucide="smartphone" class="w-8 h-8 text-[#a78bfa]"></i>
+          <span class="font-medium text-sm">Transferencia</span>
+        </button>
+        <button data-payment="fiado" class="payment-option glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target transition-all">
+          <i data-lucide="user-check" class="w-8 h-8 text-[#a78bfa]"></i>
+          <span class="font-medium text-sm">Fiado</span>
+        </button>
+        <button data-payment="transferencia_pendiente" class="payment-option col-span-2 glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#f59e0b]/50 active:scale-[0.98] touch-target transition-all">
+          <i data-lucide="clock" class="w-8 h-8 text-[#fbbf24]"></i>
+          <span class="font-medium text-sm">Transferir pendiente</span>
+          <span class="text-xs text-white/50">Cobra después por transferencia</span>
+        </button>
+      </div>
+      <button id="closePaymentModal" class="w-full mt-4 btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cancelar</button>
     </div>
   </div>
 
@@ -573,6 +649,7 @@
     lucide.createIcons();
 
     // ——— Supabase: pegá tu Project URL y anon key acá ———
+    // Si usás "Transferir pendiente", agregá en la tabla caja: ALTER TABLE caja ADD COLUMN IF NOT EXISTS transferencia_pendiente numeric DEFAULT 0;
     const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
     // URL de tu app en producción (para enlaces de recuperar contraseña)
@@ -584,7 +661,7 @@
     const DEFAULT_WHATSAPP = 'Hola {cliente}, te recordamos que tenés un saldo de ${monto} en nuestro kiosco. ¡Gracias!';
 
     let currentUser = null;
-    let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+    let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [] };
 
     async function loadDataFromSupabase() {
       if (!supabaseClient || !currentUser?.id) return;
@@ -600,7 +677,7 @@
       const caja = cajaRes.data;
       _dataCache = {
         products,
-        ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 },
+        ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado), transferencia_pendiente: Number(caja.transferencia_pendiente || 0) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
         transacciones: caja ? (caja.transacciones || 0) : 0,
         deudores: []
       };
@@ -630,15 +707,16 @@
           tarjeta: v.tarjeta || 0,
           transferencia: v.transferencia || 0,
           fiado: v.fiado || 0,
+          transferencia_pendiente: (v.transferencia_pendiente || 0),
           transacciones: t
         }, { onConflict: 'user_id' });
       }
     }
 
     function getData() {
-      if (!currentUser?.id) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+      if (!currentUser?.id) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [] };
       const d = _dataCache;
-      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
+      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
       d.deudores = d.deudores || [];
       return d;
     }
@@ -784,12 +862,20 @@
       });
     }
 
-    function completeSale() {
+    function openPaymentModal() {
       if (state.cart.length === 0) return;
-      const method = document.getElementById('paymentMethod').value;
+      document.getElementById('paymentModal').classList.remove('hidden');
+      document.getElementById('paymentModal').classList.add('flex');
+      lucide.createIcons();
+    }
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.add('hidden');
+      document.getElementById('paymentModal').classList.remove('flex');
+    }
+    function completeSaleWithMethod(method) {
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
       const d = getData();
-      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
+      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
       d.ventas[method] = (d.ventas[method] || 0) + total;
       d.transacciones = (d.transacciones || 0) + 1;
       state.cart.forEach(item => {
@@ -799,14 +885,20 @@
       setData(d);
       updateCartUI();
       updateDashboard();
+      closePaymentModal();
       closeCart();
+    }
+    function completeSale() {
+      if (state.cart.length === 0) return;
+      openPaymentModal();
     }
 
     function updateDashboard() {
       const d = getData();
       const ventas = d.ventas || {};
       const fiado = ventas.fiado || 0;
-      const total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado;
+      const transfPend = ventas.transferencia_pendiente || 0;
+      const total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado + transfPend;
       const productosVendidos = Object.values(d.products || {}).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
       document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
       document.getElementById('metricTrans').textContent = d.transacciones || 0;
@@ -817,6 +909,7 @@
       const pctTj = total ? Math.round(((ventas.tarjeta || 0) / total) * 100) : 0;
       const pctTr = total ? Math.round(((ventas.transferencia || 0) / total) * 100) : 0;
       const pctFd = total ? Math.round((fiado / total) * 100) : 0;
+      const pctTp = total ? Math.round((transfPend / total) * 100) : 0;
       document.getElementById('chartEfectivo').style.width = pctEf + '%';
       document.getElementById('chartEfectivoPct').textContent = pctEf + '%';
       document.getElementById('chartTarjeta').style.width = pctTj + '%';
@@ -825,11 +918,17 @@
       document.getElementById('chartTransfPct').textContent = pctTr + '%';
       document.getElementById('chartFiado').style.width = pctFd + '%';
       document.getElementById('chartFiadoPct').textContent = pctFd + '%';
+      const chartTpEl = document.getElementById('chartTransfPend');
+      const chartTpPctEl = document.getElementById('chartTransfPendPct');
+      if (chartTpEl) chartTpEl.style.width = pctTp + '%';
+      if (chartTpPctEl) chartTpPctEl.textContent = pctTp + '%';
 
       document.getElementById('cajaEfectivo').textContent = `$${(ventas.efectivo || 0).toLocaleString('es-AR')}`;
       document.getElementById('cajaTarjeta').textContent = `$${(ventas.tarjeta || 0).toLocaleString('es-AR')}`;
       document.getElementById('cajaTransf').textContent = `$${(ventas.transferencia || 0).toLocaleString('es-AR')}`;
       document.getElementById('cajaFiado').textContent = `$${fiado.toLocaleString('es-AR')}`;
+      const cajaTransfPendEl = document.getElementById('cajaTransfPend');
+      if (cajaTransfPendEl) cajaTransfPendEl.textContent = `$${transfPend.toLocaleString('es-AR')}`;
       document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
     }
 
@@ -847,16 +946,18 @@
       }, 300);
     }
 
-    // Navegación (incluye config y super)
+    // Navegación (barra inferior + panel Más)
     function goToPanel(name) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const btn = document.querySelector('[data-nav="' + name + '"]');
+      const navKey = (name === 'deudores' || name === 'config') ? 'mas' : name;
+      const btn = document.querySelector('[data-nav="' + navKey + '"]');
       if (btn) btn.classList.add('active');
       document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
       const panel = document.getElementById('panel-' + name);
       if (panel) panel.classList.remove('hidden');
       if (name === 'config') fillConfigForm();
       if (name === 'super') renderSuper();
+      lucide.createIcons();
     }
     document.querySelectorAll('[data-nav]').forEach(btn => {
       btn.onclick = () => goToPanel(btn.dataset.nav);
@@ -867,6 +968,11 @@
     document.getElementById('closeCart').onclick = closeCart;
     document.getElementById('cartOverlay').onclick = closeCart;
     document.getElementById('completeSale').onclick = completeSale;
+    document.getElementById('closePaymentModal').onclick = closePaymentModal;
+    document.getElementById('paymentModalOverlay').onclick = closePaymentModal;
+    document.querySelectorAll('[data-payment]').forEach(btn => {
+      btn.onclick = () => completeSaleWithMethod(btn.dataset.payment);
+    });
 
     // Manual add
     const doManualAdd = () => {
@@ -930,7 +1036,8 @@
       const d = getData();
       const v = d.ventas || {};
       const fiado = v.fiado || 0;
-      const total = (v.efectivo || 0) + (v.tarjeta || 0) + (v.transferencia || 0) + fiado;
+      const transfPend = v.transferencia_pendiente || 0;
+      const total = (v.efectivo || 0) + (v.tarjeta || 0) + (v.transferencia || 0) + fiado + transfPend;
       const t = document.getElementById('ticketContent');
       t.classList.remove('hidden');
       document.getElementById('ticketFecha').textContent = new Date().toLocaleString('es-AR');
@@ -939,10 +1046,11 @@
         <p>Tarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}</p>
         <p>Transferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}</p>
         <p>Fiado: $${fiado.toLocaleString('es-AR')}</p>
+        <p>Transf. pendiente: $${transfPend.toLocaleString('es-AR')}</p>
         <p>Transacciones: ${d.transacciones || 0}</p>
       `;
       document.getElementById('ticketTotal').textContent = `TOTAL: $${total.toLocaleString('es-AR')}`;
-      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransacciones: ${d.transacciones || 0}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
+      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransf. pendiente: $${transfPend.toLocaleString('es-AR')}\nTransacciones: ${d.transacciones || 0}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
       if (navigator.share) {
         try {
           await navigator.share({
@@ -959,7 +1067,7 @@
     document.getElementById('cerrarCaja').onclick = () => {
       if (confirm('¿Reiniciar caja? Se mantendrá el inventario.')) {
         const d = getData();
-        d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 };
+        d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
         d.transacciones = 0;
         setData(d);
         updateDashboard();
@@ -1206,7 +1314,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (supabaseClient) await supabaseClient.auth.signOut();
       currentUser = null;
       state.cart = [];
-      _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0 }, transacciones: 0, deudores: [] };
+      _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [] };
       document.getElementById('appWrap').classList.add('hidden');
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('loginPassword').value = '';
