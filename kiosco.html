@@ -495,7 +495,58 @@
             <span class="font-semibold text-base">Configuración</span>
             <span class="text-xs text-white/60">Nombre y mensajes</span>
           </button>
+          <button data-nav="historial" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
+            <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
+              <i data-lucide="history" class="w-7 h-7 text-[#a78bfa]"></i>
+            </div>
+            <span class="font-semibold text-base">Historial de ventas</span>
+            <span class="text-xs text-white/60">Últimos 2 meses</span>
+          </button>
+          <button data-nav="clientes" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
+            <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
+              <i data-lucide="address-book" class="w-7 h-7 text-[#a78bfa]"></i>
+            </div>
+            <span class="font-semibold text-base">Clientes</span>
+            <span class="text-xs text-white/60">Lista con teléfono y datos</span>
+          </button>
         </div>
+      </div>
+    </section>
+
+    <!-- Historial de ventas (últimos 2 meses) -->
+    <section id="panel-historial" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="history" class="w-5 h-5 text-[#a78bfa]"></i>
+          Historial de ventas
+        </h2>
+        <p class="text-xs text-white/50 mb-4">Últimos 2 meses. Cada venta muestra fecha, hora, cliente y productos.</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-filter="hoy">Hoy</button>
+          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="ayer">Ayer</button>
+          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana">Esta semana</button>
+          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana_pasada">Semana pasada</button>
+          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="mes">Último mes</button>
+          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="2meses">Últimos 2 meses</button>
+        </div>
+        <div id="historialList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+      </div>
+    </section>
+
+    <!-- Clientes -->
+    <section id="panel-clientes" class="panel hidden">
+      <div class="glass rounded-2xl p-6 slide-up">
+        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
+          <i data-lucide="address-book" class="w-5 h-5 text-[#a78bfa]"></i>
+          Lista de clientes
+        </h2>
+        <div class="flex flex-col sm:flex-row gap-2 mb-4">
+          <input type="text" id="clientesSearch" placeholder="Buscar por nombre o teléfono..." class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" autocomplete="off">
+          <button type="button" id="btnAddCliente" class="btn-glow rounded-xl px-4 py-3 flex items-center justify-center gap-2 touch-target">
+            <i data-lucide="user-plus" class="w-4 h-4"></i> Agregar cliente
+          </button>
+        </div>
+        <div id="clientesList" class="space-y-2 max-h-[55vh] overflow-y-auto"></div>
       </div>
     </section>
 
@@ -528,14 +579,17 @@
             <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
             Kiosqueros — Membresías
           </h2>
+          <p class="text-xs text-white/50 mb-3">Se listan todos los usuarios (kiosqueros y sin rol). Las contraseñas no se pueden ver por seguridad; podés enviar un enlace para restablecerlas.</p>
           <div class="overflow-x-auto">
             <table class="w-full text-left">
               <thead>
                 <tr class="border-b border-white/10">
                   <th class="py-3 pr-4 text-xs text-white/60 uppercase">Kiosco</th>
                   <th class="py-3 pr-4 text-xs text-white/60 uppercase">Usuario (email)</th>
+                  <th class="py-3 pr-4 text-xs text-white/60 uppercase">Rol</th>
                   <th class="py-3 pr-4 text-xs text-white/60 uppercase">Estado</th>
                   <th class="py-3 text-xs text-white/60 uppercase">Membresía</th>
+                  <th class="py-3 text-xs text-white/60 uppercase">Acciones</th>
                 </tr>
               </thead>
               <tbody id="superKiosquerosList"></tbody>
@@ -633,6 +687,23 @@
     </div>
   </div>
 
+  <!-- Modal agregar/editar cliente -->
+  <div id="clienteModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" id="clienteModalOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md scale-in max-h-[90vh] overflow-y-auto">
+      <h3 class="font-bold text-lg mb-4" id="clienteModalTitle">Nuevo cliente</h3>
+      <input type="hidden" id="clienteId" value="">
+      <div class="space-y-3">
+        <input type="text" id="clienteNombre" placeholder="Nombre completo" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="tel" id="clienteTelefono" placeholder="Teléfono (con código de país)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="email" id="clienteEmail" placeholder="Email (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <input type="text" id="clienteDireccion" placeholder="Dirección (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <textarea id="clienteNotas" placeholder="Notas (opcional)" rows="2" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] resize-none"></textarea>
+        <button type="button" id="saveCliente" class="w-full btn-glow rounded-xl py-3 font-semibold">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal agregar/editar producto -->
   <div id="productModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" id="modalOverlay"></div>
@@ -700,7 +771,12 @@
     lucide.createIcons();
 
     // ——— Supabase: pegá tu Project URL y anon key acá ———
-    // Si usás "Transferir pendiente", agregá en la tabla caja: ALTER TABLE caja ADD COLUMN IF NOT EXISTS transferencia_pendiente numeric DEFAULT 0;
+    // Si usás "Transferir pendiente", agregá en caja: ALTER TABLE caja ADD COLUMN IF NOT EXISTS transferencia_pendiente numeric DEFAULT 0;
+    // Para historial de ventas y clientes, creá en Supabase (SQL Editor) estas tablas:
+    // CREATE TABLE ventas ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, fecha_hora timestamptz NOT NULL DEFAULT now(), total numeric NOT NULL DEFAULT 0, metodo_pago text, cliente_nombre text, items jsonb DEFAULT '[]'::jsonb, created_at timestamptz DEFAULT now() );
+    // ALTER TABLE ventas ENABLE ROW LEVEL SECURITY; CREATE POLICY "ventas_policy" ON ventas FOR ALL USING (auth.uid() = user_id);
+    // CREATE TABLE clientes ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, nombre text, telefono text, email text, direccion text, notas text, created_at timestamptz DEFAULT now() );
+    // ALTER TABLE clientes ENABLE ROW LEVEL SECURITY; CREATE POLICY "clientes_policy" ON clientes FOR ALL USING (auth.uid() = user_id);
     const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
     // URL de tu app en producción (para enlaces de recuperar contraseña)
@@ -962,13 +1038,25 @@
     function completeSaleWithMethod(method, clientName) {
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
       const items = state.cart.map(i => ({ nombre: i.nombre, codigo: i.codigo, precio: i.precio, cant: i.cant }));
+      const fechaHora = new Date().toISOString();
       state.transaccionesList.push({
         id: Date.now(),
         method,
         client: clientName || '—',
         items: [...items],
-        total
+        total,
+        fechaHora
       });
+      if (supabaseClient && currentUser?.id) {
+        supabaseClient.from('ventas').insert({
+          user_id: currentUser.id,
+          fecha_hora: fechaHora,
+          total,
+          metodo_pago: method,
+          cliente_nombre: (clientName || '').trim() || null,
+          items
+        }).then(({ error }) => { if (error) console.warn('No se guardó venta en historial:', error.message); });
+      }
       const d = getData();
       d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
       d.ventas[method] = (d.ventas[method] || 0) + total;
@@ -1045,7 +1133,7 @@
     // Navegación (barra inferior + panel Más)
     function goToPanel(name) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const navKey = (name === 'deudores' || name === 'config') ? 'mas' : name;
+      const navKey = (name === 'deudores' || name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
       const btn = document.querySelector('[data-nav="' + navKey + '"]');
       if (btn) btn.classList.add('active');
       document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
@@ -1053,6 +1141,8 @@
       if (panel) panel.classList.remove('hidden');
       if (name === 'config') fillConfigForm();
       if (name === 'super') renderSuper();
+      if (name === 'historial') renderHistorial('2meses');
+      if (name === 'clientes') loadClientes().then(renderClientes);
       lucide.createIcons();
     }
     document.querySelectorAll('[data-nav]').forEach(btn => {
@@ -1119,12 +1209,14 @@
       if (list.length === 0) {
         el.innerHTML = '<p class="text-white/60 py-4 text-center">Aún no hay transacciones hoy.</p>';
       } else {
+        const fmt = (s) => s ? new Date(s).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
         el.innerHTML = list.slice().reverse().map(t => `
           <div class="glass rounded-xl p-4 border border-white/10">
             <div class="flex justify-between items-start mb-2">
               <span class="px-2 py-0.5 rounded text-xs bg-[#7c3aed]/30">${methodLabels[t.method] || t.method}</span>
               <span class="font-bold text-[#a78bfa]">$${t.total.toLocaleString('es-AR')}</span>
             </div>
+            <p class="text-white/40 text-[10px] mb-1">${fmt(t.fechaHora)}</p>
             <p class="text-white/60 text-xs mb-2">Cliente: ${t.client || '—'}</p>
             <ul class="space-y-1 text-xs">
               ${t.items.map(i => `<li>${i.nombre} x ${i.cant} — $${(i.precio * i.cant).toLocaleString('es-AR')}</li>`).join('')}
@@ -1148,6 +1240,185 @@
       document.getElementById('transaccionesModal').classList.remove('flex');
     };
     document.getElementById('transaccionesOverlay').onclick = () => document.getElementById('closeTransacciones').click();
+
+    const methodLabels = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', fiado: 'Fiado', transferencia_pendiente: 'Transf. pend.' };
+    function getHistorialRange(filter) {
+      const now = new Date();
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      if (filter === 'hoy') return { start: start.toISOString(), end: end.toISOString() };
+      if (filter === 'ayer') {
+        start.setDate(start.getDate() - 1);
+        end.setDate(end.getDate() - 1);
+        end.setHours(23, 59, 59, 999);
+        return { start: start.toISOString(), end: end.toISOString() };
+      }
+      if (filter === 'semana') {
+        const day = start.getDay();
+        const diff = day === 0 ? 6 : day - 1;
+        start.setDate(start.getDate() - diff);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: end.toISOString() };
+      }
+      if (filter === 'semana_pasada') {
+        const day = start.getDay();
+        const diff = day === 0 ? 6 : day - 1;
+        start.setDate(start.getDate() - diff - 7);
+        start.setHours(0, 0, 0, 0);
+        end.setDate(end.getDate() - diff - 1);
+        end.setHours(23, 59, 59, 999);
+        return { start: start.toISOString(), end: end.toISOString() };
+      }
+      if (filter === 'mes') {
+        start.setMonth(start.getMonth() - 1);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: end.toISOString() };
+      }
+      start.setMonth(start.getMonth() - 2);
+      start.setHours(0, 0, 0, 0);
+      return { start: start.toISOString(), end: end.toISOString() };
+    }
+    async function renderHistorial(filter) {
+      const listEl = document.getElementById('historialList');
+      if (!listEl) return;
+      document.querySelectorAll('.historial-filter').forEach(btn => {
+        btn.className = 'historial-filter px-3 py-1.5 rounded-xl text-sm ' + (btn.dataset.filter === filter ? 'bg-[#7c3aed]/30 border border-[#7c3aed]/50' : 'glass border border-white/10');
+      });
+      const range = getHistorialRange(filter);
+      if (!supabaseClient || !currentUser?.id) {
+        listEl.innerHTML = '<p class="text-white/60 py-4">Configurá Supabase para ver el historial.</p>';
+        lucide.createIcons();
+        return;
+      }
+      const { data: rows, error } = await supabaseClient.from('ventas').select('id, fecha_hora, total, metodo_pago, cliente_nombre, items').eq('user_id', currentUser.id).gte('fecha_hora', range.start).lte('fecha_hora', range.end).order('fecha_hora', { ascending: false });
+      if (error) {
+        listEl.innerHTML = '<p class="text-white/60 py-4">No existe la tabla ventas. Creala en Supabase (ver comentarios en el código).</p>';
+        lucide.createIcons();
+        return;
+      }
+      const list = rows || [];
+      if (list.length === 0) {
+        listEl.innerHTML = '<p class="text-white/60 py-4 text-center">No hay ventas en este período.</p>';
+        lucide.createIcons();
+        return;
+      }
+      const fmt = (s) => s ? new Date(s).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+      listEl.innerHTML = list.map(v => {
+        const items = (v.items || []);
+        return `
+          <div class="glass rounded-xl p-3 border border-white/10">
+            <div class="flex justify-between items-start gap-2">
+              <div class="min-w-0">
+                <p class="text-[10px] text-white/40">${fmt(v.fecha_hora)}</p>
+                <p class="text-sm font-medium truncate">${(v.cliente_nombre || '—').replace(/</g, '&lt;')}</p>
+                <p class="text-xs text-white/60">${methodLabels[v.metodo_pago] || v.metodo_pago}</p>
+              </div>
+              <span class="font-bold text-[#a78bfa] shrink-0">$${Number(v.total).toLocaleString('es-AR')}</span>
+            </div>
+            <ul class="mt-2 pt-2 border-t border-white/10 space-y-0.5 text-xs text-white/70">
+              ${items.map(i => `<li>${(i.nombre || '').replace(/</g, '&lt;')} x ${i.cant} — $${((i.precio || 0) * (i.cant || 0)).toLocaleString('es-AR')}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+    document.querySelectorAll('.historial-filter').forEach(btn => {
+      btn.onclick = () => renderHistorial(btn.dataset.filter);
+    });
+
+    let clientesCache = [];
+    async function loadClientes() {
+      if (!supabaseClient || !currentUser?.id) return [];
+      const { data } = await supabaseClient.from('clientes').select('*').eq('user_id', currentUser.id).order('nombre');
+      clientesCache = data || [];
+      return clientesCache;
+    }
+    function renderClientes() {
+      const listEl = document.getElementById('clientesList');
+      const searchEl = document.getElementById('clientesSearch');
+      if (!listEl) return;
+      const q = (searchEl?.value || '').toLowerCase().trim();
+      const list = q ? clientesCache.filter(c => (c.nombre || '').toLowerCase().includes(q) || (c.telefono || '').includes(q) || (c.email || '').toLowerCase().includes(q)) : clientesCache;
+      if (clientesCache.length === 0) {
+        listEl.innerHTML = '<p class="text-white/60 py-4 text-center">No hay clientes. Agregá uno con el botón.</p>';
+      } else if (list.length === 0) {
+        listEl.innerHTML = '<p class="text-white/60 py-4 text-center">Ningún cliente coincide con la búsqueda.</p>';
+      } else {
+        listEl.innerHTML = list.map(c => `
+          <div class="glass rounded-xl p-3 border border-white/10 flex flex-col sm:flex-row sm:items-center gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="font-medium">${(c.nombre || '—').replace(/</g, '&lt;')}</p>
+              <p class="text-xs text-white/60">${(c.telefono || '—').replace(/</g, '&lt;')}</p>
+              ${c.email ? `<p class="text-xs text-white/50">${(c.email || '').replace(/</g, '&lt;')}</p>` : ''}
+              ${c.direccion ? `<p class="text-xs text-white/50 truncate">${(c.direccion || '').replace(/</g, '&lt;')}</p>` : ''}
+            </div>
+            <div class="flex gap-1 shrink-0">
+              <button type="button" class="edit-cliente-btn px-2 py-1 rounded-lg text-xs bg-white/10 border border-white/20" data-id="${c.id}">Editar</button>
+              <button type="button" class="delete-cliente-btn px-2 py-1 rounded-lg text-xs bg-red-500/20 text-red-300 border border-red-500/40" data-id="${c.id}">Eliminar</button>
+            </div>
+          </div>
+        `).join('');
+        listEl.querySelectorAll('.edit-cliente-btn').forEach(b => { b.onclick = () => openClienteModal(b.dataset.id); });
+        listEl.querySelectorAll('.delete-cliente-btn').forEach(b => { b.onclick = () => deleteCliente(b.dataset.id); });
+      }
+      lucide.createIcons();
+    }
+    function openClienteModal(id) {
+      document.getElementById('clienteModalTitle').textContent = id ? 'Editar cliente' : 'Nuevo cliente';
+      document.getElementById('clienteId').value = id || '';
+      if (id) {
+        const c = clientesCache.find(x => x.id === id);
+        if (c) {
+          document.getElementById('clienteNombre').value = c.nombre || '';
+          document.getElementById('clienteTelefono').value = c.telefono || '';
+          document.getElementById('clienteEmail').value = c.email || '';
+          document.getElementById('clienteDireccion').value = c.direccion || '';
+          document.getElementById('clienteNotas').value = c.notas || '';
+        }
+      } else {
+        document.getElementById('clienteNombre').value = '';
+        document.getElementById('clienteTelefono').value = '';
+        document.getElementById('clienteEmail').value = '';
+        document.getElementById('clienteDireccion').value = '';
+        document.getElementById('clienteNotas').value = '';
+      }
+      document.getElementById('clienteModal').classList.remove('hidden');
+      document.getElementById('clienteModal').classList.add('flex');
+    }
+    async function saveCliente() {
+      const id = document.getElementById('clienteId').value.trim();
+      const nombre = document.getElementById('clienteNombre').value.trim();
+      const telefono = document.getElementById('clienteTelefono').value.trim();
+      const email = document.getElementById('clienteEmail').value.trim();
+      const direccion = document.getElementById('clienteDireccion').value.trim();
+      const notas = document.getElementById('clienteNotas').value.trim();
+      if (!nombre && !telefono) { alert('Nombre o teléfono es obligatorio.'); return; }
+      if (!supabaseClient || !currentUser?.id) return;
+      const row = { user_id: currentUser.id, nombre: nombre || null, telefono: telefono || null, email: email || null, direccion: direccion || null, notas: notas || null };
+      if (id) {
+        await supabaseClient.from('clientes').update(row).eq('id', id).eq('user_id', currentUser.id);
+      } else {
+        await supabaseClient.from('clientes').insert(row);
+      }
+      await loadClientes();
+      renderClientes();
+      document.getElementById('clienteModal').classList.add('hidden');
+      document.getElementById('clienteModal').classList.remove('flex');
+    }
+    async function deleteCliente(id) {
+      if (!confirm('¿Eliminar este cliente?')) return;
+      if (!supabaseClient || !currentUser?.id) return;
+      await supabaseClient.from('clientes').delete().eq('id', id).eq('user_id', currentUser.id);
+      await loadClientes();
+      renderClientes();
+    }
+    document.getElementById('btnAddCliente').onclick = () => openClienteModal();
+    document.getElementById('saveCliente').onclick = saveCliente;
+    document.getElementById('clienteModalOverlay').onclick = () => { document.getElementById('clienteModal').classList.add('hidden'); document.getElementById('clienteModal').classList.remove('flex'); };
+    document.getElementById('clientesSearch').addEventListener('input', () => renderClientes());
 
     document.querySelectorAll('[data-payment]').forEach(btn => {
       btn.onclick = () => {
@@ -1614,28 +1885,59 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
     async function renderSuper() {
       if (!supabaseClient) return;
-      const { data: list } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name').eq('role', 'kiosquero');
+      const { data: allProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name');
+      const list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
       const tbody = document.getElementById('superKiosquerosList');
-      tbody.innerHTML = (list || []).map(u => `
+      tbody.innerHTML = list.map(u => {
+        const roleLabel = (u.role || 'sin rol').replace(/</g, '&lt;');
+        return `
         <tr class="border-b border-white/10">
           <td class="py-3 pr-4">${(u.kiosco_name || '—').replace(/</g, '&lt;')}</td>
           <td class="py-3 pr-4">${(u.email || '').replace(/</g, '&lt;')}</td>
+          <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs bg-white/10">${roleLabel}</span></td>
           <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs ${u.active ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${u.active ? 'Activo' : 'Inactivo'}</span></td>
+          <td class="py-3 pr-2">
+            <button type="button" class="toggle-switch ${u.active ? 'active' : ''}" data-id="${u.id}" title="${u.active ? 'Desactivar' : 'Activar'}"></button>
+          </td>
           <td class="py-3">
-            <button type="button" class="toggle-switch ${u.active ? 'active' : ''}" data-id="${u.id}" title="${u.active ? 'Desactivar membresía' : 'Activar membresía'}"></button>
+            <div class="flex flex-wrap gap-1">
+              <button type="button" class="super-btn-reset px-2 py-1 rounded-lg text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30" data-email="${(u.email || '').replace(/"/g, '&quot;')}" title="Enviar enlace para que el usuario restablezca su contraseña">Restablecer contraseña</button>
+              <button type="button" class="super-btn-email px-2 py-1 rounded-lg text-xs bg-[#7c3aed]/30 text-[#a78bfa] border border-[#7c3aed]/50 hover:bg-[#7c3aed]/40" data-id="${u.id}" data-email="${(u.email || '').replace(/"/g, '&quot;')}" title="Cambiar email (instrucciones)">Cambiar email</button>
+            </div>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
       tbody.querySelectorAll('.toggle-switch').forEach(el => {
         el.onclick = async () => {
           const id = el.dataset.id;
-          const row = (list || []).find(u => u.id === id);
+          const row = list.find(u => u.id === id);
           if (!row || !supabaseClient) return;
           const newActive = !row.active;
           await supabaseClient.from('profiles').update({ active: newActive }).eq('id', id);
           row.active = newActive;
           renderSuper();
           lucide.createIcons();
+        };
+      });
+      tbody.querySelectorAll('.super-btn-reset').forEach(btn => {
+        btn.onclick = async () => {
+          const email = btn.dataset.email;
+          if (!email) return;
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: (typeof APP_URL !== 'undefined' && APP_URL) ? APP_URL : window.location.href });
+          if (error) alert('Error: ' + error.message);
+          else alert('Se envió un correo a ' + email + ' para restablecer la contraseña.');
+        };
+      });
+      tbody.querySelectorAll('.super-btn-email').forEach(btn => {
+        btn.onclick = () => {
+          const email = (btn.dataset.email || '').replace(/&quot;/g, '"');
+          const m = (SUPABASE_URL || '').match(/https:\/\/([^.]+)\.supabase\.co/);
+          const projectRef = m ? m[1] : null;
+          const supabaseAuthUrl = projectRef ? 'https://supabase.com/dashboard/project/' + projectRef + '/auth/users' : null;
+          const msg = 'Para cambiar el email de este usuario entrá a Supabase:\n\n1. Dashboard → Authentication → Users\n2. Buscá a: ' + email + '\n3. Clic en el usuario → Edit → cambiá el email.\n\n¿Abrir dashboard de Supabase?';
+          if (supabaseAuthUrl && confirm(msg)) window.open(supabaseAuthUrl, '_blank');
+          else alert(msg);
         };
       });
       lucide.createIcons();
