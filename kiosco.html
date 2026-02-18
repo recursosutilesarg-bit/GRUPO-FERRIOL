@@ -771,6 +771,7 @@
     lucide.createIcons();
 
     // ——— Supabase: pegá tu Project URL y anon key acá ———
+    // Si el panel Super no muestra usuarios: ejecutá supabase_rls_super_profiles.sql en SQL Editor.
     // Si usás "Transferir pendiente", agregá en caja: ALTER TABLE caja ADD COLUMN IF NOT EXISTS transferencia_pendiente numeric DEFAULT 0;
     // Para historial de ventas y clientes, creá en Supabase (SQL Editor) estas tablas:
     // CREATE TABLE ventas ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, fecha_hora timestamptz NOT NULL DEFAULT now(), total numeric NOT NULL DEFAULT 0, metodo_pago text, cliente_nombre text, items jsonb DEFAULT '[]'::jsonb, created_at timestamptz DEFAULT now() );
@@ -1885,9 +1886,19 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
     async function renderSuper() {
       if (!supabaseClient) return;
-      const { data: allProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name');
+      const { data: allProfiles, error: errProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name');
       const list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
       const tbody = document.getElementById('superKiosquerosList');
+      if (errProfiles) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-red-300 text-sm">Error al cargar: ' + (errProfiles.message || '') + '. Revisá las políticas RLS de la tabla profiles.</td></tr>';
+        lucide.createIcons();
+        return;
+      }
+      if (list.length === 0 && currentUser?.role === 'super') {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-white/70 text-sm"><p class="mb-2">No se ven otros usuarios. Para que el superusuario pueda listarlos, ejecutá en Supabase (SQL Editor) el archivo <strong>supabase_rls_super_profiles.sql</strong> o la política que está en los comentarios del código.</p><p class="text-xs mt-2">Así el rol super puede leer y editar todos los perfiles.</p></td></tr>';
+        lucide.createIcons();
+        return;
+      }
       tbody.innerHTML = list.map(u => {
         const roleLabel = (u.role || 'sin rol').replace(/</g, '&lt;');
         return `
