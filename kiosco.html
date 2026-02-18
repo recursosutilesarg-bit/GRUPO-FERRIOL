@@ -1042,9 +1042,11 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       try {
         const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
         if (authErr) {
-          let msg = authErr.message;
+          let msg = authErr.message || authErr.error_description || 'Error de autenticación';
           if (msg === 'Invalid login credentials') msg = 'Email o contraseña incorrectos. Probá "¿Olvidaste tu contraseña?" para crear una nueva.';
           else if (msg && (msg.includes('Email not confirmed') || msg.includes('email not confirmed'))) msg = 'Confirmá tu email primero. Revisá tu bandeja de entrada (y spam) por el correo de Supabase.';
+          else if (authErr.status === 400) msg = 'Error 400: ' + msg + ' (verificá en Supabase: Authentication → Providers → Email)';
+          console.error('Supabase auth error:', authErr);
           errEl.textContent = msg;
           errEl.classList.add('show');
           return;
@@ -1299,25 +1301,33 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
     (async function init() {
       if (!supabaseClient) return;
-      const hash = location.hash || '';
-      const isRecovery = hash.includes('type=recovery');
-      if (isRecovery) {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('loginHint').classList.add('hidden');
-        document.getElementById('signUpBox').classList.add('hidden');
-        document.getElementById('resetPwdBox').classList.add('hidden');
-        document.getElementById('setNewPwdBox').classList.remove('hidden');
-        document.getElementById('loginErr').classList.remove('show');
-        return;
+      try {
+        const hash = location.hash || '';
+        const isRecovery = hash.includes('type=recovery');
+        if (isRecovery) {
+          document.getElementById('loginForm').classList.add('hidden');
+          document.getElementById('loginHint').classList.add('hidden');
+          document.getElementById('signUpBox').classList.add('hidden');
+          document.getElementById('resetPwdBox').classList.add('hidden');
+          document.getElementById('setNewPwdBox').classList.remove('hidden');
+          document.getElementById('loginErr').classList.remove('show');
+          return;
+        }
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session?.user) return;
+        const uid = session.user.id;
+        const { data: profile, error: profileErr } = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
+        if (profileErr) {
+          console.error('Error 500 en profiles:', profileErr);
+          return;
+        }
+        if (!profile) return;
+        if (profile.role === 'kiosquero' && !profile.active) return;
+        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
+        await showApp();
+      } catch (e) {
+        console.error('Error en init:', e);
       }
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session?.user) return;
-      const uid = session.user.id;
-      const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
-      if (!profile) return;
-      if (profile.role === 'kiosquero' && !profile.active) return;
-      currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
-      await showApp();
     })();
   </script>
 </body>
