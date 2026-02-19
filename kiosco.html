@@ -186,9 +186,9 @@
         <p class="sub">Sistema de gestión para kioscos — SaaS</p>
         <div id="loginErr" class="login-err"></div>
         <div id="loginContactAdminWrap" class="hidden mt-3 p-3 rounded-xl bg-[#7c3aed]/20 border border-[#7c3aed]/40">
-          <p class="text-sm text-white/80 mb-2">Contactá por WhatsApp para darte de alta o renovar:</p>
+          <p class="text-sm text-white/80 mb-2">Para darte de alta o renovar:</p>
           <a id="loginContactWhatsAppBtn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium text-sm touch-target">
-            <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
+            <i data-lucide="message-circle" class="w-5 h-5"></i> Renovar
           </a>
         </div>
         <form id="loginForm" onsubmit="return false;">
@@ -332,7 +332,7 @@
             </div>
             <span id="trialCountdownDays" class="px-3 py-1 rounded-full bg-[#7c3aed]/30 text-[#a78bfa] font-bold text-lg shrink-0">15</span>
             <a id="trialContactAdminBtn" href="#" target="_blank" rel="noopener" class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-sm font-medium touch-target shrink-0 bg-green-600 hover:bg-green-500 text-white">
-              <i data-lucide="message-circle" class="w-4 h-4"></i> Contactar por WhatsApp
+              <i data-lucide="message-circle" class="w-4 h-4"></i> Contacto por WhatsApp
             </a>
           </div>
         </div>
@@ -375,10 +375,6 @@
               <p id="metricTrans" class="text-2xl font-bold">0</p>
               <p class="text-xs text-white/50 mt-1">Ver detalle</p>
             </button>
-            <div class="glass rounded-xl p-4 border border-white/10">
-              <p class="text-xs text-white/60 mb-1">Ticket medio</p>
-              <p id="metricTicket" class="text-2xl font-bold">$0</p>
-            </div>
             <div class="glass rounded-xl p-4 border border-white/10">
               <p class="text-xs text-white/60 mb-1">Productos vendidos</p>
               <p id="metricProductos" class="text-2xl font-bold">0</p>
@@ -1240,7 +1236,6 @@
       const productosVendidos = Object.values(d.products || {}).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
       document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
       document.getElementById('metricTrans').textContent = d.transacciones || 0;
-      document.getElementById('metricTicket').textContent = (d.transacciones && d.transacciones > 0) ? `$${Math.round(total / d.transacciones)}` : '$0';
       document.getElementById('metricProductos').textContent = productosVendidos;
 
       const vEf = ventas.efectivo || 0, vTj = ventas.tarjeta || 0, vTr = ventas.transferencia || 0, vTp = transfPend || 0;
@@ -1880,11 +1875,15 @@
     };
 
     document.getElementById('cerrarCaja').onclick = () => {
-      if (confirm('¿Reiniciar caja? Se mantendrá el inventario.')) {
+      if (confirm('¿Reiniciar caja? Se mantendrá el inventario y los productos vendidos volverán a cero para el nuevo día.')) {
         const d = getData();
         d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
         d.transacciones = 0;
         state.transaccionesList = [];
+        Object.keys(d.products || {}).forEach(function (codigo) {
+          var p = d.products[codigo];
+          if (p) p.stockInicial = p.stock;
+        });
         setData(d);
         updateDashboard();
       }
