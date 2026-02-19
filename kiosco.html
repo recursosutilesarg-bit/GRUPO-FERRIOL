@@ -185,6 +185,12 @@
         <h1>Ferriol OS</h1>
         <p class="sub">Sistema de gestión para kioscos — SaaS</p>
         <div id="loginErr" class="login-err"></div>
+        <div id="loginContactAdminWrap" class="hidden mt-3 p-3 rounded-xl bg-[#7c3aed]/20 border border-[#7c3aed]/40">
+          <p class="text-sm text-white/80 mb-2">Contactá por WhatsApp para darte de alta o renovar:</p>
+          <a id="loginContactWhatsAppBtn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium text-sm touch-target">
+            <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
+          </a>
+        </div>
         <form id="loginForm" onsubmit="return false;">
           <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
           <div class="password-wrap">
@@ -325,9 +331,9 @@
               <span id="trialCountdownText" class="font-medium">15 días de prueba restantes</span>
             </div>
             <span id="trialCountdownDays" class="px-3 py-1 rounded-full bg-[#7c3aed]/30 text-[#a78bfa] font-bold text-lg shrink-0">15</span>
-            <button type="button" id="trialContactAdminBtn" class="w-full sm:w-auto mt-2 sm:mt-0 btn-neomorphic rounded-xl py-2.5 px-4 text-sm font-medium flex items-center justify-center gap-2 touch-target shrink-0">
-              <i data-lucide="phone" class="w-4 h-4"></i> Contactar administrador
-            </button>
+            <a id="trialContactAdminBtn" href="#" target="_blank" rel="noopener" class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-sm font-medium touch-target shrink-0 bg-green-600 hover:bg-green-500 text-white">
+              <i data-lucide="message-circle" class="w-4 h-4"></i> Contactar por WhatsApp
+            </a>
           </div>
         </div>
         <!-- Resumen del día (cómo va hoy) -->
@@ -668,18 +674,15 @@
     <!-- Panel Súper: lista de kiosqueros -->
     <section id="panel-super" class="panel hidden">
       <div class="glass rounded-2xl p-4 sm:p-6 slide-up space-y-6 sm:space-y-8">
-        <!-- Contacto del administrador -->
+        <!-- Contacto del administrador (solo WhatsApp) -->
         <div class="glass rounded-xl p-4 border border-white/10">
           <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i data-lucide="phone-call" class="w-4 h-4 text-[#a78bfa]"></i>
-            Contacto del administrador
+            <i data-lucide="message-circle" class="w-4 h-4 text-[#a78bfa]"></i>
+            WhatsApp del administrador
           </h3>
-          <p class="text-xs text-white/50 mb-3">Se muestran en el botón "Contactar administrador" del banner de los kiosqueros.</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            <input type="email" id="adminContactEmail" placeholder="Correo" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base">
-            <input type="tel" id="adminContactPhone" placeholder="Teléfono" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base">
-          </div>
-          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar contacto</button>
+          <p class="text-xs text-white/50 mb-3">Número con código de país (ej. 54911 1234-5678). Los kiosqueros verán este contacto cuando la cuenta esté desactivada o se termine la prueba.</p>
+          <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar WhatsApp</button>
           <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
         </div>
         <div>
@@ -1389,10 +1392,8 @@
       daysEl.textContent = daysLeft;
       textEl.textContent = daysLeft === 1 ? 'Último día de prueba' : (daysLeft + ' días de prueba restantes');
     }
-    document.getElementById('trialContactAdminBtn') && (document.getElementById('trialContactAdminBtn').onclick = function () {
-      if (adminContact.email) location.href = 'mailto:' + adminContact.email;
-      else if (adminContact.phone) location.href = 'tel:' + (adminContact.phone || '').replace(/\s/g, '');
-      else alert('El administrador aún no configuró su contacto.');
+    document.getElementById('trialContactAdminBtn') && document.getElementById('trialContactAdminBtn').addEventListener('click', function (e) {
+      if (!getWhatsAppUrl(adminContact.whatsapp)) { e.preventDefault(); alert('El administrador aún no configuró su WhatsApp.'); }
     });
     function goToPanel(name) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1969,6 +1970,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       const pass = document.getElementById('loginPassword').value.trim();
       const errEl = document.getElementById('loginErr');
       errEl.classList.remove('show');
+      document.getElementById('loginContactAdminWrap').classList.add('hidden');
       errEl.style.color = '#fca5a5';
       if (!supabaseClient) {
         errEl.textContent = 'Configurá SUPABASE_URL y SUPABASE_ANON_KEY en el código.';
@@ -2016,16 +2018,41 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           }
         }
         if (profile.role === 'kiosquero' && !profile.active) {
+          try {
+            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
+            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
+          } catch (_) { window._adminWhatsappForContact = ''; }
           await supabaseClient.auth.signOut();
-          errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador.';
+          document.getElementById('loginFormWrap').classList.remove('hidden');
+          document.getElementById('signUpBox').classList.add('hidden');
+          errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador por WhatsApp para darte de alta.';
           errEl.classList.add('show');
+          var wrap = document.getElementById('loginContactAdminWrap');
+          var link = document.getElementById('loginContactWhatsAppBtn');
+          if (wrap && link) {
+            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi cuenta de Ferriol OS está desactivada y quiero darme de alta.');
+            wrap.classList.remove('hidden');
+          }
           return;
         }
         const trialEndsAt = profile.trial_ends_at || null;
         if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
+          try {
+            await supabaseClient.from('profiles').update({ active: false }).eq('id', uid);
+            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
+            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
+          } catch (_) { window._adminWhatsappForContact = ''; }
           await supabaseClient.auth.signOut();
-          errEl.textContent = 'Tu período de prueba terminó. Contactá al administrador para renovar.';
+          document.getElementById('loginFormWrap').classList.remove('hidden');
+          document.getElementById('signUpBox').classList.add('hidden');
+          errEl.textContent = 'Tu período de prueba terminó. La cuenta se desactivó. Contactá por WhatsApp para renovar.';
           errEl.classList.add('show');
+          var wrap = document.getElementById('loginContactAdminWrap');
+          var link = document.getElementById('loginContactWhatsAppBtn');
+          if (wrap && link) {
+            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
+            wrap.classList.remove('hidden');
+          }
           return;
         }
         currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt };
@@ -2204,14 +2231,21 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     }
     document.getElementById('saveConfig').onclick = () => saveConfig();
 
-    var adminContact = { email: '', phone: '' };
+    var adminContact = { whatsapp: '' };
+    function getWhatsAppUrl(num, text) {
+      var digits = (num || '').replace(/\D/g, '');
+      if (!digits) return '';
+      var url = 'https://wa.me/' + digits;
+      if (text) url += '?text=' + encodeURIComponent(text);
+      return url;
+    }
     async function loadAdminContact() {
       if (!supabaseClient) return;
       try {
-        const { data, error } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_email', 'admin_phone']);
-        if (!error && data) {
-          data.forEach(r => { if (r.key === 'admin_email') adminContact.email = r.value || ''; if (r.key === 'admin_phone') adminContact.phone = r.value || ''; });
-        }
+        const { data, error } = await supabaseClient.from('app_settings').select('key, value').eq('key', 'admin_whatsapp').maybeSingle();
+        if (!error && data && data.value) adminContact.whatsapp = data.value;
+        var trialBtn = document.getElementById('trialContactAdminBtn');
+        if (trialBtn) trialBtn.href = getWhatsAppUrl(adminContact.whatsapp, 'Hola, necesito ayuda con mi cuenta de Ferriol OS.');
       } catch (_) {}
     }
     var superUserListCache = [];
@@ -2322,10 +2356,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     async function renderSuper() {
       if (!supabaseClient) return;
       try {
-        const { data: settings } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_email', 'admin_phone']);
-        if (settings) {
-          settings.forEach(r => { if (r.key === 'admin_email') document.getElementById('adminContactEmail').value = r.value || ''; if (r.key === 'admin_phone') document.getElementById('adminContactPhone').value = r.value || ''; });
-        }
+        const { data: settings } = await supabaseClient.from('app_settings').select('key, value').eq('key', 'admin_whatsapp').maybeSingle();
+        var whatsappInput = document.getElementById('adminContactWhatsapp');
+        if (whatsappInput) whatsappInput.value = (settings && settings.value) ? settings.value : '';
       } catch (_) {}
       const { data: allProfiles, error: errProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name, trial_ends_at');
       const list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
@@ -2374,15 +2407,13 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       lucide.createIcons();
     }
     document.getElementById('saveAdminContact').onclick = async () => {
-      const email = document.getElementById('adminContactEmail').value.trim();
-      const phone = document.getElementById('adminContactPhone').value.trim();
+      const whatsapp = document.getElementById('adminContactWhatsapp').value.trim().replace(/\D/g, '');
       const msgEl = document.getElementById('adminContactMsg');
       if (!supabaseClient) return;
       try {
-        await supabaseClient.from('app_settings').upsert([{ key: 'admin_email', value: email }, { key: 'admin_phone', value: phone }], { onConflict: 'key' });
-        adminContact.email = email;
-        adminContact.phone = phone;
-        msgEl.textContent = 'Contacto guardado.';
+        await supabaseClient.from('app_settings').upsert([{ key: 'admin_whatsapp', value: whatsapp }], { onConflict: 'key' });
+        adminContact.whatsapp = whatsapp;
+        msgEl.textContent = 'WhatsApp guardado.';
         msgEl.classList.remove('hidden');
         setTimeout(() => msgEl.classList.add('hidden'), 3000);
       } catch (e) {
@@ -2454,13 +2485,42 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           return;
         }
         if (!profile) return;
-        if (profile.role === 'kiosquero' && !profile.active) return;
-        const trialEndsAt = profile.trial_ends_at || null;
-        if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
+        if (profile.role === 'kiosquero' && !profile.active) {
+          try {
+            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
+            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
+          } catch (_) { window._adminWhatsappForContact = ''; }
           await supabaseClient.auth.signOut();
           document.getElementById('loginFormWrap').classList.remove('hidden');
-          document.getElementById('loginErr').textContent = 'Tu período de prueba terminó. Contactá al administrador para renovar.';
+          document.getElementById('loginErr').textContent = 'Tu cuenta está desactivada. Contactá por WhatsApp para darte de alta.';
           document.getElementById('loginErr').classList.add('show');
+          var wrap = document.getElementById('loginContactAdminWrap');
+          var link = document.getElementById('loginContactWhatsAppBtn');
+          if (wrap && link) {
+            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi cuenta de Ferriol OS está desactivada y quiero darme de alta.');
+            wrap.classList.remove('hidden');
+          }
+          document.getElementById('appWrap').classList.add('hidden');
+          document.getElementById('loginScreen').classList.remove('hidden');
+          return;
+        }
+        const trialEndsAt = profile.trial_ends_at || null;
+        if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
+          try {
+            await supabaseClient.from('profiles').update({ active: false }).eq('id', profile.id);
+            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
+            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
+          } catch (_) { window._adminWhatsappForContact = ''; }
+          await supabaseClient.auth.signOut();
+          document.getElementById('loginFormWrap').classList.remove('hidden');
+          document.getElementById('loginErr').textContent = 'Tu período de prueba terminó. La cuenta se desactivó. Contactá por WhatsApp para renovar.';
+          document.getElementById('loginErr').classList.add('show');
+          var wrap = document.getElementById('loginContactAdminWrap');
+          var link = document.getElementById('loginContactWhatsAppBtn');
+          if (wrap && link) {
+            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
+            wrap.classList.remove('hidden');
+          }
           document.getElementById('appWrap').classList.add('hidden');
           document.getElementById('loginScreen').classList.remove('hidden');
           return;
