@@ -136,6 +136,16 @@
       .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
       #metricVentas, #metricTrans, #metricTicket, #metricProductos { font-size: 1.25rem; }
     }
+    /* Panel admin optimizado para móvil */
+    @media (max-width: 768px) {
+      #panel-super .super-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      #panel-super table { min-width: 680px; }
+      #panel-super .super-membership-cell { flex-wrap: wrap; }
+      #panel-super .super-membership-cell input[type="number"] { width: 3rem; }
+      #panel-super .super-btn-add-days, #panel-super .super-btn-remove-days { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+      #panel-super .super-actions-cell { flex-wrap: wrap; gap: 0.5rem; }
+      #panel-super .super-actions-cell button { min-height: 44px; padding: 0.5rem 0.75rem; }
+    }
     /* Banner instalar PWA — ordenado y legible */
     #pwaInstallBanner { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 300; display: none; width: 92%; max-width: 380px; }
     #pwaInstallBanner.show { display: block; animation: slideUp 0.35s ease-out; }
@@ -310,11 +320,14 @@
         <!-- Cuenta regresiva prueba (solo kiosquero) -->
         <div id="trialCountdownBanner" class="glass rounded-2xl p-4 slide-up kiosquero-only hidden border border-[#7c3aed]/40">
           <div class="flex items-center justify-between gap-3 flex-wrap">
-            <div class="flex items-center gap-2">
-              <i data-lucide="clock" class="w-5 h-5 text-[#a78bfa]"></i>
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <i data-lucide="clock" class="w-5 h-5 text-[#a78bfa] shrink-0"></i>
               <span id="trialCountdownText" class="font-medium">15 días de prueba restantes</span>
             </div>
-            <span id="trialCountdownDays" class="px-3 py-1 rounded-full bg-[#7c3aed]/30 text-[#a78bfa] font-bold text-lg">15</span>
+            <span id="trialCountdownDays" class="px-3 py-1 rounded-full bg-[#7c3aed]/30 text-[#a78bfa] font-bold text-lg shrink-0">15</span>
+            <button type="button" id="trialContactAdminBtn" class="w-full sm:w-auto mt-2 sm:mt-0 btn-neomorphic rounded-xl py-2.5 px-4 text-sm font-medium flex items-center justify-center gap-2 touch-target shrink-0">
+              <i data-lucide="phone" class="w-4 h-4"></i> Contactar administrador
+            </button>
           </div>
         </div>
         <div class="glass rounded-2xl p-6 slide-up">
@@ -631,14 +644,28 @@
 
     <!-- Panel Súper: lista de kiosqueros -->
     <section id="panel-super" class="panel hidden">
-      <div class="glass rounded-2xl p-6 slide-up space-y-8">
+      <div class="glass rounded-2xl p-4 sm:p-6 slide-up space-y-6 sm:space-y-8">
+        <!-- Contacto del administrador -->
+        <div class="glass rounded-xl p-4 border border-white/10">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <i data-lucide="phone-call" class="w-4 h-4 text-[#a78bfa]"></i>
+            Contacto del administrador
+          </h3>
+          <p class="text-xs text-white/50 mb-3">Se muestran en el botón "Contactar administrador" del banner de los kiosqueros.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <input type="email" id="adminContactEmail" placeholder="Correo" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base">
+            <input type="tel" id="adminContactPhone" placeholder="Teléfono" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base">
+          </div>
+          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar contacto</button>
+          <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+        </div>
         <div>
           <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
             <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
             Kiosqueros — Membresías
           </h2>
           <p class="text-xs text-white/50 mb-3">Se listan todos los usuarios (kiosqueros y sin rol). Las contraseñas no se pueden ver por seguridad; podés enviar un enlace para restablecerlas.</p>
-          <div class="overflow-x-auto">
+          <div class="super-table-wrap overflow-x-auto">
             <table class="w-full text-left">
               <thead>
                 <tr class="border-b border-white/10">
@@ -777,7 +804,10 @@
           <label class="block text-xs text-white/60 mb-1">Stock inicial (solo referencia)</label>
           <input type="number" id="prodStockInicial" placeholder="Ej. 50" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         </div>
-        <button id="saveProduct" class="w-full btn-glow rounded-xl py-3 font-semibold">Guardar</button>
+        <div class="flex gap-2">
+          <button id="saveProduct" class="flex-1 btn-glow rounded-xl py-3 font-semibold">Guardar</button>
+          <button type="button" id="deleteProductInModal" class="rounded-xl py-3 px-4 bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30 font-medium hidden" title="Eliminar producto">Eliminar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -965,38 +995,27 @@
       list.innerHTML = items.map(p => {
         const status = getStockStatus(p.stock);
         return `
-          <div class="glass rounded-xl p-3 sm:p-4 flex gap-3 sm:gap-4 items-center border border-white/10" data-codigo="${p.codigo}">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#7c3aed]/30 to-[#1e1b4b] flex items-center justify-center shrink-0">
-              <i data-lucide="package" class="w-6 h-6 sm:w-7 sm:h-7 text-[#a78bfa]"></i>
+          <div class="inventory-item glass rounded-xl p-3 sm:p-4 flex gap-3 items-center border border-white/10 touch-target cursor-pointer active:scale-[0.99] transition-transform" data-codigo="${p.codigo}" role="button" tabindex="0">
+            <div class="flex-1 min-w-0" data-action="edit">
+              <p class="font-semibold truncate text-base">${(p.nombre || '').replace(/</g, '&lt;')}</p>
+              <p class="text-[#a78bfa] font-medium text-sm sm:text-base">$${(p.precio ?? 0).toLocaleString('es-AR')}</p>
+              <span class="inline-block mt-1 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-semibold truncate text-sm sm:text-base">${p.nombre}</p>
-              <p class="text-xs sm:text-sm text-white/60">$${p.precio} · ${p.codigo}</p>
-              <span class="inline-block mt-1.5 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
-            </div>
-            <div class="flex gap-1 shrink-0">
-              <button class="edit-product-btn rounded-xl p-2.5 touch-target bg-white/10 border border-white/20 hover:bg-[#7c3aed]/30" data-codigo="${p.codigo}" title="Editar">
-                <i data-lucide="pencil" class="w-5 h-5"></i>
-              </button>
-              <button class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target" data-codigo="${p.codigo}" title="Agregar al carrito">
-                <i data-lucide="plus" class="w-5 h-5"></i>
-              </button>
-              <button class="delete-product-btn rounded-xl p-2.5 touch-target bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30" data-codigo="${p.codigo}" title="Eliminar">
-                <i data-lucide="trash-2" class="w-5 h-5"></i>
-              </button>
-            </div>
+            <button type="button" class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target shrink-0" data-codigo="${p.codigo}" title="Agregar al carrito">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
           </div>
         `;
       }).join('');
       lucide.createIcons();
-      list.querySelectorAll('.edit-product-btn').forEach(btn => {
-        btn.onclick = () => openEditProduct(btn.dataset.codigo);
+      list.querySelectorAll('.inventory-item').forEach(el => {
+        el.addEventListener('click', function (e) {
+          if (e.target.closest('.add-to-cart-btn')) return;
+          openEditProduct(el.dataset.codigo);
+        });
       });
       list.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.onclick = () => addToCart(btn.dataset.codigo);
-      });
-      list.querySelectorAll('.delete-product-btn').forEach(btn => {
-        btn.onclick = () => deleteProduct(btn.dataset.codigo);
+        btn.onclick = (e) => { e.stopPropagation(); addToCart(btn.dataset.codigo); };
       });
     }
 
@@ -1004,7 +1023,7 @@
       const d = getData();
       const p = (d.products || {})[codigo];
       if (!p) return;
-      document.getElementById('productModalTitle').textContent = 'Editar producto';
+      document.getElementById('productModalTitle').textContent = 'Configurar producto';
       document.getElementById('prodEditCodigo').value = codigo;
       document.getElementById('prodNombre').value = p.nombre || '';
       document.getElementById('prodCodigo').value = p.codigo || '';
@@ -1013,6 +1032,7 @@
       document.getElementById('prodStockInicialWrap').classList.remove('hidden');
       const siEl = document.getElementById('prodStockInicial');
       siEl.value = p.stockInicial ?? p.stock ?? '';
+      document.getElementById('deleteProductInModal').classList.remove('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
     }
@@ -1205,6 +1225,11 @@
       daysEl.textContent = daysLeft;
       textEl.textContent = daysLeft === 1 ? 'Último día de prueba' : (daysLeft + ' días de prueba restantes');
     }
+    document.getElementById('trialContactAdminBtn') && (document.getElementById('trialContactAdminBtn').onclick = function () {
+      if (adminContact.email) location.href = 'mailto:' + adminContact.email;
+      else if (adminContact.phone) location.href = 'tel:' + (adminContact.phone || '').replace(/\s/g, '');
+      else alert('El administrador aún no configuró su contacto.');
+    });
     function goToPanel(name) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const navKey = (name === 'deudores' || name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
@@ -1215,7 +1240,10 @@
       if (panel) panel.classList.remove('hidden');
       if (name === 'config') fillConfigForm();
       if (name === 'super') renderSuper();
-      if (name === 'dashboard') updateTrialCountdown();
+      if (name === 'dashboard') {
+        updateTrialCountdown();
+        if (currentUser && currentUser.role === 'kiosquero') loadAdminContact();
+      }
       if (name === 'historial') renderHistorial('2meses');
       if (name === 'clientes') loadClientes().then(renderClientes);
       lucide.createIcons();
@@ -1672,8 +1700,18 @@
       document.getElementById('prodStock').value = '10';
       document.getElementById('prodStockInicial').value = '';
       document.getElementById('prodStockInicialWrap').classList.add('hidden');
+      document.getElementById('deleteProductInModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+    };
+    document.getElementById('deleteProductInModal').onclick = () => {
+      const codigo = document.getElementById('prodEditCodigo').value;
+      if (!codigo) return;
+      if (confirm('¿Eliminar este producto?')) {
+        deleteProduct(codigo);
+        document.getElementById('productModal').classList.add('hidden');
+        document.getElementById('productModal').classList.remove('flex');
+      }
     };
     document.getElementById('modalOverlay').onclick = () => {
       document.getElementById('productModal').classList.add('hidden');
@@ -1990,8 +2028,24 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     }
     document.getElementById('saveConfig').onclick = () => saveConfig();
 
+    var adminContact = { email: '', phone: '' };
+    async function loadAdminContact() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_email', 'admin_phone']);
+        if (!error && data) {
+          data.forEach(r => { if (r.key === 'admin_email') adminContact.email = r.value || ''; if (r.key === 'admin_phone') adminContact.phone = r.value || ''; });
+        }
+      } catch (_) {}
+    }
     async function renderSuper() {
       if (!supabaseClient) return;
+      try {
+        const { data: settings } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_email', 'admin_phone']);
+        if (settings) {
+          settings.forEach(r => { if (r.key === 'admin_email') document.getElementById('adminContactEmail').value = r.value || ''; if (r.key === 'admin_phone') document.getElementById('adminContactPhone').value = r.value || ''; });
+        }
+      } catch (_) {}
       const { data: allProfiles, error: errProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name, trial_ends_at');
       const list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
       const tbody = document.getElementById('superKiosquerosList');
@@ -2023,15 +2077,16 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs bg-white/10">${roleLabel}</span></td>
           <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs ${u.active ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${u.active ? 'Activo' : 'Inactivo'}</span></td>
           <td class="py-3 pr-4">
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="super-membership-cell flex flex-wrap items-center gap-2">
               <span class="trial-display text-sm">${trialHtml}</span>
               <button type="button" class="toggle-switch ${u.active ? 'active' : ''}" data-id="${u.id}" title="${u.active ? 'Desactivar' : 'Activar'}"></button>
-              <input type="number" min="1" max="365" value="30" class="super-add-days-input w-14 px-2 py-1 rounded text-xs bg-white/10 border border-white/20 text-white" data-id="${u.id}" placeholder="días">
-              <button type="button" class="super-btn-add-days px-2 py-1 rounded-lg text-xs bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30" data-id="${u.id}" title="Agregar días (ej. cuando pagan)">Agregar días</button>
+              <input type="number" min="1" max="365" value="30" class="super-add-days-input w-14 px-2 py-1.5 rounded text-xs bg-white/10 border border-white/20 text-white touch-target" data-id="${u.id}" placeholder="días">
+              <button type="button" class="super-btn-add-days px-2 py-1.5 rounded-lg text-xs bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30 touch-target" data-id="${u.id}" title="Agregar días">+ días</button>
+              <button type="button" class="super-btn-remove-days px-2 py-1.5 rounded-lg text-xs bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30 touch-target" data-id="${u.id}" title="Quitar días">− días</button>
             </div>
           </td>
           <td class="py-3">
-            <div class="flex flex-wrap gap-1">
+            <div class="super-actions-cell flex flex-wrap gap-1">
               <button type="button" class="super-btn-reset px-2 py-1 rounded-lg text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30" data-email="${(u.email || '').replace(/"/g, '&quot;')}" title="Enviar enlace para que el usuario restablezca su contraseña">Restablecer contraseña</button>
               <button type="button" class="super-btn-email px-2 py-1 rounded-lg text-xs bg-[#7c3aed]/30 text-[#a78bfa] border border-[#7c3aed]/50 hover:bg-[#7c3aed]/40" data-id="${u.id}" data-email="${(u.email || '').replace(/"/g, '&quot;')}" title="Cambiar email (instrucciones)">Cambiar email</button>
             </div>
@@ -2091,8 +2146,44 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           if (display) display.innerHTML = trialLabel(trialEndsAt);
         };
       });
+      tbody.querySelectorAll('.super-btn-remove-days').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          const row = list.find(u => u.id === id);
+          if (!row || !supabaseClient) return;
+          const input = tbody.querySelector('.super-add-days-input[data-id="' + id + '"]');
+          const days = Math.max(1, Math.min(365, parseInt(input?.value || 30, 10) || 30));
+          const currentEnd = row.trial_ends_at ? new Date(row.trial_ends_at) : new Date();
+          const newEnd = new Date(currentEnd);
+          newEnd.setDate(newEnd.getDate() - days);
+          const trialEndsAt = newEnd.toISOString().slice(0, 19) + 'Z';
+          const { error } = await supabaseClient.from('profiles').update({ trial_ends_at: trialEndsAt }).eq('id', id);
+          if (error) { alert('Error: ' + error.message); return; }
+          row.trial_ends_at = trialEndsAt;
+          const display = btn.closest('tr').querySelector('.trial-display');
+          if (display) display.innerHTML = trialLabel(trialEndsAt);
+        };
+      });
       lucide.createIcons();
     }
+    document.getElementById('saveAdminContact').onclick = async () => {
+      const email = document.getElementById('adminContactEmail').value.trim();
+      const phone = document.getElementById('adminContactPhone').value.trim();
+      const msgEl = document.getElementById('adminContactMsg');
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from('app_settings').upsert([{ key: 'admin_email', value: email }, { key: 'admin_phone', value: phone }], { onConflict: 'key' });
+        adminContact.email = email;
+        adminContact.phone = phone;
+        msgEl.textContent = 'Contacto guardado.';
+        msgEl.classList.remove('hidden');
+        setTimeout(() => msgEl.classList.add('hidden'), 3000);
+      } catch (e) {
+        msgEl.textContent = 'Error: ' + (e.message || 'Revisá que exista la tabla app_settings (ejecutá supabase_app_settings.sql).');
+        msgEl.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    };
 
     document.getElementById('btnCreateUser').onclick = async () => {
       const email = document.getElementById('newUserEmail').value.trim();
