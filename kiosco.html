@@ -330,6 +330,29 @@
             </button>
           </div>
         </div>
+        <!-- Resumen del día (cómo va hoy) -->
+        <div id="dashboardResumenDia" class="glass rounded-2xl p-5 slide-up kiosquero-only border border-[#7c3aed]/30">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p class="text-sm text-white/60 mb-0.5">Resumen del día</p>
+              <p id="resumenDiaTexto" class="text-2xl sm:text-3xl font-bold text-[#a78bfa]">Hoy llevás $0</p>
+              <p id="resumenDiaVentas" class="text-sm text-white/50 mt-1">0 ventas</p>
+            </div>
+            <button type="button" id="btnCobroRapido" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target shrink-0">
+              <i data-lucide="zap" class="w-5 h-5"></i> Cobro rápido
+            </button>
+          </div>
+        </div>
+        <!-- Productos frecuentes (más vendidos hoy) -->
+        <div id="dashboardFrecuentesWrap" class="slide-up kiosquero-only hidden">
+          <h3 class="font-semibold mb-2 flex items-center gap-2 text-sm text-white/80">
+            <i data-lucide="trending-up" class="w-4 h-4 text-[#a78bfa]"></i>
+            Más vendidos hoy
+          </h3>
+          <div id="dashboardFrecuentes" class="flex gap-2 overflow-x-auto pb-2 -mx-1 scrollbar-hide">
+            <!-- Botones dinámicos -->
+          </div>
+        </div>
         <div class="glass rounded-2xl p-6 slide-up">
           <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
             <i data-lucide="activity" class="w-5 h-5 text-[#a78bfa]"></i>
@@ -776,6 +799,41 @@
     </div>
   </div>
 
+  <!-- Modal Cobro rápido (venta por monto sin producto) -->
+  <div id="cobroRapidoModal" class="fixed inset-0 z-[66] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="cobroRapidoOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in">
+      <h3 class="font-bold text-lg mb-2 text-center">Cobro rápido</h3>
+      <p class="text-sm text-white/60 text-center mb-4">Ingresá el monto a cobrar (venta sin producto cargado)</p>
+      <input type="number" id="cobroRapidoMonto" placeholder="Monto ($)" min="1" step="1" class="w-full glass rounded-xl px-4 py-4 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-xl text-center mb-3">
+      <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      <p class="text-sm text-white/60 mb-2">Método de pago</p>
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button type="button" data-quick-payment="efectivo" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+          <i data-lucide="banknote" class="w-6 h-6 text-[#a78bfa]"></i>
+          <span class="text-xs font-medium">Efectivo</span>
+        </button>
+        <button type="button" data-quick-payment="tarjeta" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+          <i data-lucide="credit-card" class="w-6 h-6 text-[#a78bfa]"></i>
+          <span class="text-xs font-medium">Tarjeta</span>
+        </button>
+        <button type="button" data-quick-payment="transferencia" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+          <i data-lucide="smartphone" class="w-6 h-6 text-[#a78bfa]"></i>
+          <span class="text-xs font-medium">Transferencia</span>
+        </button>
+        <button type="button" data-quick-payment="fiado" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+          <i data-lucide="user-check" class="w-6 h-6 text-[#a78bfa]"></i>
+          <span class="text-xs font-medium">Fiado</span>
+        </button>
+        <button type="button" data-quick-payment="transferencia_pendiente" class="quick-payment-option col-span-2 glass rounded-xl py-2.5 flex flex-col items-center gap-1 border border-white/10 hover:border-[#f59e0b]/50 touch-target">
+          <i data-lucide="clock" class="w-5 h-5 text-[#fbbf24]"></i>
+          <span class="text-xs font-medium">Transf. pendiente</span>
+        </button>
+      </div>
+      <button type="button" id="closeCobroRapido" class="w-full btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cancelar</button>
+    </div>
+  </div>
+
   <!-- Modal agregar/editar cliente -->
   <div id="clienteModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" id="clienteModalOverlay"></div>
@@ -1197,6 +1255,108 @@
       const cajaTransfPendEl = document.getElementById('cajaTransfPend');
       if (cajaTransfPendEl) cajaTransfPendEl.textContent = `$${transfPend.toLocaleString('es-AR')}`;
       document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
+
+      var resumenEl = document.getElementById('resumenDiaTexto');
+      var resumenVentasEl = document.getElementById('resumenDiaVentas');
+      if (resumenEl) resumenEl.textContent = 'Hoy llevás $' + total.toLocaleString('es-AR');
+      if (resumenVentasEl) resumenVentasEl.textContent = (d.transacciones || 0) + ' ventas';
+
+      renderFrequentProducts();
+    }
+    function getFrequentProductsToday(maxItems) {
+      var list = state.transaccionesList || [];
+      var agg = {};
+      list.forEach(function (t) {
+        (t.items || []).forEach(function (it) {
+          if (it.codigo === '_rapida') return;
+          var k = it.codigo;
+          if (!agg[k]) agg[k] = { nombre: it.nombre, codigo: it.codigo, cant: 0 };
+          agg[k].cant += it.cant || 0;
+        });
+      });
+      var prods = getData().products || {};
+      return Object.values(agg)
+        .filter(function (p) { return prods[p.codigo]; })
+        .sort(function (a, b) { return b.cant - a.cant; })
+        .slice(0, maxItems || 8);
+    }
+    function renderFrequentProducts() {
+      var wrap = document.getElementById('dashboardFrecuentesWrap');
+      var cont = document.getElementById('dashboardFrecuentes');
+      if (!wrap || !cont) return;
+      var frequent = getFrequentProductsToday(8);
+      if (frequent.length === 0) {
+        wrap.classList.add('hidden');
+        return;
+      }
+      wrap.classList.remove('hidden');
+      var prods = getData().products || {};
+      cont.innerHTML = frequent.map(function (p) {
+        var prod = prods[p.codigo];
+        var nombre = (prod && prod.nombre) ? prod.nombre : p.nombre;
+        var precio = prod ? prod.precio : 0;
+        var stock = prod ? prod.stock : 0;
+        var disabled = stock <= 0 ? ' opacity-50 pointer-events-none' : '';
+        return '<button type="button" class="freq-product-btn flex-shrink-0 glass rounded-xl px-4 py-3 border border-white/10 hover:border-[#7c3aed]/50 active:scale-95 touch-target text-left min-w-0 max-w-[140px]' + disabled + '" data-codigo="' + (p.codigo || '').replace(/"/g, '&quot;') + '" title="Agregar al carrito"><p class="font-medium truncate text-sm">' + (nombre || '').replace(/</g, '&lt;') + '</p><p class="text-[#a78bfa] text-xs mt-0.5">$' + (precio || 0).toLocaleString('es-AR') + '</p></button>';
+      }).join('');
+      cont.querySelectorAll('.freq-product-btn').forEach(function (btn) {
+        btn.onclick = function () {
+          var codigo = btn.dataset.codigo;
+          if (codigo) addToCart(codigo);
+        };
+      });
+      lucide.createIcons();
+    }
+
+    function openCobroRapidoModal() {
+      document.getElementById('cobroRapidoMonto').value = '';
+      document.getElementById('cobroRapidoCliente').value = '';
+      document.querySelectorAll('.quick-payment-option').forEach(function (el) { el.classList.remove('ring-2', 'ring-[#7c3aed]'); });
+      document.getElementById('cobroRapidoModal').classList.remove('hidden');
+      document.getElementById('cobroRapidoModal').classList.add('flex');
+      setTimeout(function () { document.getElementById('cobroRapidoMonto').focus(); }, 100);
+      lucide.createIcons();
+    }
+    function closeCobroRapidoModal() {
+      document.getElementById('cobroRapidoModal').classList.add('hidden');
+      document.getElementById('cobroRapidoModal').classList.remove('flex');
+    }
+    function completeQuickSale(method, clientName) {
+      var montoEl = document.getElementById('cobroRapidoMonto');
+      var amount = parseInt(montoEl.value.replace(/\D/g, ''), 10) || 0;
+      if (amount <= 0) {
+        alert('Ingresá un monto mayor a 0.');
+        return;
+      }
+      var items = [{ nombre: 'Venta rápida', codigo: '_rapida', precio: amount, cant: 1 }];
+      var total = amount;
+      var fechaHora = new Date().toISOString();
+      state.transaccionesList.push({
+        id: Date.now(),
+        method: method,
+        client: (clientName || '').trim() || '—',
+        items: items,
+        total: total,
+        fechaHora: fechaHora
+      });
+      if (supabaseClient && currentUser && currentUser.id) {
+        supabaseClient.from('ventas').insert({
+          user_id: currentUser.id,
+          fecha_hora: fechaHora,
+          total: total,
+          metodo_pago: method,
+          cliente_nombre: (clientName || '').trim() || null,
+          items: items
+        }).then(function (_r) { if (_r.error) console.warn('Venta rápida no guardada en historial:', _r.error.message); });
+      }
+      var d = getData();
+      d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
+      d.ventas[method] = (d.ventas[method] || 0) + total;
+      d.transacciones = (d.transacciones || 0) + 1;
+      setData(d);
+      updateDashboard();
+      closeCobroRapidoModal();
+      if (typeof playBeep === 'function') playBeep();
     }
 
     function openCart() {
@@ -1246,6 +1406,7 @@
       if (name === 'super') renderSuper();
       if (name === 'dashboard') {
         updateTrialCountdown();
+        updateDashboard();
         if (currentUser && currentUser.role === 'kiosquero') loadAdminContact();
       }
       if (name === 'historial') renderHistorial('2meses');
@@ -1263,6 +1424,17 @@
     document.getElementById('completeSale').onclick = completeSale;
     document.getElementById('closePaymentModal').onclick = closePaymentModal;
     document.getElementById('paymentModalOverlay').onclick = closePaymentModal;
+
+    document.getElementById('btnCobroRapido').onclick = openCobroRapidoModal;
+    document.getElementById('closeCobroRapido').onclick = closeCobroRapidoModal;
+    document.getElementById('cobroRapidoOverlay').onclick = closeCobroRapidoModal;
+    document.querySelectorAll('.quick-payment-option').forEach(function (btn) {
+      btn.onclick = function () {
+        var method = btn.dataset.quickPayment;
+        var clientName = document.getElementById('cobroRapidoCliente').value.trim();
+        completeQuickSale(method, clientName);
+      };
+    });
 
     function showScanToast(msg, isError) {
       const el = document.getElementById('scanToast');
