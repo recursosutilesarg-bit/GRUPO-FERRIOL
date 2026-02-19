@@ -134,7 +134,7 @@
     @media (max-width: 640px) {
       .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
       .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-      #metricVentas, #metricTrans, #metricTicket, #metricProductos { font-size: 1.25rem; }
+      #metricVentas, #metricTrans { font-size: 1.25rem; }
     }
     /* Panel admin optimizado para móvil */
     @media (max-width: 768px) {
@@ -186,9 +186,9 @@
         <p class="sub">Sistema de gestión para kioscos — SaaS</p>
         <div id="loginErr" class="login-err"></div>
         <div id="loginContactAdminWrap" class="hidden mt-3 p-3 rounded-xl bg-[#7c3aed]/20 border border-[#7c3aed]/40">
-          <p class="text-sm text-white/80 mb-2">Para darte de alta o renovar:</p>
+          <p class="text-sm text-white/80 mb-2">Contactá por WhatsApp para darte de alta o renovar:</p>
           <a id="loginContactWhatsAppBtn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium text-sm touch-target">
-            <i data-lucide="message-circle" class="w-5 h-5"></i> Renovar
+            <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
           </a>
         </div>
         <form id="loginForm" onsubmit="return false;">
@@ -331,9 +331,21 @@
               <span id="trialCountdownText" class="font-medium">15 días de prueba restantes</span>
             </div>
             <span id="trialCountdownDays" class="px-3 py-1 rounded-full bg-[#7c3aed]/30 text-[#a78bfa] font-bold text-lg shrink-0">15</span>
-            <a id="trialContactAdminBtn" href="#" target="_blank" rel="noopener" class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-sm font-medium touch-target shrink-0 bg-green-600 hover:bg-green-500 text-white">
-              <i data-lucide="message-circle" class="w-4 h-4"></i> Contacto por WhatsApp
+            <button type="button" id="trialRenovarBtn" class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-sm font-medium touch-target shrink-0 bg-green-600 hover:bg-green-500 text-white">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i> Renovar
+            </button>
+          </div>
+        </div>
+        <!-- Modal Renovar (dentro: Contactar por WhatsApp) -->
+        <div id="renovarModal" class="fixed inset-0 z-[64] hidden items-center justify-center p-4">
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="renovarModalOverlay"></div>
+          <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in">
+            <h3 class="font-bold text-lg mb-3">Renovar</h3>
+            <p class="text-sm text-white/70 mb-4">Para renovar tu plan o aclarar dudas, contactá por WhatsApp.</p>
+            <a id="renovarWhatsAppLink" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium touch-target">
+              <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
             </a>
+            <button type="button" id="closeRenovarModal" class="w-full mt-3 py-2.5 rounded-xl border border-white/20 text-white/80 text-sm touch-target">Cerrar</button>
           </div>
         </div>
         <!-- Resumen del día (cómo va hoy) -->
@@ -375,10 +387,6 @@
               <p id="metricTrans" class="text-2xl font-bold">0</p>
               <p class="text-xs text-white/50 mt-1">Ver detalle</p>
             </button>
-            <div class="glass rounded-xl p-4 border border-white/10">
-              <p class="text-xs text-white/60 mb-1">Productos vendidos</p>
-              <p id="metricProductos" class="text-2xl font-bold">0</p>
-            </div>
           </div>
         </div>
         <div class="glass rounded-2xl p-6 slide-up" style="animation-delay: 0.05s">
@@ -1018,7 +1026,9 @@
     // Estado en memoria (cart + lista de transacciones del día hasta cierre de caja)
     const state = {
       cart: [],
-      transaccionesList: []  // { id, method, client, items: [{ nombre, codigo, precio, cant }], total }
+      transaccionesList: [],  // { id, method, client, items: [{ nombre, codigo, precio, cant }], total }
+      currentPanel: 'dashboard',
+      _restoringFromHistory: false
     };
 
     const defaultProducts = {
@@ -1180,6 +1190,7 @@
       if (cartClient && paymentClient) paymentClient.value = cartClient.value.trim();
       document.getElementById('paymentModal').classList.remove('hidden');
       document.getElementById('paymentModal').classList.add('flex');
+      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'payment' }, '', location.href);
       lucide.createIcons();
     }
     function closePaymentModal() {
@@ -1233,10 +1244,8 @@
       const fiado = ventas.fiado || 0;
       const transfPend = ventas.transferencia_pendiente || 0;
       const total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado + transfPend;
-      const productosVendidos = Object.values(d.products || {}).reduce((a, p) => a + Math.max(0, (p.stockInicial || p.stock) - p.stock), 0);
       document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
       document.getElementById('metricTrans').textContent = d.transacciones || 0;
-      document.getElementById('metricProductos').textContent = productosVendidos;
 
       const vEf = ventas.efectivo || 0, vTj = ventas.tarjeta || 0, vTr = ventas.transferencia || 0, vTp = transfPend || 0;
       const pctEf = total ? Math.round((vEf / total) * 100) : 0;
@@ -1328,6 +1337,7 @@
       document.querySelectorAll('.quick-payment-option').forEach(function (el) { el.classList.remove('ring-2', 'ring-[#7c3aed]'); });
       document.getElementById('cobroRapidoModal').classList.remove('hidden');
       document.getElementById('cobroRapidoModal').classList.add('flex');
+      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'cobroRapido' }, '', location.href);
       setTimeout(function () { document.getElementById('cobroRapidoMonto').focus(); }, 100);
       lucide.createIcons();
     }
@@ -1388,6 +1398,7 @@
     function openCart() {
       document.getElementById('cartDrawer').classList.remove('hidden');
       document.getElementById('cartDrawer').classList.add('flex');
+      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'cart' }, '', location.href);
       setTimeout(() => document.getElementById('cartPanel').classList.add('translate-x-0'), 10);
     }
 
@@ -1415,10 +1426,34 @@
       daysEl.textContent = daysLeft;
       textEl.textContent = daysLeft === 1 ? 'Último día de prueba' : (daysLeft + ' días de prueba restantes');
     }
-    document.getElementById('trialContactAdminBtn') && document.getElementById('trialContactAdminBtn').addEventListener('click', function (e) {
-      if (!getWhatsAppUrl(adminContact.whatsapp)) { e.preventDefault(); alert('El administrador aún no configuró su WhatsApp.'); }
+    document.getElementById('trialRenovarBtn') && document.getElementById('trialRenovarBtn').addEventListener('click', function () {
+      var link = document.getElementById('renovarWhatsAppLink');
+      if (!getWhatsAppUrl(adminContact.whatsapp)) { alert('El administrador aún no configuró su WhatsApp.'); return; }
+      if (link) link.href = getWhatsAppUrl(adminContact.whatsapp, 'Hola, necesito ayuda con mi cuenta de Ferriol OS.');
+      document.getElementById('renovarModal').classList.remove('hidden');
+      document.getElementById('renovarModal').classList.add('flex');
+      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'renovar' }, '', location.href);
+      lucide.createIcons();
     });
-    function goToPanel(name) {
+    document.getElementById('closeRenovarModal') && document.getElementById('closeRenovarModal').addEventListener('click', closeRenovarModal);
+    document.getElementById('renovarModalOverlay') && document.getElementById('renovarModalOverlay').addEventListener('click', closeRenovarModal);
+    function closeRenovarModal() {
+      var m = document.getElementById('renovarModal');
+      if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    }
+    function closeAllModals() {
+      document.getElementById('ventasProductosModal') && (function () { var m = document.getElementById('ventasProductosModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      document.getElementById('transaccionesModal') && (function () { var m = document.getElementById('transaccionesModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      document.getElementById('paymentModal') && (function () { var m = document.getElementById('paymentModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      document.getElementById('cobroRapidoModal') && (function () { var m = document.getElementById('cobroRapidoModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      document.getElementById('renovarModal') && (function () { var m = document.getElementById('renovarModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      var cartPanel = document.getElementById('cartPanel');
+      var cartDrawer = document.getElementById('cartDrawer');
+      if (cartPanel) cartPanel.classList.remove('translate-x-0');
+      if (cartDrawer) { cartDrawer.classList.add('hidden'); cartDrawer.classList.remove('flex'); }
+    }
+    function showPanel(name) {
+      state.currentPanel = name;
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const navKey = (name === 'deudores' || name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
       const btn = document.querySelector('[data-nav="' + navKey + '"]');
@@ -1437,6 +1472,18 @@
       if (name === 'clientes') loadClientes().then(renderClientes);
       lucide.createIcons();
     }
+    function goToPanel(name) {
+      if (!state._restoringFromHistory) history.pushState({ panel: name }, '', location.href);
+      showPanel(name);
+    }
+    window.addEventListener('popstate', function (e) {
+      state._restoringFromHistory = true;
+      closeAllModals();
+      var s = e.state;
+      if (s && s.panel) showPanel(s.panel);
+      else showPanel('dashboard');
+      state._restoringFromHistory = false;
+    });
     document.querySelectorAll('[data-nav]').forEach(btn => {
       btn.onclick = () => goToPanel(btn.dataset.nav);
     });
@@ -1513,6 +1560,7 @@
       }
       document.getElementById('ventasProductosModal').classList.remove('hidden');
       document.getElementById('ventasProductosModal').classList.add('flex');
+      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'ventasProductos' }, '', location.href);
       lucide.createIcons();
     }
     function openTransaccionesModal() {
@@ -1539,6 +1587,7 @@
       }
       document.getElementById('transaccionesModal').classList.remove('hidden');
       document.getElementById('transaccionesModal').classList.add('flex');
+      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'transacciones' }, '', location.href);
       lucide.createIcons();
     }
     document.getElementById('btnVentasCard').onclick = openVentasProductosModal;
@@ -1997,7 +2046,10 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         renderInventory();
         updateCartUI();
         updateDashboard();
-        goToPanel('dashboard');
+        state._restoringFromHistory = true;
+        showPanel('dashboard');
+        state._restoringFromHistory = false;
+        history.replaceState({ panel: 'dashboard' }, '', location.href);
         lucide.createIcons();
     }
 } // <--- ASEGURATE DE QUE ESTA LLAVE CIERRE TODO EL BLOQUE
@@ -2281,8 +2333,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       try {
         const { data, error } = await supabaseClient.from('app_settings').select('key, value').eq('key', 'admin_whatsapp').maybeSingle();
         if (!error && data && data.value) adminContact.whatsapp = data.value;
-        var trialBtn = document.getElementById('trialContactAdminBtn');
-        if (trialBtn) trialBtn.href = getWhatsAppUrl(adminContact.whatsapp, 'Hola, necesito ayuda con mi cuenta de Ferriol OS.');
+        var renovarLink = document.getElementById('renovarWhatsAppLink');
+        if (renovarLink) renovarLink.href = getWhatsAppUrl(adminContact.whatsapp, 'Hola, necesito ayuda con mi cuenta de Ferriol OS.');
       } catch (_) {}
     }
     var superUserListCache = [];
