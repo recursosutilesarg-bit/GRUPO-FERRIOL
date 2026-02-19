@@ -170,52 +170,69 @@
   <!-- Login SaaS (se oculta cuando hay usuario) -->
   <div id="loginScreen">
     <div class="login-glass">
-      <h1>Ferriol OS</h1>
-      <p class="sub">Sistema de gestión para kioscos — SaaS</p>
-      <div id="loginErr" class="login-err"></div>
-      <form id="loginForm" onsubmit="return false;">
-        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
-        <div class="password-wrap">
-          <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="current-password">
-          <label class="toggle-pwd" for="showLoginPwd" title="Ver contraseña">
-            <input type="checkbox" id="showLoginPwd" class="pwd-checkbox">
-            <span class="pwd-label">Ver</span>
-          </label>
+      <!-- Vista: Inicio de sesión -->
+      <div id="loginFormWrap">
+        <h1>Ferriol OS</h1>
+        <p class="sub">Sistema de gestión para kioscos — SaaS</p>
+        <div id="loginErr" class="login-err"></div>
+        <form id="loginForm" onsubmit="return false;">
+          <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
+          <div class="password-wrap">
+            <input type="password" id="loginPassword" placeholder="Contraseña" required autocomplete="current-password">
+            <label class="toggle-pwd" for="showLoginPwd" title="Ver contraseña">
+              <input type="checkbox" id="showLoginPwd" class="pwd-checkbox">
+              <span class="pwd-label">Ver</span>
+            </label>
+          </div>
+          <button type="button" id="loginBtn" class="btn-login">Entrar</button>
+        </form>
+        <p class="login-hint" id="loginHint">
+          <a href="#" id="showSignUp" class="text-[#a78bfa]">Crear cuenta</a>
+          <span class="mx-2">·</span>
+          <a href="#" id="forgotPwd" class="text-[#a78bfa]">¿Olvidaste tu contraseña?</a>
+        </p>
+        <div id="resetPwdBox" class="hidden mt-4 pt-4 border-t border-white/10">
+          <p class="text-sm text-white/70 mb-2">Ingresá tu email y te enviamos un enlace para restablecer la contraseña.</p>
+          <input type="email" id="resetPwdEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+          <button type="button" id="doResetPwd" class="btn-login w-full py-2">Enviar enlace</button>
         </div>
-        <button type="button" id="loginBtn" class="btn-login">Entrar</button>
-      </form>
-      <p class="login-hint" id="loginHint">
-        <a href="#" id="showSignUp" class="text-[#a78bfa]">Crear cuenta</a>
-        <span class="mx-2">·</span>
-        <a href="#" id="forgotPwd" class="text-[#a78bfa]">¿Olvidaste tu contraseña?</a>
-      </p>
-      <div id="resetPwdBox" class="hidden mt-4 pt-4 border-t border-white/10">
-        <p class="text-sm text-white/70 mb-2">Ingresá tu email y te enviamos un enlace para restablecer la contraseña.</p>
-        <input type="email" id="resetPwdEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
-        <button type="button" id="doResetPwd" class="btn-login w-full py-2">Enviar enlace</button>
-      </div>
-      <div id="setNewPwdBox" class="hidden mt-4 pt-4 border-t border-white/10">
-        <p class="text-sm text-white/70 mb-2">Elegí tu nueva contraseña (mín. 6 caracteres).</p>
-        <div class="password-wrap">
-          <input type="password" id="newPwdInput" placeholder="Nueva contraseña" class="w-full login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white" minlength="6">
-          <label class="toggle-pwd" for="showNewPwd" title="Ver contraseña">
-            <input type="checkbox" id="showNewPwd" class="pwd-checkbox">
-            <span class="pwd-label">Ver</span>
-          </label>
+        <div id="setNewPwdBox" class="hidden mt-4 pt-4 border-t border-white/10">
+          <p class="text-sm text-white/70 mb-2">Elegí tu nueva contraseña (mín. 6 caracteres).</p>
+          <div class="password-wrap">
+            <input type="password" id="newPwdInput" placeholder="Nueva contraseña" class="w-full login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white" minlength="6">
+            <label class="toggle-pwd" for="showNewPwd" title="Ver contraseña">
+              <input type="checkbox" id="showNewPwd" class="pwd-checkbox">
+              <span class="pwd-label">Ver</span>
+            </label>
+          </div>
+          <button type="button" id="doSetNewPwd" class="btn-login w-full py-2 mt-2">Guardar nueva contraseña</button>
         </div>
-        <button type="button" id="doSetNewPwd" class="btn-login w-full py-2 mt-2">Guardar nueva contraseña</button>
       </div>
-      <div id="signUpBox" class="hidden mt-4 pt-4 border-t border-white/10">
-        <p class="text-sm text-white/70 mb-2">Nueva cuenta (kiosquero). Después en Supabase podés dar rol super al admin.</p>
-        <input type="email" id="signUpEmail" placeholder="Email" class="w-full mb-2 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
-        <div class="password-wrap">
-          <input type="password" id="signUpPassword" placeholder="Contraseña (mín. 6)" class="w-full login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+
+      <!-- Vista: Solo formulario de creación de cuenta -->
+      <div id="signUpBox" class="hidden">
+        <h1>Crear cuenta</h1>
+        <p class="sub">Completá los datos de tu negocio</p>
+        <div id="signUpErr" class="login-err"></div>
+        <input type="email" id="signUpEmail" placeholder="Email" required class="w-full mb-3 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <input type="tel" id="signUpPhone" placeholder="Teléfono (opcional)" class="w-full mb-3 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <div class="password-wrap mb-3">
+          <input type="password" id="signUpPassword" placeholder="Contraseña (mín. 6)" required class="w-full login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
           <label class="toggle-pwd" for="showSignUpPwd" title="Ver contraseña">
             <input type="checkbox" id="showSignUpPwd" class="pwd-checkbox">
             <span class="pwd-label">Ver</span>
           </label>
         </div>
-        <button type="button" id="doSignUp" class="btn-login w-full py-2">Crear y entrar</button>
+        <input type="text" id="signUpKioscoName" placeholder="Nombre del negocio" class="w-full mb-4 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <button type="button" id="doSignUp" class="btn-login w-full py-2">Crear cuenta</button>
+        <p class="login-hint mt-4"><a href="#" id="backToLogin" class="text-[#a78bfa]">Volver al inicio de sesión</a></p>
+      </div>
+
+      <!-- Vista: Cuenta creada — mensaje y botón para ir al login -->
+      <div id="signUpSuccessBox" class="hidden text-center">
+        <h1>¡Cuenta creada!</h1>
+        <p class="sub mt-2 mb-4">Ya podés iniciar sesión con tu email y contraseña.</p>
+        <button type="button" id="goToLoginBtn" class="btn-login w-full py-2">Iniciar sesión</button>
       </div>
     </div>
   </div>
@@ -290,6 +307,16 @@
     <!-- Dashboard Holográfico -->
     <section id="panel-dashboard" class="panel">
       <div class="space-y-6">
+        <!-- Cuenta regresiva prueba (solo kiosquero) -->
+        <div id="trialCountdownBanner" class="glass rounded-2xl p-4 slide-up kiosquero-only hidden border border-[#7c3aed]/40">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-2">
+              <i data-lucide="clock" class="w-5 h-5 text-[#a78bfa]"></i>
+              <span id="trialCountdownText" class="font-medium">15 días de prueba restantes</span>
+            </div>
+            <span id="trialCountdownDays" class="px-3 py-1 rounded-full bg-[#7c3aed]/30 text-[#a78bfa] font-bold text-lg">15</span>
+          </div>
+        </div>
         <div class="glass rounded-2xl p-6 slide-up">
           <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
             <i data-lucide="activity" class="w-5 h-5 text-[#a78bfa]"></i>
@@ -1163,6 +1190,21 @@
     }
 
     // Navegación (barra inferior + panel Más)
+    function updateTrialCountdown() {
+      const banner = document.getElementById('trialCountdownBanner');
+      const textEl = document.getElementById('trialCountdownText');
+      const daysEl = document.getElementById('trialCountdownDays');
+      if (!banner || !currentUser || currentUser.role !== 'kiosquero') return;
+      const endsAt = currentUser.trialEndsAt;
+      if (!endsAt) { banner.classList.add('hidden'); return; }
+      const end = new Date(endsAt);
+      const now = new Date();
+      const daysLeft = Math.ceil((end - now) / (24 * 60 * 60 * 1000));
+      if (daysLeft <= 0) { banner.classList.add('hidden'); return; }
+      banner.classList.remove('hidden');
+      daysEl.textContent = daysLeft;
+      textEl.textContent = daysLeft === 1 ? 'Último día de prueba' : (daysLeft + ' días de prueba restantes');
+    }
     function goToPanel(name) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const navKey = (name === 'deudores' || name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
@@ -1173,6 +1215,7 @@
       if (panel) panel.classList.remove('hidden');
       if (name === 'config') fillConfigForm();
       if (name === 'super') renderSuper();
+      if (name === 'dashboard') updateTrialCountdown();
       if (name === 'historial') renderHistorial('2meses');
       if (name === 'clientes') loadClientes().then(renderClientes);
       lucide.createIcons();
@@ -1743,7 +1786,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           return;
         }
         if (!profile) {
-          const { error: insertErr } = await supabaseClient.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true });
+          const trialEndsAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+          const { error: insertErr } = await supabaseClient.from('profiles').insert({ id: uid, email: authData.user.email, role: 'kiosquero', active: true, trial_ends_at: trialEndsAt });
           if (insertErr) {
             errEl.textContent = 'Error al crear perfil: ' + (insertErr.message || 'creá la tabla profiles y sus políticas RLS');
             errEl.classList.add('show');
@@ -1763,7 +1807,14 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           errEl.classList.add('show');
           return;
         }
-        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
+        const trialEndsAt = profile.trial_ends_at || null;
+        if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
+          await supabaseClient.auth.signOut();
+          errEl.textContent = 'Tu período de prueba terminó. Contactá al administrador para renovar.';
+          errEl.classList.add('show');
+          return;
+        }
+        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt };
         await showApp();
       } catch (err) {
         console.error('Error en login:', err);
@@ -1815,15 +1866,27 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       errEl.style.color = '#86efac';
       errEl.classList.add('show');
       document.getElementById('setNewPwdBox').classList.add('hidden');
-      document.getElementById('loginForm').classList.remove('hidden');
-      document.getElementById('loginHint').classList.remove('hidden');
+      document.getElementById('loginFormWrap').classList.remove('hidden');
       history.replaceState(null, '', location.pathname + location.search);
     };
 
     document.getElementById('showSignUp').onclick = (e) => {
       e.preventDefault();
+      document.getElementById('loginFormWrap').classList.add('hidden');
       document.getElementById('resetPwdBox').classList.add('hidden');
-      document.getElementById('signUpBox').classList.toggle('hidden');
+      document.getElementById('signUpBox').classList.remove('hidden');
+      document.getElementById('signUpSuccessBox').classList.add('hidden');
+      document.getElementById('signUpErr').classList.remove('show');
+    };
+    document.getElementById('backToLogin').onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('signUpBox').classList.add('hidden');
+      document.getElementById('signUpSuccessBox').classList.add('hidden');
+      document.getElementById('loginFormWrap').classList.remove('hidden');
+    };
+    document.getElementById('goToLoginBtn').onclick = () => {
+      document.getElementById('signUpSuccessBox').classList.add('hidden');
+      document.getElementById('loginFormWrap').classList.remove('hidden');
     };
     document.getElementById('forgotPwd').onclick = (e) => {
       e.preventDefault();
@@ -1861,7 +1924,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     document.getElementById('doSignUp').onclick = async () => {
       const email = document.getElementById('signUpEmail').value.trim();
       const password = document.getElementById('signUpPassword').value;
-      const errEl = document.getElementById('loginErr');
+      const kioscoName = document.getElementById('signUpKioscoName').value.trim();
+      const phone = document.getElementById('signUpPhone').value.trim();
+      const errEl = document.getElementById('signUpErr');
       errEl.classList.remove('show');
       if (!email || !password || password.length < 6) {
         errEl.textContent = 'Email y contraseña (mín. 6 caracteres) son obligatorios.';
@@ -1879,11 +1944,21 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         errEl.classList.add('show');
         return;
       }
-      errEl.textContent = 'Cuenta creada. Iniciá sesión. Para ser admin: en Supabase → SQL Editor ejecutá: update profiles set role = \'super\' where email = \'tu@email.com\';';
-      errEl.classList.add('show');
-      errEl.classList.remove('text-red-300');
-      errEl.style.color = '#86efac';
+      const newId = data?.user?.id;
+      const trialEndsAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+      if (newId) {
+        await supabaseClient.from('profiles').upsert({
+          id: newId,
+          email: email,
+          role: 'kiosquero',
+          active: true,
+          kiosco_name: kioscoName || null,
+          trial_ends_at: trialEndsAt,
+          phone: phone || null
+        }, { onConflict: 'id' });
+      }
       document.getElementById('signUpBox').classList.add('hidden');
+      document.getElementById('signUpSuccessBox').classList.remove('hidden');
     };
 
     document.getElementById('logoutBtn').onclick = async () => {
@@ -1917,7 +1992,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
     async function renderSuper() {
       if (!supabaseClient) return;
-      const { data: allProfiles, error: errProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name');
+      const { data: allProfiles, error: errProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name, trial_ends_at');
       const list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
       const tbody = document.getElementById('superKiosquerosList');
       if (errProfiles) {
@@ -1930,16 +2005,30 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         lucide.createIcons();
         return;
       }
+      function trialLabel(endsAt) {
+        if (!endsAt) return '—';
+        const end = new Date(endsAt);
+        const now = new Date();
+        const days = Math.ceil((end - now) / (24 * 60 * 60 * 1000));
+        if (days <= 0) return '<span class="text-red-300">Vencida</span>';
+        return '<span class="text-[#a78bfa]">' + days + ' días</span>';
+      }
       tbody.innerHTML = list.map(u => {
         const roleLabel = (u.role || 'sin rol').replace(/</g, '&lt;');
+        const trialHtml = trialLabel(u.trial_ends_at);
         return `
         <tr class="border-b border-white/10">
           <td class="py-3 pr-4">${(u.kiosco_name || '—').replace(/</g, '&lt;')}</td>
           <td class="py-3 pr-4">${(u.email || '').replace(/</g, '&lt;')}</td>
           <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs bg-white/10">${roleLabel}</span></td>
           <td class="py-3 pr-4"><span class="px-2 py-0.5 rounded text-xs ${u.active ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${u.active ? 'Activo' : 'Inactivo'}</span></td>
-          <td class="py-3 pr-2">
-            <button type="button" class="toggle-switch ${u.active ? 'active' : ''}" data-id="${u.id}" title="${u.active ? 'Desactivar' : 'Activar'}"></button>
+          <td class="py-3 pr-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="trial-display text-sm">${trialHtml}</span>
+              <button type="button" class="toggle-switch ${u.active ? 'active' : ''}" data-id="${u.id}" title="${u.active ? 'Desactivar' : 'Activar'}"></button>
+              <input type="number" min="1" max="365" value="30" class="super-add-days-input w-14 px-2 py-1 rounded text-xs bg-white/10 border border-white/20 text-white" data-id="${u.id}" placeholder="días">
+              <button type="button" class="super-btn-add-days px-2 py-1 rounded-lg text-xs bg-green-500/20 text-green-300 border border-green-500/40 hover:bg-green-500/30" data-id="${u.id}" title="Agregar días (ej. cuando pagan)">Agregar días</button>
+            </div>
           </td>
           <td class="py-3">
             <div class="flex flex-wrap gap-1">
@@ -1980,6 +2069,26 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           const msg = 'Para cambiar el email de este usuario entrá a Supabase:\n\n1. Dashboard → Authentication → Users\n2. Buscá a: ' + email + '\n3. Clic en el usuario → Edit → cambiá el email.\n\n¿Abrir dashboard de Supabase?';
           if (supabaseAuthUrl && confirm(msg)) window.open(supabaseAuthUrl, '_blank');
           else alert(msg);
+        };
+      });
+      tbody.querySelectorAll('.super-btn-add-days').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          const row = list.find(u => u.id === id);
+          if (!row || !supabaseClient) return;
+          const input = tbody.querySelector('.super-add-days-input[data-id="' + id + '"]');
+          const days = Math.max(1, Math.min(365, parseInt(input?.value || 30, 10) || 30));
+          const now = new Date();
+          const currentEnd = row.trial_ends_at ? new Date(row.trial_ends_at) : null;
+          const from = (currentEnd && currentEnd > now) ? currentEnd : now;
+          const newEnd = new Date(from);
+          newEnd.setDate(newEnd.getDate() + days);
+          const trialEndsAt = newEnd.toISOString().slice(0, 19) + 'Z';
+          const { error } = await supabaseClient.from('profiles').update({ trial_ends_at: trialEndsAt }).eq('id', id);
+          if (error) { alert('Error: ' + error.message); return; }
+          row.trial_ends_at = trialEndsAt;
+          const display = btn.closest('tr').querySelector('.trial-display');
+          if (display) display.innerHTML = trialLabel(trialEndsAt);
         };
       });
       lucide.createIcons();
@@ -2031,8 +2140,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         const hash = location.hash || '';
         const isRecovery = hash.includes('type=recovery');
         if (isRecovery) {
-          document.getElementById('loginForm').classList.add('hidden');
-          document.getElementById('loginHint').classList.add('hidden');
+          document.getElementById('loginFormWrap').classList.add('hidden');
           document.getElementById('signUpBox').classList.add('hidden');
           document.getElementById('resetPwdBox').classList.add('hidden');
           document.getElementById('setNewPwdBox').classList.remove('hidden');
@@ -2049,7 +2157,17 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         }
         if (!profile) return;
         if (profile.role === 'kiosquero' && !profile.active) return;
-        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP };
+        const trialEndsAt = profile.trial_ends_at || null;
+        if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
+          await supabaseClient.auth.signOut();
+          document.getElementById('loginFormWrap').classList.remove('hidden');
+          document.getElementById('loginErr').textContent = 'Tu período de prueba terminó. Contactá al administrador para renovar.';
+          document.getElementById('loginErr').classList.add('show');
+          document.getElementById('appWrap').classList.add('hidden');
+          document.getElementById('loginScreen').classList.remove('hidden');
+          return;
+        }
+        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt };
         await showApp();
       } catch (e) {
         console.error('Error en init:', e);
