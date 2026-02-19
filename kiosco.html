@@ -805,9 +805,20 @@
   <!-- Modal Cobro rápido (venta por monto sin producto) -->
   <div id="cobroRapidoModal" class="fixed inset-0 z-[66] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="cobroRapidoOverlay"></div>
-    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in">
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in max-h-[90vh] overflow-y-auto">
       <h3 class="font-bold text-lg mb-2 text-center">Cobro rápido</h3>
-      <p class="text-sm text-white/60 text-center mb-4">Ingresá el monto a cobrar (venta sin producto cargado)</p>
+      <p class="text-sm text-white/60 text-center mb-3">Elegí el producto y el monto</p>
+      <p class="text-xs text-white/50 mb-2">Producto</p>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Pan">Pan</button>
+        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Verdura">Verdura</button>
+        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Carne">Carne</button>
+        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Otro" id="cobroRapidoProductoOtro">Otro</button>
+      </div>
+      <div id="cobroRapidoOtroWrap" class="hidden mb-3">
+        <input type="text" id="cobroRapidoOtroNombre" placeholder="Nombre del producto" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      </div>
+      <p class="text-xs text-white/50 mb-2">Monto ($)</p>
       <input type="number" id="cobroRapidoMonto" placeholder="Monto ($)" min="1" step="1" class="w-full glass rounded-xl px-4 py-4 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-xl text-center mb-3">
       <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
       <p class="text-sm text-white/60 mb-2">Método de pago</p>
@@ -1314,11 +1325,26 @@
     function openCobroRapidoModal() {
       document.getElementById('cobroRapidoMonto').value = '';
       document.getElementById('cobroRapidoCliente').value = '';
+      document.getElementById('cobroRapidoOtroNombre').value = '';
+      document.getElementById('cobroRapidoOtroWrap').classList.add('hidden');
+      document.querySelectorAll('.cobro-rapido-producto').forEach(function (el) {
+        el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
+      });
       document.querySelectorAll('.quick-payment-option').forEach(function (el) { el.classList.remove('ring-2', 'ring-[#7c3aed]'); });
       document.getElementById('cobroRapidoModal').classList.remove('hidden');
       document.getElementById('cobroRapidoModal').classList.add('flex');
       setTimeout(function () { document.getElementById('cobroRapidoMonto').focus(); }, 100);
       lucide.createIcons();
+    }
+    function getCobroRapidoProductoNombre() {
+      var sel = document.querySelector('.cobro-rapido-producto.ring-2');
+      if (!sel) return 'Venta rápida';
+      var p = sel.dataset.producto;
+      if (p === 'Otro') {
+        var otro = document.getElementById('cobroRapidoOtroNombre').value.trim();
+        return otro || 'Otro';
+      }
+      return p || 'Venta rápida';
     }
     function closeCobroRapidoModal() {
       document.getElementById('cobroRapidoModal').classList.add('hidden');
@@ -1331,7 +1357,9 @@
         alert('Ingresá un monto mayor a 0.');
         return;
       }
-      var items = [{ nombre: 'Venta rápida', codigo: '_rapida', precio: amount, cant: 1 }];
+      var productName = getCobroRapidoProductoNombre();
+      var codigoRapida = '_rapida_' + (productName.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta');
+      var items = [{ nombre: productName, codigo: codigoRapida, precio: amount, cant: 1 }];
       var total = amount;
       var fechaHora = new Date().toISOString();
       state.transaccionesList.push({
@@ -1429,6 +1457,16 @@
     document.getElementById('btnCobroRapido').onclick = openCobroRapidoModal;
     document.getElementById('closeCobroRapido').onclick = closeCobroRapidoModal;
     document.getElementById('cobroRapidoOverlay').onclick = closeCobroRapidoModal;
+    document.querySelectorAll('.cobro-rapido-producto').forEach(function (btn) {
+      btn.onclick = function () {
+        document.querySelectorAll('.cobro-rapido-producto').forEach(function (el) {
+          el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
+        });
+        btn.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
+        var wrap = document.getElementById('cobroRapidoOtroWrap');
+        if (btn.dataset.producto === 'Otro') wrap.classList.remove('hidden'); else wrap.classList.add('hidden');
+      };
+    });
     document.querySelectorAll('.quick-payment-option').forEach(function (btn) {
       btn.onclick = function () {
         var method = btn.dataset.quickPayment;
