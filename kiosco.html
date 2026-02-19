@@ -136,9 +136,31 @@
       .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
       #metricVentas, #metricTrans, #metricTicket, #metricProductos { font-size: 1.25rem; }
     }
+    /* Banner instalar PWA */
+    #pwaInstallBanner { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 300; display: none; max-width: 90%; }
+    #pwaInstallBanner.show { display: flex; animation: slideUp 0.35s ease-out; }
+    #pwaInstallBanner .pwa-banner-inner { display: flex; align-items: center; gap: 0.75rem; background: rgba(30,27,75,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); border-radius: 1rem; padding: 0.75rem 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3); }
+    #pwaInstallBanner .pwa-banner-inner p { margin: 0; font-size: 0.9rem; color: rgba(255,255,255,0.9); }
+    #pwaInstallBanner .pwa-btn { flex-shrink: 0; padding: 0.5rem 1rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; white-space: nowrap; }
+    #pwaInstallBanner .pwa-btn:hover { opacity: 0.95; }
+    #pwaInstallBanner .pwa-close { background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 0.25rem; margin-left: 0.25rem; }
+    #pwaInstallBanner .pwa-need-server { font-size: 0.8rem; color: #a78bfa; }
+    #pwaInstallBanner .pwa-hint { font-size: 0.8rem; color: #a78bfa; margin-top: 0.5rem; display: none; }
+    #pwaInstallBanner .pwa-hint.show { display: block; }
   </style>
 </head>
 <body class="relative">
+  <!-- Banner instalar como app (PWA) — visible al abrir el link -->
+  <div id="pwaInstallBanner" aria-live="polite">
+    <div class="pwa-banner-inner">
+      <p id="pwaInstallText">Usá Ferriol OS como app: más rápido y pantalla completa.</p>
+      <button type="button" id="pwaInstallBtn" class="pwa-btn">Instalar app</button>
+      <p id="pwaInstallHint" class="pwa-hint" role="status"></p>
+      <p id="pwaNeedServer" class="pwa-need-server" style="display: none;">Para instalar: ejecutá <strong>run-servidor.bat</strong> y abrí <strong>http://localhost:3000/kiosco.html</strong></p>
+      <button type="button" id="pwaInstallClose" class="pwa-close" title="Cerrar" aria-label="Cerrar">✕</button>
+    </div>
+  </div>
+
   <!-- Login SaaS (se oculta cuando hay usuario) -->
   <div id="loginScreen">
     <div class="login-glass">
@@ -2029,14 +2051,69 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     })();
   </script>
   <script>
-    // Registro del Service Worker para PWA
-    if ('serviceWorker' in navigator) {
+    // PWA: Service Worker solo en contexto seguro (https o localhost)
+    var isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if ('serviceWorker' in navigator && isSecure) {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('sw.js')
           .then(function (reg) { console.log('PWA: Service Worker registrado', reg.scope); })
           .catch(function (err) { console.warn('PWA: Error al registrar SW', err); });
       });
     }
+
+    // Banner "Instalar app" — visible al abrir el link; un toque para instalar o ver instrucciones
+    (function () {
+      var banner = document.getElementById('pwaInstallBanner');
+      var installBtn = document.getElementById('pwaInstallBtn');
+      var installText = document.getElementById('pwaInstallText');
+      var installHint = document.getElementById('pwaInstallHint');
+      var needServer = document.getElementById('pwaNeedServer');
+      var closeBtn = document.getElementById('pwaInstallClose');
+      var deferredPrompt = null;
+
+      if (!banner) return;
+
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        return;
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', function () { banner.classList.remove('show'); installHint.classList.remove('show'); sessionStorage.setItem('pwaBannerClosed', '1'); });
+
+      function getInstallHint() {
+        var ua = navigator.userAgent || '';
+        if (/iPhone|iPad|iPod/i.test(ua)) return 'En el iPhone: tocá el botón Compartir (cuadrado con flecha) y elegí "Añadir a pantalla de inicio".';
+        if (/Android/i.test(ua)) return 'En Android: menú (⋮) → "Instalar aplicación" o "Añadir a pantalla de inicio".';
+        return 'En Chrome o Edge: menú (⋮) → "Instalar Ferriol OS" o "Aplicaciones" → "Instalar esta aplicación".';
+      }
+
+      if (isSecure) {
+        banner.classList.add('show');
+        installBtn.style.display = '';
+        needServer.style.display = 'none';
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          deferredPrompt = e;
+          if (installHint) { installHint.classList.remove('show'); installHint.textContent = ''; }
+        });
+        if (installBtn) installBtn.addEventListener('click', function () {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function (choice) {
+              if (choice.outcome === 'accepted') banner.classList.remove('show');
+              deferredPrompt = null;
+            });
+          } else {
+            if (installHint) { installHint.textContent = getInstallHint(); installHint.classList.add('show'); }
+          }
+        });
+      } else {
+        needServer.style.display = '';
+        installBtn.style.display = 'none';
+        installText.textContent = 'Para instalar la app no podés abrir el archivo directo.';
+        if (installHint) installHint.style.display = 'none';
+        banner.classList.add('show');
+      }
+    })();
   </script>
 </body>
 </html>
