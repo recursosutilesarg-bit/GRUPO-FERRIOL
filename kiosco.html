@@ -136,16 +136,18 @@
       .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
       #metricVentas, #metricTrans, #metricTicket, #metricProductos { font-size: 1.25rem; }
     }
-    /* Banner instalar PWA */
-    #pwaInstallBanner { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 300; display: none; max-width: 90%; }
-    #pwaInstallBanner.show { display: flex; animation: slideUp 0.35s ease-out; }
-    #pwaInstallBanner .pwa-banner-inner { display: flex; align-items: center; gap: 0.75rem; background: rgba(30,27,75,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); border-radius: 1rem; padding: 0.75rem 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3); }
-    #pwaInstallBanner .pwa-banner-inner p { margin: 0; font-size: 0.9rem; color: rgba(255,255,255,0.9); }
-    #pwaInstallBanner .pwa-btn { flex-shrink: 0; padding: 0.5rem 1rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; white-space: nowrap; }
+    /* Banner instalar PWA — ordenado y legible */
+    #pwaInstallBanner { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 300; display: none; width: 92%; max-width: 380px; }
+    #pwaInstallBanner.show { display: block; animation: slideUp 0.35s ease-out; }
+    #pwaInstallBanner .pwa-banner-inner { background: rgba(30,27,75,0.96); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); border-radius: 1rem; padding: 1rem 1rem 1.25rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3); }
+    #pwaInstallBanner .pwa-banner-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+    #pwaInstallBanner .pwa-banner-text { flex: 1; min-width: 0; margin: 0; font-size: 0.95rem; line-height: 1.4; color: rgba(255,255,255,0.95); }
+    #pwaInstallBanner .pwa-close { flex-shrink: 0; background: transparent; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 0.35rem; font-size: 1.1rem; line-height: 1; }
+    #pwaInstallBanner .pwa-btn-wrap { margin-top: 0.75rem; }
+    #pwaInstallBanner .pwa-btn { display: block; width: 100%; padding: 0.65rem 1rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.95rem; }
     #pwaInstallBanner .pwa-btn:hover { opacity: 0.95; }
-    #pwaInstallBanner .pwa-close { background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 0.25rem; margin-left: 0.25rem; }
-    #pwaInstallBanner .pwa-need-server { font-size: 0.8rem; color: #a78bfa; }
-    #pwaInstallBanner .pwa-hint { font-size: 0.8rem; color: #a78bfa; margin-top: 0.5rem; display: none; }
+    #pwaInstallBanner .pwa-need-server { font-size: 0.85rem; color: #a78bfa; margin: 0.5rem 0 0; line-height: 1.4; }
+    #pwaInstallBanner .pwa-hint { font-size: 0.85rem; color: #a78bfa; margin: 0.75rem 0 0; padding: 0.6rem 0.75rem; background: rgba(124,58,237,0.2); border-radius: 0.5rem; line-height: 1.45; white-space: pre-line; display: none; }
     #pwaInstallBanner .pwa-hint.show { display: block; }
   </style>
 </head>
@@ -153,11 +155,15 @@
   <!-- Banner instalar como app (PWA) — visible al abrir el link -->
   <div id="pwaInstallBanner" aria-live="polite">
     <div class="pwa-banner-inner">
-      <p id="pwaInstallText">Usá Ferriol OS como app: más rápido y pantalla completa.</p>
-      <button type="button" id="pwaInstallBtn" class="pwa-btn">Instalar app</button>
+      <div class="pwa-banner-top">
+        <p id="pwaInstallText" class="pwa-banner-text">Usá Ferriol OS como app: más rápido y pantalla completa.</p>
+        <button type="button" id="pwaInstallClose" class="pwa-close" title="Cerrar" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="pwa-btn-wrap">
+        <button type="button" id="pwaInstallBtn" class="pwa-btn">Instalar app</button>
+      </div>
       <p id="pwaInstallHint" class="pwa-hint" role="status"></p>
       <p id="pwaNeedServer" class="pwa-need-server" style="display: none;">Para instalar: ejecutá <strong>run-servidor.bat</strong> y abrí <strong>http://localhost:3000/kiosco.html</strong></p>
-      <button type="button" id="pwaInstallClose" class="pwa-close" title="Cerrar" aria-label="Cerrar">✕</button>
     </div>
   </div>
 
@@ -2081,9 +2087,14 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
 
       function getInstallHint() {
         var ua = navigator.userAgent || '';
-        if (/iPhone|iPad|iPod/i.test(ua)) return 'En el iPhone: tocá el botón Compartir (cuadrado con flecha) y elegí "Añadir a pantalla de inicio".';
-        if (/Android/i.test(ua)) return 'En Android: menú (⋮) → "Instalar aplicación" o "Añadir a pantalla de inicio".';
-        return 'En Chrome o Edge: menú (⋮) → "Instalar Ferriol OS" o "Aplicaciones" → "Instalar esta aplicación".';
+        if (/iPhone|iPad|iPod/i.test(ua)) return 'En el iPhone: tocá el botón Compartir (cuadrado con flecha abajo) y elegí "Añadir a pantalla de inicio".';
+        if (/Android/i.test(ua)) {
+          return 'En Android podés probar:\n' +
+            '• En la barra de arriba (donde está la dirección), mirá si aparece un ícono de instalación (➕ o una pantalla con flecha) y tocá ahí.\n' +
+            '• O tocá los 3 puntitos (⋮) del menú y buscá "Añadir a pantalla de inicio" o "Instalar aplicación".\n' +
+            'Si no ves la opción, usá la página unos segundos y volvé a abrir el menú.';
+        }
+        return 'En Chrome o Edge: tocá los 3 puntitos (⋮) y buscá "Instalar Ferriol OS" o "Aplicaciones" → "Instalar esta aplicación".';
       }
 
       if (isSecure) {
