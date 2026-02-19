@@ -7,7 +7,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ferriol OS">
   <title>Ferriol OS — Sistema de Gestión Premium</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2024,6 +2027,16 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         console.error('Error en init:', e);
       }
     })();
+  </script>
+  <script>
+    // Registro del Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js')
+          .then(function (reg) { console.log('PWA: Service Worker registrado', reg.scope); })
+          .catch(function (err) { console.warn('PWA: Error al registrar SW', err); });
+      });
+    }
   </script>
 </body>
 </html>
