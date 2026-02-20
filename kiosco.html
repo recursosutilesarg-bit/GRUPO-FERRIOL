@@ -239,9 +239,24 @@
             <span class="pwd-label">Ver</span>
           </label>
         </div>
-        <input type="text" id="signUpKioscoName" placeholder="Nombre del negocio" class="w-full mb-4 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <input type="text" id="signUpKioscoName" placeholder="Nombre del negocio" class="w-full mb-3 login-glass input block py-2 px-3 rounded-lg border border-white/20 text-white">
+        <div class="mb-4 flex items-start gap-2">
+          <input type="checkbox" id="signUpAcceptTerms" class="mt-1.5 rounded border-white/30 bg-white/10 text-[#7c3aed] focus:ring-[#7c3aed]">
+          <label for="signUpAcceptTerms" class="text-sm text-white/80 leading-tight">
+            Acepto los <button type="button" id="openTermsModal" class="text-[#a78bfa] underline font-medium">Términos y Condiciones</button> y el Contrato de Servicio de Ferriol OS (incluyendo que no hay responsabilidad por pérdida de datos y que los datos están sujetos a la licencia del servicio).
+          </label>
+        </div>
         <button type="button" id="doSignUp" class="btn-login w-full py-2">Crear cuenta</button>
         <p class="login-hint mt-4"><a href="#" id="backToLogin" class="text-[#a78bfa]">Volver al inicio de sesión</a></p>
+      </div>
+
+      <!-- Modal Términos y Condiciones -->
+      <div id="termsModal" class="fixed inset-0 z-[210] hidden items-center justify-center p-4 bg-black/70">
+        <div class="relative glass-strong rounded-2xl p-6 w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
+          <h3 class="font-bold text-lg mb-3 shrink-0">Términos y Condiciones · Ferriol OS</h3>
+          <div id="termsContent" class="flex-1 overflow-y-auto text-sm text-white/90 space-y-3 pr-2 scrollbar-hide"></div>
+          <button type="button" id="closeTermsModal" class="mt-4 btn-neomorphic rounded-xl py-2.5 w-full touch-target shrink-0">Cerrar</button>
+        </div>
       </div>
 
       <!-- Vista: Cuenta creada — mensaje y botón para ir al login -->
@@ -634,6 +649,24 @@
             <textarea id="configWhatsappMsg" rows="4" placeholder="Hola {cliente}, tenés un saldo de ${monto}..." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] resize-y"></textarea>
           </div>
           <button id="saveConfig" class="btn-glow rounded-xl py-3 px-6 font-semibold">Guardar</button>
+
+          <div class="mt-8 pt-6 border-t border-white/10">
+            <h3 class="font-semibold mb-2 flex items-center gap-2">
+              <i data-lucide="database-backup" class="w-4 h-4 text-[#a78bfa]"></i>
+              Copia de seguridad
+            </h3>
+            <p class="text-sm text-white/60 mb-3">Antes de una actualización, exportá tus datos. Si algo falla, importá el archivo para recuperar todo.</p>
+            <div class="flex flex-wrap gap-3">
+              <button type="button" id="btnExportBackup" class="btn-glow rounded-xl py-3 px-4 font-medium flex items-center gap-2 touch-target">
+                <i data-lucide="download" class="w-4 h-4"></i> Exportar copia
+              </button>
+              <label class="btn-neomorphic rounded-xl py-3 px-4 font-medium flex items-center gap-2 touch-target cursor-pointer">
+                <i data-lucide="upload" class="w-4 h-4"></i> Importar copia
+                <input type="file" id="inputImportBackup" accept=".json,application/json" class="hidden">
+              </label>
+            </div>
+            <p id="backupMessage" class="text-sm mt-2 hidden"></p>
+          </div>
         </div>
       </div>
     </section>
@@ -998,14 +1031,19 @@
             products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock, costo: p.costo != null ? Number(p.costo) : 0 };
           });
           const caja = cajaRes.data;
+          var productsFinal = products;
+          if (Object.keys(productsFinal).length === 0 && prevLocal && prevLocal.products && Object.keys(prevLocal.products).length > 0) {
+            productsFinal = prevLocal.products;
+          }
           _dataCache = {
-            products,
+            products: productsFinal,
             ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado), transferencia_pendiente: Number(caja.transferencia_pendiente || 0) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
             transacciones: caja ? (caja.transacciones || 0) : 0,
             deudores: _dataCache.deudores || [],
             saldosACobrar: (prevLocal && prevLocal.saldosACobrar) ? prevLocal.saldosACobrar : (_dataCache.saldosACobrar || []),
             lastCierreDate: (prevLocal && prevLocal.lastCierreDate) ? prevLocal.lastCierreDate : (_dataCache.lastCierreDate || null)
           };
+          restoreTodayFromLocalStorage();
           saveToLocalStorage();
           return;
         } catch (e) { console.warn('Supabase load failed, using localStorage:', e); }
@@ -1020,7 +1058,19 @@
         _dataCache.lastCierreDate = local.lastCierreDate || null;
         var today = new Date().toISOString().slice(0, 10);
         if (local.transaccionesList && Array.isArray(local.transaccionesList) && local.lastCierreDate === today && state) state.transaccionesList = local.transaccionesList;
+      } else {
+        restoreTodayFromLocalStorage();
       }
+    }
+
+    function restoreTodayFromLocalStorage() {
+      var local = loadFromLocalStorage();
+      if (!local) return;
+      var today = new Date().toISOString().slice(0, 10);
+      if (local.lastCierreDate !== today) return;
+      if (local.ventas && typeof local.ventas === 'object') _dataCache.ventas = local.ventas;
+      if (local.transacciones !== undefined) _dataCache.transacciones = local.transacciones;
+      if (state && local.transaccionesList && Array.isArray(local.transaccionesList)) state.transaccionesList = local.transaccionesList;
     }
 
     async function saveDataToSupabase(updates) {
@@ -2474,6 +2524,35 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       errEl.classList.add('show');
       document.getElementById('resetPwdBox').classList.add('hidden');
     };
+    (function () {
+      var termsHtml = '<p><strong>1. ACEPTACIÓN.</strong> Al crear una cuenta en Ferriol OS (“el Servicio”) aceptás estos Términos y Condiciones y el Contrato de Servicio. Si no aceptás, no podés usar el Servicio.</p>' +
+        '<p><strong>2. DESCRIPCIÓN DEL SERVICIO.</strong> Ferriol OS es un sistema de gestión para kioscos y comercios ofrecido “tal cual” (as is). No garantizamos disponibilidad ininterrumpida ni ausencia de errores.</p>' +
+        '<p><strong>3. PÉRDIDA DE DATOS — EXENCIÓN DE RESPONSABILIDAD.</strong> Ferriol OS y sus titulares <strong>no se hacen responsables</strong> por ninguna pérdida, corrupción o indisponibilidad de datos (productos, ventas, deudores, configuraciones o cualquier otro dato cargado en el Servicio). El usuario es responsable de realizar copias de seguridad periódicas utilizando las herramientas que ofrece la aplicación. El Servicio no sustituye el respaldo propio de la información crítica del negocio.</p>' +
+        '<p><strong>4. DATOS Y PROPIEDAD.</strong> Los datos que el usuario ingresa en el Servicio son de su negocio. Ferriol OS actúa como proveedor del software y de la plataforma. El usuario otorga a Ferriol OS la licencia necesaria para almacenar, procesar y mostrar dichos datos con el fin de prestar el Servicio. Ferriol OS no vende los datos personales o de negocio del usuario a terceros. Los datos generados o alojados en la plataforma están sujetos a la política de uso del Servicio y a la legislación aplicable.</p>' +
+        '<p><strong>5. USO ACEPTABLE.</strong> El usuario se compromete a usar el Servicio de forma lícita. Queda prohibido usarlo para actividades ilegales, fraudulentas o que vulneren derechos de terceros. Ferriol OS se reserva el derecho de suspender o dar de baja cuentas que incumplan estos términos.</p>' +
+        '<p><strong>6. LIMITACIÓN DE RESPONSABILIDAD.</strong> En la máxima medida permitida por la ley aplicable, Ferriol OS y sus titulares no serán responsables por daños indirectos, incidentales, especiales, consecuentes o punitivos (incluyendo pérdida de beneficios, datos, clientes o buena voluntad). La responsabilidad total no excederá el monto abonado por el usuario en los últimos 12 meses por el Servicio, o cero si el Servicio fue gratuito.</p>' +
+        '<p><strong>7. EXENCIÓN DE GARANTÍAS.</strong> El Servicio se presta “tal cual” y “según disponibilidad”. No ofrecemos garantías de ningún tipo, expresas o implícitas (incluyendo comerciabilidad o idoneidad para un fin determinado).</p>' +
+        '<p><strong>8. SUSCRIPCIÓN Y CANCELACIÓN.</strong> La suscripción o período de prueba pueden estar sujetos a condiciones adicionales. Ferriol OS puede modificar, suspender o discontinuar el Servicio o estas condiciones, notificando cuando sea razonable. El usuario puede cerrar su cuenta en cualquier momento.</p>' +
+        '<p><strong>9. JURISDICCIÓN.</strong> Estos términos se rigen por las leyes de la República Argentina. Cualquier controversia será sometida a los tribunales competentes en la República Argentina.</p>' +
+        '<p><strong>10. CONTACTO.</strong> Para consultas sobre estos términos: contactar a Ferriol OS por los canales oficiales indicados en la aplicación.</p>' +
+        '<p class="text-white/60 text-xs mt-4">Última actualización: 2025. Ferriol OS.</p>';
+      document.getElementById('openTermsModal').onclick = function () {
+        document.getElementById('termsContent').innerHTML = termsHtml;
+        document.getElementById('termsModal').classList.remove('hidden');
+        document.getElementById('termsModal').classList.add('flex');
+      };
+      document.getElementById('closeTermsModal').onclick = function () {
+        document.getElementById('termsModal').classList.add('hidden');
+        document.getElementById('termsModal').classList.remove('flex');
+      };
+      document.getElementById('termsModal').onclick = function (e) {
+        if (e.target === document.getElementById('termsModal')) {
+          document.getElementById('termsModal').classList.add('hidden');
+          document.getElementById('termsModal').classList.remove('flex');
+        }
+      };
+    })();
+
     document.getElementById('doSignUp').onclick = async () => {
       const email = document.getElementById('signUpEmail').value.trim();
       const password = document.getElementById('signUpPassword').value;
@@ -2481,6 +2560,11 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       const phone = document.getElementById('signUpPhone').value.trim();
       const errEl = document.getElementById('signUpErr');
       errEl.classList.remove('show');
+      if (!document.getElementById('signUpAcceptTerms').checked) {
+        errEl.textContent = 'Debés aceptar los Términos y Condiciones para crear la cuenta.';
+        errEl.classList.add('show');
+        return;
+      }
       if (!email || !password || password.length < 6) {
         errEl.textContent = 'Email y contraseña (mín. 6 caracteres) son obligatorios.';
         errEl.classList.add('show');
@@ -2542,6 +2626,60 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       document.getElementById('headerTitle').textContent = kioscoName || 'Ferriol OS';
     }
     document.getElementById('saveConfig').onclick = () => saveConfig();
+
+    function exportBackup() {
+      if (!currentUser?.id) return;
+      var d = getData();
+      var backup = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        userId: currentUser.id,
+        kioscoName: currentUser.kioscoName || '',
+        products: d.products || {},
+        ventas: d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
+        transacciones: d.transacciones || 0,
+        saldosACobrar: d.saldosACobrar || [],
+        lastCierreDate: d.lastCierreDate || null,
+        transaccionesList: (state && state.transaccionesList) ? state.transaccionesList : []
+      };
+      var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ferriol-respaldo-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      var msg = document.getElementById('backupMessage');
+      if (msg) { msg.textContent = 'Copia exportada. Guardá el archivo en un lugar seguro.'; msg.classList.remove('hidden'); msg.className = 'text-sm mt-2 text-green-400'; setTimeout(function () { msg.classList.add('hidden'); }, 4000); }
+      lucide.createIcons();
+    }
+    function importBackup(file) {
+      if (!file || !currentUser?.id) return;
+      var msgEl = document.getElementById('backupMessage');
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var backup = JSON.parse(reader.result);
+          if (!backup || typeof backup !== 'object') throw new Error('Archivo no válido');
+          if (backup.products && typeof backup.products === 'object') _dataCache.products = backup.products;
+          if (backup.ventas && typeof backup.ventas === 'object') _dataCache.ventas = backup.ventas;
+          if (backup.transacciones !== undefined) _dataCache.transacciones = backup.transacciones;
+          if (backup.saldosACobrar && Array.isArray(backup.saldosACobrar)) _dataCache.saldosACobrar = backup.saldosACobrar;
+          if (backup.lastCierreDate !== undefined) _dataCache.lastCierreDate = backup.lastCierreDate;
+          if (backup.transaccionesList && Array.isArray(backup.transaccionesList) && state) state.transaccionesList = backup.transaccionesList;
+          saveToLocalStorage();
+          setData({ products: _dataCache.products, ventas: _dataCache.ventas, transacciones: _dataCache.transacciones, saldosACobrar: _dataCache.saldosACobrar, lastCierreDate: _dataCache.lastCierreDate });
+          if (msgEl) { msgEl.textContent = 'Datos restaurados correctamente. Recargá la página si no ves los cambios.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-sm mt-2 text-green-400'; setTimeout(function () { msgEl.classList.add('hidden'); }, 5000); }
+          renderInventory();
+          updateDashboard();
+          renderSaldosACobrar();
+        } catch (e) {
+          if (msgEl) { msgEl.textContent = 'Error: ' + (e.message || 'archivo no válido'); msgEl.classList.remove('hidden'); msgEl.className = 'text-sm mt-2 text-red-400'; }
+        }
+      };
+      reader.readAsText(file);
+    }
+    document.getElementById('btnExportBackup').onclick = exportBackup;
+    document.getElementById('inputImportBackup').onchange = function (e) { var f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; };
 
     var adminContact = { whatsapp: '' };
     function getWhatsAppUrl(num, text) {
