@@ -26,7 +26,7 @@
       --indigo-mid: #3730a3;
       --violet-electric: #7c3aed;
       --violet-light: #a78bfa;
-      --white-pure: #ffffff;
+      --white-pure: #ffffff; 
       --glass-bg: rgba(255,255,255,0.08);
       --glass-border: rgba(255,255,255,0.18);
       --glow-violet: rgba(124,58,237,0.4);
@@ -355,6 +355,7 @@
               <p class="text-sm text-white/60 mb-0.5">Resumen del día</p>
               <p id="resumenDiaTexto" class="text-2xl sm:text-3xl font-bold text-[#a78bfa]">Hoy llevás $0</p>
               <p id="resumenDiaVentas" class="text-sm text-white/50 mt-1">0 ventas</p>
+              <p id="resumenDiaUtilidad" class="text-sm text-green-400/90 mt-1">Utilidad: $0</p>
             </div>
             <button type="button" id="btnCobroRapido" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target shrink-0">
               <i data-lucide="zap" class="w-5 h-5"></i> Cobro rápido
@@ -527,6 +528,10 @@
           <div class="flex justify-between py-3 border-b border-white/10">
             <span>Transferir pendiente</span>
             <span id="cajaTransfPend" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between py-3 border-b border-white/10">
+            <span class="text-green-400/90">Utilidad del día</span>
+            <span id="cajaUtilidad" class="font-bold text-green-400">$0</span>
           </div>
           <div class="flex justify-between py-4 text-lg">
             <span class="font-semibold">Total</span>
@@ -877,8 +882,27 @@
       <input type="hidden" id="prodEditCodigo" value="">
       <div class="space-y-4">
         <input type="text" id="prodNombre" placeholder="Nombre" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-        <input type="text" id="prodCodigo" placeholder="Código" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-        <input type="number" id="prodPrecio" placeholder="Precio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <div class="flex gap-2">
+          <input type="text" id="prodCodigo" placeholder="Código" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          <button type="button" id="prodEscanearCodigo" class="btn-neomorphic rounded-xl px-4 py-3 shrink-0 touch-target" title="Escanear código">
+            <i data-lucide="scan" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-white/60 mb-1">Costo ($)</label>
+            <input type="number" id="prodCosto" placeholder="Ej. 2345" min="0" step="1" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          </div>
+          <div>
+            <label class="block text-xs text-white/60 mb-1">Margen de ganancia (%)</label>
+            <input type="number" id="prodMargen" placeholder="Ej. 30" min="0" max="500" step="1" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          </div>
+        </div>
+        <p class="text-xs text-white/50">Precio al consumidor: se redondea al número entero más cercano de 100 (ej. 3048 → $3000).</p>
+        <div>
+          <label class="block text-xs text-white/60 mb-1">Precio al consumidor ($)</label>
+          <input type="number" id="prodPrecio" placeholder="Precio (calculado o manual)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        </div>
         <input type="number" id="prodStock" placeholder="Stock actual" value="10" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         <div id="prodStockInicialWrap" class="hidden">
           <label class="block text-xs text-white/60 mb-1">Stock inicial (solo referencia)</label>
@@ -968,7 +992,7 @@
       ]);
       const products = {};
       (prodsRes.data || []).forEach(p => {
-        products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock };
+        products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock, costo: p.costo != null ? Number(p.costo) : 0 };
       });
       const caja = cajaRes.data;
       _dataCache = {
@@ -990,7 +1014,8 @@
           nombre: p.nombre,
           precio: p.precio || 0,
           stock: p.stock || 0,
-          stock_inicial: p.stockInicial ?? p.stock ?? 0
+          stock_inicial: p.stockInicial ?? p.stock ?? 0,
+          costo: p.costo != null ? Number(p.costo) : 0
         }));
         if (rows.length) await supabaseClient.from('products').insert(rows);
       }
@@ -1031,10 +1056,14 @@
       _restoringFromHistory: false
     };
 
+    function roundToNearest100(x) {
+      if (typeof x !== 'number' || isNaN(x)) return 0;
+      return Math.round(x / 100) * 100;
+    }
     const defaultProducts = {
-      '123456': { nombre: 'Café Premium', precio: 850, stock: 50, codigo: '123456', stockInicial: 50 },
-      '789012': { nombre: 'Alfajor Artesanal', precio: 450, stock: 3, codigo: '789012', stockInicial: 3 },
-      '345678': { nombre: 'Agua Mineral', precio: 320, stock: 20, codigo: '345678', stockInicial: 20 }
+      '123456': { nombre: 'Café Premium', precio: 850, stock: 50, codigo: '123456', stockInicial: 50, costo: 0 },
+      '789012': { nombre: 'Alfajor Artesanal', precio: 450, stock: 3, codigo: '789012', stockInicial: 3, costo: 0 },
+      '345678': { nombre: 'Agua Mineral', precio: 320, stock: 20, codigo: '345678', stockInicial: 20, costo: 0 }
     };
 
     async function initData() {
@@ -1109,6 +1138,12 @@
       document.getElementById('prodEditCodigo').value = codigo;
       document.getElementById('prodNombre').value = p.nombre || '';
       document.getElementById('prodCodigo').value = p.codigo || '';
+      const costo = p.costo != null ? Number(p.costo) : '';
+      document.getElementById('prodCosto').value = costo;
+      const precioNum = p.precio != null ? Number(p.precio) : 0;
+      const costoNum = p.costo != null ? Number(p.costo) : 0;
+      const margen = costoNum > 0 && precioNum > 0 ? Math.round(((precioNum - costoNum) / costoNum) * 100) : '';
+      document.getElementById('prodMargen').value = margen;
       document.getElementById('prodPrecio').value = p.precio ?? '';
       document.getElementById('prodStock').value = p.stock ?? '';
       document.getElementById('prodStockInicialWrap').classList.remove('hidden');
@@ -1117,6 +1152,7 @@
       document.getElementById('deleteProductInModal').classList.remove('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+      lucide.createIcons();
     }
 
     function deleteProduct(codigo) {
@@ -1133,8 +1169,9 @@
       const p = (d.products || {})[codigo];
       if (!p || p.stock <= 0) return;
       const existing = state.cart.find(i => i.codigo === codigo);
+      const costo = p.costo != null ? Number(p.costo) : 0;
       if (existing) existing.cant++;
-      else state.cart.push({ ...p, cant: 1 });
+      else state.cart.push({ ...p, cant: 1, costo });
       const cartQty = state.cart.find(i => i.codigo === codigo).cant;
       const stockInicial = p.stockInicial || p.stock || 1;
       const remaining = Math.max(0, p.stock - cartQty);
@@ -1199,7 +1236,7 @@
     }
     function completeSaleWithMethod(method, clientName) {
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
-      const items = state.cart.map(i => ({ nombre: i.nombre, codigo: i.codigo, precio: i.precio, cant: i.cant }));
+      const items = state.cart.map(i => ({ nombre: i.nombre, codigo: i.codigo, precio: i.precio, cant: i.cant, costo: i.costo != null ? i.costo : 0 }));
       const fechaHora = new Date().toISOString();
       state.transaccionesList.push({
         id: Date.now(),
@@ -1273,6 +1310,16 @@
       const cajaTransfPendEl = document.getElementById('cajaTransfPend');
       if (cajaTransfPendEl) cajaTransfPendEl.textContent = `$${transfPend.toLocaleString('es-AR')}`;
       document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
+      var utilidadDia = (state.transaccionesList || []).reduce(function (sum, t) {
+        return sum + (t.items || []).reduce(function (s, i) {
+          var costo = i.costo != null ? Number(i.costo) : 0;
+          return s + (i.precio - costo) * (i.cant || 0);
+        }, 0);
+      }, 0);
+      var cajaUtilidadEl = document.getElementById('cajaUtilidad');
+      if (cajaUtilidadEl) cajaUtilidadEl.textContent = '$' + Math.round(utilidadDia).toLocaleString('es-AR');
+      var resumenUtilidadEl = document.getElementById('resumenDiaUtilidad');
+      if (resumenUtilidadEl) resumenUtilidadEl.textContent = 'Utilidad: $' + Math.round(utilidadDia).toLocaleString('es-AR');
 
       var resumenEl = document.getElementById('resumenDiaTexto');
       var resumenVentasEl = document.getElementById('resumenDiaVentas');
@@ -1852,6 +1899,18 @@
           const rawCode = codes[0].rawValue;
           const now = Date.now();
           if (rawCode === lastScannedCode && now - lastScanTime < SCAN_COOLDOWN_MS) return;
+          if (window._scanForProductCode) {
+            lastScannedCode = rawCode;
+            lastScanTime = now;
+            var prodCodigoEl = document.getElementById('prodCodigo');
+            if (prodCodigoEl) prodCodigoEl.value = rawCode;
+            window._scanForProductCode = false;
+            goToPanel('inventory');
+            document.getElementById('productModal').classList.remove('hidden');
+            document.getElementById('productModal').classList.add('flex');
+            lucide.createIcons();
+            return;
+          }
           const data = getData();
           const found = findProductByCode(data.products, rawCode);
           if (found && found.product.stock > 0) {
@@ -1897,6 +1956,12 @@
       const fiado = v.fiado || 0;
       const transfPend = v.transferencia_pendiente || 0;
       const total = (v.efectivo || 0) + (v.tarjeta || 0) + (v.transferencia || 0) + fiado + transfPend;
+      var utilidadDiaTicket = (state.transaccionesList || []).reduce(function (sum, t) {
+        return sum + (t.items || []).reduce(function (s, i) {
+          var costo = i.costo != null ? Number(i.costo) : 0;
+          return s + (i.precio - costo) * (i.cant || 0);
+        }, 0);
+      }, 0);
       const t = document.getElementById('ticketContent');
       t.classList.remove('hidden');
       document.getElementById('ticketFecha').textContent = new Date().toLocaleString('es-AR');
@@ -1907,9 +1972,10 @@
         <p>Fiado: $${fiado.toLocaleString('es-AR')}</p>
         <p>Transf. pendiente: $${transfPend.toLocaleString('es-AR')}</p>
         <p>Transacciones: ${d.transacciones || 0}</p>
+        <p class="text-green-400">Utilidad del día: $${Math.round(utilidadDiaTicket).toLocaleString('es-AR')}</p>
       `;
       document.getElementById('ticketTotal').textContent = `TOTAL: $${total.toLocaleString('es-AR')}`;
-      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransf. pendiente: $${transfPend.toLocaleString('es-AR')}\nTransacciones: ${d.transacciones || 0}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
+      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransf. pendiente: $${transfPend.toLocaleString('es-AR')}\nTransacciones: ${d.transacciones || 0}\nUtilidad del día: $${Math.round(utilidadDiaTicket).toLocaleString('es-AR')}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
       if (navigator.share) {
         try {
           await navigator.share({
@@ -1960,12 +2026,15 @@
       document.getElementById('prodNombre').value = '';
       document.getElementById('prodCodigo').value = '';
       document.getElementById('prodPrecio').value = '';
+      document.getElementById('prodCosto').value = '';
+      document.getElementById('prodMargen').value = '';
       document.getElementById('prodStock').value = '10';
       document.getElementById('prodStockInicial').value = '';
       document.getElementById('prodStockInicialWrap').classList.add('hidden');
       document.getElementById('deleteProductInModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+      lucide.createIcons();
     };
     document.getElementById('deleteProductInModal').onclick = () => {
       const codigo = document.getElementById('prodEditCodigo').value;
@@ -1980,13 +2049,30 @@
       document.getElementById('productModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('flex');
     };
+    document.getElementById('prodEscanearCodigo').onclick = () => {
+      document.getElementById('productModal').classList.add('hidden');
+      document.getElementById('productModal').classList.remove('flex');
+      window._scanForProductCode = true;
+      goToPanel('scanner');
+    };
     document.getElementById('addAnotherProduct').onclick = () => {
       closeCart();
     };
+    function updatePrecioFromCostoMargen() {
+      var costo = parseFloat(document.getElementById('prodCosto').value) || 0;
+      var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
+      if (costo > 0 && margen >= 0) {
+        var precioCalc = roundToNearest100(costo * (1 + margen / 100));
+        document.getElementById('prodPrecio').value = precioCalc;
+      }
+    }
+    document.getElementById('prodCosto').addEventListener('input', updatePrecioFromCostoMargen);
+    document.getElementById('prodMargen').addEventListener('input', updatePrecioFromCostoMargen);
     document.getElementById('saveProduct').onclick = () => {
       const nombre = document.getElementById('prodNombre').value.trim();
       const codigoNuevo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
       const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
+      const costo = parseFloat(document.getElementById('prodCosto').value) || 0;
       const stock = parseInt(document.getElementById('prodStock').value) || 0;
       const stockInicialWrap = document.getElementById('prodStockInicialWrap');
       const stockInicialEl = document.getElementById('prodStockInicial');
@@ -2006,16 +2092,17 @@
         if (editCodigo !== codigoNuevo) {
           delete d.products[editCodigo];
         }
-        d.products[codigoNuevo] = { nombre, codigo: codigoNuevo, precio, stock, stockInicial: stockInicialFinal };
+        d.products[codigoNuevo] = { nombre, codigo: codigoNuevo, precio, stock, stockInicial: stockInicialFinal, costo };
         state.cart.forEach(item => {
           if (item.codigo === editCodigo || item.codigo === codigoNuevo) {
             item.codigo = codigoNuevo;
             item.nombre = nombre;
             item.precio = precio;
+            item.costo = costo;
           }
         });
       } else {
-        d.products[codigoNuevo] = { nombre, codigo: codigoNuevo, precio, stock, stockInicial: stockInicial || stock };
+        d.products[codigoNuevo] = { nombre, codigo: codigoNuevo, precio, stock, stockInicial: stockInicial || stock, costo };
       }
       setData(d);
       renderInventory();
