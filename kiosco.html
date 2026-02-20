@@ -384,64 +384,22 @@
               <p class="text-xs text-white/50 mt-1">Ver productos vendidos</p>
             </button>
             <button type="button" id="btnTransCard" class="glass rounded-xl p-4 border border-white/10 text-left transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
-              <p class="text-xs text-white/60 mb-1">Transacciones</p>
-              <p id="metricTrans" class="text-2xl font-bold">0</p>
+              <p class="text-xs text-white/60 mb-1">Ganancia hoy</p>
+              <p id="metricTrans" class="text-2xl font-bold">$0</p>
               <p class="text-xs text-white/50 mt-1">Ver detalle</p>
             </button>
           </div>
         </div>
         <div class="glass rounded-2xl p-6 slide-up" style="animation-delay: 0.05s">
           <h3 class="font-semibold mb-4 flex items-center gap-2">
-            <i data-lucide="bar-chart-3" class="w-4 h-4 text-[#a78bfa]"></i>
-            Ventas por método de pago
+            <i data-lucide="wallet" class="w-4 h-4 text-[#a78bfa]"></i>
+            Saldos a cobrar
           </h3>
-          <div class="space-y-3">
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Efectivo</span>
-                <span id="chartEfectivoPct" class="font-medium">$0</span>
-              </div>
-              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div id="chartEfectivo" class="bar-chart-bar h-full bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] rounded-full" style="width:0%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Tarjeta</span>
-                <span id="chartTarjetaPct" class="font-medium">$0</span>
-              </div>
-              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div id="chartTarjeta" class="bar-chart-bar h-full bg-gradient-to-r from-[#6366f1] to-[#818cf8] rounded-full" style="width:0%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Transferencia</span>
-                <span id="chartTransfPct" class="font-medium">$0</span>
-              </div>
-              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div id="chartTransf" class="bar-chart-bar h-full bg-gradient-to-r from-[#8b5cf6] to-[#c4b5fd] rounded-full" style="width:0%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Fiado</span>
-                <span id="chartFiadoPct" class="font-medium">$0</span>
-              </div>
-              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div id="chartFiado" class="bar-chart-bar h-full bg-gradient-to-r from-[#ec4899] to-[#f472b6] rounded-full" style="width:0%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-sm mb-1">
-                <span>Transf. pendiente</span>
-                <span id="chartTransfPendPct" class="font-medium">$0</span>
-              </div>
-              <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                <div id="chartTransfPend" class="bar-chart-bar h-full bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] rounded-full" style="width:0%"></div>
-              </div>
-            </div>
+          <p class="text-xs text-white/50 mb-3">Fiados y transferencias pendientes. Marcá como pagado cuando cobres.</p>
+          <div id="saldosACobrarList" class="space-y-3 max-h-[40vh] overflow-y-auto">
+            <!-- lista dinámica -->
           </div>
+          <p id="saldosACobrarEmpty" class="text-sm text-white/50 py-4 text-center hidden">No hay saldos pendientes.</p>
         </div>
       </div>
     </section>
@@ -783,7 +741,12 @@
     <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in max-h-[90vh] overflow-y-auto">
       <h3 class="font-bold text-lg mb-2 text-center">¿Cómo cobra?</h3>
       <p class="text-sm text-white/60 text-center mb-2">Elegí el método de pago</p>
-      <input type="text" id="paymentClientName" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      <input type="text" id="paymentClientName" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      <div id="paymentWhatsappWrap" class="hidden mb-4">
+        <label class="block text-xs text-white/70 mb-1">WhatsApp (obligatorio para cobrar después)</label>
+        <input type="tel" id="paymentWhatsapp" placeholder="Ej: 54911 1234-5678" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <p id="paymentWhatsappErr" class="text-red-300 text-xs mt-1 hidden">Ingresá el número de WhatsApp para poder cobrar después.</p>
+      </div>
       <div class="grid grid-cols-2 gap-3">
         <button data-payment="efectivo" class="payment-option glass rounded-xl p-4 flex flex-col items-center gap-2 border border-white/10 hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target transition-all">
           <i data-lucide="banknote" class="w-8 h-8 text-[#a78bfa]"></i>
@@ -829,7 +792,12 @@
       </div>
       <p class="text-xs text-white/50 mb-2">Monto ($)</p>
       <input type="number" id="cobroRapidoMonto" placeholder="Monto ($)" min="1" step="1" class="w-full glass rounded-xl px-4 py-4 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-xl text-center mb-3">
-      <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      <div id="cobroRapidoWhatsappWrap" class="hidden mb-4">
+        <label class="block text-xs text-white/70 mb-1">WhatsApp (obligatorio para fiado / transf. pendiente)</label>
+        <input type="tel" id="cobroRapidoWhatsapp" placeholder="Ej: 54911 1234-5678" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <p id="cobroRapidoWhatsappErr" class="text-red-300 text-xs mt-1 hidden">Ingresá el número de WhatsApp.</p>
+      </div>
       <p class="text-sm text-white/60 mb-2">Método de pago</p>
       <div class="grid grid-cols-2 gap-2 mb-4">
         <button type="button" data-quick-payment="efectivo" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
@@ -878,7 +846,10 @@
   <div id="productModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" id="modalOverlay"></div>
     <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md scale-in">
-      <h3 class="font-bold text-lg mb-4" id="productModalTitle">Nuevo producto</h3>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg" id="productModalTitle">Nuevo producto</h3>
+        <button type="button" id="productModalBack" class="btn-neomorphic rounded-xl p-2 touch-target" title="Atrás (cancelar)"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+      </div>
       <input type="hidden" id="prodEditCodigo" value="">
       <div class="space-y-4">
         <input type="text" id="prodNombre" placeholder="Nombre" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
@@ -981,65 +952,133 @@
     const DEFAULT_WHATSAPP = 'Hola {cliente}, te recordamos que tenés un saldo de ${monto} en nuestro kiosco. ¡Gracias!';
 
     let currentUser = null;
-    let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [] };
+    let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [], saldosACobrar: [], lastCierreDate: null };
+
+    const STORAGE_KEY_PREFIX = 'ferriol_data_';
+    function getStorageKey() { return currentUser?.id ? STORAGE_KEY_PREFIX + currentUser.id : null; }
+    function loadFromLocalStorage() {
+      const key = getStorageKey();
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (data && typeof data === 'object' && data.products) return data;
+      } catch (e) { console.warn('Ferriol localStorage load:', e); }
+      return null;
+    }
+    function saveToLocalStorage() {
+      const key = getStorageKey();
+      if (!key || !currentUser?.id) return;
+      try {
+        localStorage.setItem(key, JSON.stringify({
+          products: _dataCache.products || {},
+          ventas: _dataCache.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
+          transacciones: _dataCache.transacciones || 0,
+          deudores: _dataCache.deudores || [],
+          saldosACobrar: _dataCache.saldosACobrar || [],
+          lastCierreDate: _dataCache.lastCierreDate || null,
+          transaccionesList: (typeof state !== 'undefined' && state.transaccionesList) ? state.transaccionesList : []
+        }));
+      } catch (e) { console.warn('Ferriol localStorage save:', e); }
+    }
 
     async function loadDataFromSupabase() {
-      if (!supabaseClient || !currentUser?.id) return;
-      const uid = currentUser.id;
-      const [prodsRes, cajaRes] = await Promise.all([
-        supabaseClient.from('products').select('*').eq('user_id', uid),
-        supabaseClient.from('caja').select('*').eq('user_id', uid).maybeSingle()
-      ]);
-      const products = {};
-      (prodsRes.data || []).forEach(p => {
-        products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock, costo: p.costo != null ? Number(p.costo) : 0 };
-      });
-      const caja = cajaRes.data;
-      _dataCache = {
-        products,
-        ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado), transferencia_pendiente: Number(caja.transferencia_pendiente || 0) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
-        transacciones: caja ? (caja.transacciones || 0) : 0,
-        deudores: []
-      };
+      const uid = currentUser?.id;
+      if (!uid) return;
+      if (supabaseClient) {
+        try {
+          var prevLocal = loadFromLocalStorage();
+          const [prodsRes, cajaRes] = await Promise.all([
+            supabaseClient.from('products').select('*').eq('user_id', uid),
+            supabaseClient.from('caja').select('*').eq('user_id', uid).maybeSingle()
+          ]);
+          const products = {};
+          (prodsRes.data || []).forEach(p => {
+            products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock, costo: p.costo != null ? Number(p.costo) : 0 };
+          });
+          const caja = cajaRes.data;
+          _dataCache = {
+            products,
+            ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado), transferencia_pendiente: Number(caja.transferencia_pendiente || 0) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
+            transacciones: caja ? (caja.transacciones || 0) : 0,
+            deudores: _dataCache.deudores || [],
+            saldosACobrar: (prevLocal && prevLocal.saldosACobrar) ? prevLocal.saldosACobrar : (_dataCache.saldosACobrar || []),
+            lastCierreDate: (prevLocal && prevLocal.lastCierreDate) ? prevLocal.lastCierreDate : (_dataCache.lastCierreDate || null)
+          };
+          saveToLocalStorage();
+          return;
+        } catch (e) { console.warn('Supabase load failed, using localStorage:', e); }
+      }
+      var local = loadFromLocalStorage();
+      if (local) {
+        _dataCache.products = local.products || {};
+        _dataCache.ventas = local.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
+        _dataCache.transacciones = local.transacciones || 0;
+        _dataCache.deudores = local.deudores || [];
+        _dataCache.saldosACobrar = local.saldosACobrar || [];
+        _dataCache.lastCierreDate = local.lastCierreDate || null;
+        var today = new Date().toISOString().slice(0, 10);
+        if (local.transaccionesList && Array.isArray(local.transaccionesList) && local.lastCierreDate === today && state) state.transaccionesList = local.transaccionesList;
+      }
     }
 
     async function saveDataToSupabase(updates) {
-      if (!supabaseClient || !currentUser?.id) return;
-      const uid = currentUser.id;
-      if (updates.products !== undefined) {
-        await supabaseClient.from('products').delete().eq('user_id', uid);
-        const rows = Object.entries(updates.products).map(([codigo, p]) => ({
-          user_id: uid,
-          codigo,
-          nombre: p.nombre,
-          precio: p.precio || 0,
-          stock: p.stock || 0,
-          stock_inicial: p.stockInicial ?? p.stock ?? 0,
-          costo: p.costo != null ? Number(p.costo) : 0
-        }));
-        if (rows.length) await supabaseClient.from('products').insert(rows);
-      }
-      if (updates.ventas !== undefined || updates.transacciones !== undefined) {
-        const v = updates.ventas || _dataCache.ventas;
-        const t = updates.transacciones !== undefined ? updates.transacciones : _dataCache.transacciones;
-        await supabaseClient.from('caja').upsert({
-          user_id: uid,
-          efectivo: v.efectivo || 0,
-          tarjeta: v.tarjeta || 0,
-          transferencia: v.transferencia || 0,
-          fiado: v.fiado || 0,
-          transferencia_pendiente: (v.transferencia_pendiente || 0),
-          transacciones: t
-        }, { onConflict: 'user_id' });
-      }
+      const uid = currentUser?.id;
+      if (!uid) return;
+      saveToLocalStorage();
+      if (!supabaseClient) return;
+      try {
+        if (updates.products !== undefined) {
+          await supabaseClient.from('products').delete().eq('user_id', uid);
+          const rows = Object.entries(updates.products).map(([codigo, p]) => ({
+            user_id: uid,
+            codigo,
+            nombre: p.nombre,
+            precio: p.precio || 0,
+            stock: p.stock || 0,
+            stock_inicial: p.stockInicial ?? p.stock ?? 0,
+            costo: p.costo != null ? Number(p.costo) : 0
+          }));
+          if (rows.length) await supabaseClient.from('products').insert(rows);
+        }
+        if (updates.ventas !== undefined || updates.transacciones !== undefined) {
+          const v = updates.ventas || _dataCache.ventas;
+          const t = updates.transacciones !== undefined ? updates.transacciones : _dataCache.transacciones;
+          await supabaseClient.from('caja').upsert({
+            user_id: uid,
+            efectivo: v.efectivo || 0,
+            tarjeta: v.tarjeta || 0,
+            transferencia: v.transferencia || 0,
+            fiado: v.fiado || 0,
+            transferencia_pendiente: (v.transferencia_pendiente || 0),
+            transacciones: t
+          }, { onConflict: 'user_id' });
+        }
+      } catch (e) { console.warn('Supabase save failed, data saved in this device (localStorage):', e); }
     }
 
     function getData() {
-      if (!currentUser?.id) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [] };
+      if (!currentUser?.id) return { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [], saldosACobrar: [], lastCierreDate: null };
       const d = _dataCache;
       d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
       d.deudores = d.deudores || [];
+      d.saldosACobrar = d.saldosACobrar || [];
       return d;
+    }
+
+    function checkMidnightReset() {
+      var today = new Date().toISOString().slice(0, 10);
+      var last = _dataCache.lastCierreDate;
+      if (last && last !== today) {
+        _dataCache.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
+        _dataCache.transacciones = 0;
+        state.transaccionesList = [];
+        _dataCache.lastCierreDate = today;
+        setData({ ventas: _dataCache.ventas, transacciones: 0, lastCierreDate: today });
+      } else if (!last) {
+        _dataCache.lastCierreDate = today;
+      }
     }
     function setData(updates) {
       if (!currentUser?.id) return;
@@ -1068,6 +1107,7 @@
 
     async function initData() {
       await loadDataFromSupabase();
+      checkMidnightReset();
       const d = getData();
       if (Object.keys(d.products).length === 0) {
         d.products = JSON.parse(JSON.stringify(defaultProducts));
@@ -1225,6 +1265,9 @@
       const cartClient = document.getElementById('cartClientName');
       const paymentClient = document.getElementById('paymentClientName');
       if (cartClient && paymentClient) paymentClient.value = cartClient.value.trim();
+      document.getElementById('paymentWhatsappWrap').classList.remove('hidden');
+      document.getElementById('paymentWhatsapp').value = '';
+      var we = document.getElementById('paymentWhatsappErr'); if (we) we.classList.add('hidden');
       document.getElementById('paymentModal').classList.remove('hidden');
       document.getElementById('paymentModal').classList.add('flex');
       if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'payment' }, '', location.href);
@@ -1234,7 +1277,7 @@
       document.getElementById('paymentModal').classList.add('hidden');
       document.getElementById('paymentModal').classList.remove('flex');
     }
-    function completeSaleWithMethod(method, clientName) {
+    function completeSaleWithMethod(method, clientName, whatsapp) {
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
       const items = state.cart.map(i => ({ nombre: i.nombre, codigo: i.codigo, precio: i.precio, cant: i.cant, costo: i.costo != null ? i.costo : 0 }));
       const fechaHora = new Date().toISOString();
@@ -1246,6 +1289,20 @@
         total,
         fechaHora
       });
+      if (method === 'fiado' || method === 'transferencia_pendiente') {
+        var list = _dataCache.saldosACobrar || [];
+        list.push({
+          id: Date.now() + '_' + Math.random().toString(36).slice(2),
+          clientName: (clientName || '').trim() || 'Cliente',
+          whatsapp: (whatsapp || '').trim() || '',
+          items: [...items],
+          total: total,
+          method: method,
+          paid: false,
+          createdAt: fechaHora
+        });
+        _dataCache.saldosACobrar = list;
+      }
       if (supabaseClient && currentUser?.id) {
         supabaseClient.from('ventas').insert({
           user_id: currentUser.id,
@@ -1264,6 +1321,7 @@
         if (d.products[item.codigo]) d.products[item.codigo].stock -= item.cant;
       });
       state.cart = [];
+      d.lastCierreDate = new Date().toISOString().slice(0, 10);
       setData(d);
       updateCartUI();
       updateDashboard();
@@ -1276,32 +1334,20 @@
     }
 
     function updateDashboard() {
+      checkMidnightReset();
       const d = getData();
       const ventas = d.ventas || {};
       const fiado = ventas.fiado || 0;
       const transfPend = ventas.transferencia_pendiente || 0;
       const total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado + transfPend;
       document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
-      document.getElementById('metricTrans').textContent = d.transacciones || 0;
-
-      const vEf = ventas.efectivo || 0, vTj = ventas.tarjeta || 0, vTr = ventas.transferencia || 0, vTp = transfPend || 0;
-      const pctEf = total ? Math.round((vEf / total) * 100) : 0;
-      const pctTj = total ? Math.round((vTj / total) * 100) : 0;
-      const pctTr = total ? Math.round((vTr / total) * 100) : 0;
-      const pctFd = total ? Math.round((fiado / total) * 100) : 0;
-      const pctTp = total ? Math.round((transfPend / total) * 100) : 0;
-      document.getElementById('chartEfectivo').style.width = pctEf + '%';
-      document.getElementById('chartEfectivoPct').textContent = `$${vEf.toLocaleString('es-AR')}`;
-      document.getElementById('chartTarjeta').style.width = pctTj + '%';
-      document.getElementById('chartTarjetaPct').textContent = `$${vTj.toLocaleString('es-AR')}`;
-      document.getElementById('chartTransf').style.width = pctTr + '%';
-      document.getElementById('chartTransfPct').textContent = `$${vTr.toLocaleString('es-AR')}`;
-      document.getElementById('chartFiado').style.width = pctFd + '%';
-      document.getElementById('chartFiadoPct').textContent = `$${fiado.toLocaleString('es-AR')}`;
-      const chartTpEl = document.getElementById('chartTransfPend');
-      const chartTpPctEl = document.getElementById('chartTransfPendPct');
-      if (chartTpEl) chartTpEl.style.width = pctTp + '%';
-      if (chartTpPctEl) chartTpPctEl.textContent = `$${vTp.toLocaleString('es-AR')}`;
+      var utilidadDia = (state.transaccionesList || []).reduce(function (sum, t) {
+        return sum + (t.items || []).reduce(function (s, i) {
+          var costo = i.costo != null ? Number(i.costo) : 0;
+          return s + (i.precio - costo) * (i.cant || 0);
+        }, 0);
+      }, 0);
+      document.getElementById('metricTrans').textContent = '$' + Math.round(utilidadDia).toLocaleString('es-AR');
 
       document.getElementById('cajaEfectivo').textContent = `$${(ventas.efectivo || 0).toLocaleString('es-AR')}`;
       document.getElementById('cajaTarjeta').textContent = `$${(ventas.tarjeta || 0).toLocaleString('es-AR')}`;
@@ -1326,7 +1372,49 @@
       if (resumenEl) resumenEl.textContent = 'Hoy llevás $' + total.toLocaleString('es-AR');
       if (resumenVentasEl) resumenVentasEl.textContent = (d.transacciones || 0) + ' ventas';
 
+      renderSaldosACobrar();
       renderFrequentProducts();
+    }
+    function renderSaldosACobrar() {
+      var list = (_dataCache.saldosACobrar || []).filter(function (s) { return !s.paid; });
+      var listEl = document.getElementById('saldosACobrarList');
+      var emptyEl = document.getElementById('saldosACobrarEmpty');
+      if (!listEl) return;
+      if (list.length === 0) {
+        listEl.innerHTML = '';
+        if (emptyEl) { emptyEl.classList.remove('hidden'); }
+        return;
+      }
+      if (emptyEl) emptyEl.classList.add('hidden');
+      var methodLabels = { fiado: 'Fiado', transferencia_pendiente: 'Transf. pendiente' };
+      listEl.innerHTML = list.map(function (s) {
+        var itemsText = (s.items || []).map(function (i) { return (i.nombre || '') + ' x' + (i.cant || 0) + ' $' + (i.precio || 0).toLocaleString('es-AR'); }).join(', ');
+        var tel = (s.whatsapp || '').replace(/\D/g, '');
+        var msg = (currentUser && currentUser.whatsappMessage) ? currentUser.whatsappMessage : DEFAULT_WHATSAPP;
+        msg = msg.replace(/\{cliente\}/gi, s.clientName || 'Cliente').replace(/\{monto\}/gi, (s.total || 0));
+        var waUrl = tel.length >= 8 ? ('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg)) : '#';
+        return '<div class="glass rounded-xl p-4 border border-white/10" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
+          '<div class="flex justify-between items-start gap-2 flex-wrap">' +
+          '<div class="min-w-0 flex-1">' +
+          '<p class="font-medium truncate">' + (s.clientName || 'Cliente').replace(/</g, '&lt;') + '</p>' +
+          '<p class="text-xs text-white/60 mt-0.5">' + (methodLabels[s.method] || s.method) + (s.whatsapp ? ' · ' + s.whatsapp.replace(/</g, '&lt;') : '') + '</p>' +
+          '<p class="text-xs text-white/50 mt-1 truncate" title="' + itemsText.replace(/"/g, '&quot;') + '">' + itemsText.replace(/</g, '&lt;').slice(0, 60) + (itemsText.length > 60 ? '…' : '') + '</p>' +
+          '<p class="font-semibold text-[#a78bfa] mt-1">$' + (s.total || 0).toLocaleString('es-AR') + '</p>' +
+          '</div>' +
+          '<div class="flex gap-2 shrink-0">' +
+          (tel.length >= 8 ? '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn-neomorphic rounded-xl py-2 px-3 text-sm touch-target inline-flex items-center gap-1" title="Enviar WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>' : '') +
+          '<button type="button" class="saldo-pagar-btn btn-glow rounded-xl py-2 px-3 text-sm font-medium touch-target" data-id="' + (s.id || '').replace(/"/g, '&quot;') + '">Pagado</button>' +
+          '</div></div></div></div>';
+      }).join('');
+      listEl.querySelectorAll('.saldo-pagar-btn').forEach(function (btn) {
+        btn.onclick = function () {
+          var id = btn.dataset.id;
+          var list = _dataCache.saldosACobrar || [];
+          var idx = list.findIndex(function (x) { return x.id === id; });
+          if (idx >= 0) { list[idx].paid = true; setData({ saldosACobrar: list }); renderSaldosACobrar(); updateDashboard(); }
+        };
+      });
+      lucide.createIcons();
     }
     function getFrequentProductsToday(maxItems) {
       var list = state.transaccionesList || [];
@@ -1378,6 +1466,9 @@
       document.getElementById('cobroRapidoCliente').value = '';
       document.getElementById('cobroRapidoOtroNombre').value = '';
       document.getElementById('cobroRapidoOtroWrap').classList.add('hidden');
+      var crw = document.getElementById('cobroRapidoWhatsappWrap'); if (crw) crw.classList.add('hidden');
+      document.getElementById('cobroRapidoWhatsapp').value = '';
+      var crwe = document.getElementById('cobroRapidoWhatsappErr'); if (crwe) crwe.classList.add('hidden');
       document.querySelectorAll('.cobro-rapido-producto').forEach(function (el) {
         el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
       });
@@ -1402,7 +1493,7 @@
       document.getElementById('cobroRapidoModal').classList.add('hidden');
       document.getElementById('cobroRapidoModal').classList.remove('flex');
     }
-    function completeQuickSale(method, clientName) {
+    function completeQuickSale(method, clientName, whatsapp) {
       var montoEl = document.getElementById('cobroRapidoMonto');
       var amount = parseInt(montoEl.value.replace(/\D/g, ''), 10) || 0;
       if (amount <= 0) {
@@ -1411,9 +1502,23 @@
       }
       var productName = getCobroRapidoProductoNombre();
       var codigoRapida = '_rapida_' + (productName.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta');
-      var items = [{ nombre: productName, codigo: codigoRapida, precio: amount, cant: 1 }];
+      var items = [{ nombre: productName, codigo: codigoRapida, precio: amount, cant: 1, costo: 0 }];
       var total = amount;
       var fechaHora = new Date().toISOString();
+      if (method === 'fiado' || method === 'transferencia_pendiente') {
+        var list = _dataCache.saldosACobrar || [];
+        list.push({
+          id: Date.now() + '_' + Math.random().toString(36).slice(2),
+          clientName: (clientName || '').trim() || 'Cliente',
+          whatsapp: (whatsapp || '').trim() || '',
+          items: items,
+          total: total,
+          method: method,
+          paid: false,
+          createdAt: fechaHora
+        });
+        _dataCache.saldosACobrar = list;
+      }
       state.transaccionesList.push({
         id: Date.now(),
         method: method,
@@ -1436,6 +1541,7 @@
       d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
       d.ventas[method] = (d.ventas[method] || 0) + total;
       d.transacciones = (d.transacciones || 0) + 1;
+      d.lastCierreDate = new Date().toISOString().slice(0, 10);
       setData(d);
       updateDashboard();
       closeCobroRapidoModal();
@@ -1500,6 +1606,7 @@
       if (cartDrawer) { cartDrawer.classList.add('hidden'); cartDrawer.classList.remove('flex'); }
     }
     function showPanel(name) {
+      if (name !== 'scanner') window._scanForProductCode = false;
       state.currentPanel = name;
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const navKey = (name === 'deudores' || name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
@@ -1560,7 +1667,18 @@
       btn.onclick = function () {
         var method = btn.dataset.quickPayment;
         var clientName = document.getElementById('cobroRapidoCliente').value.trim();
-        completeQuickSale(method, clientName);
+        var whatsappRaw = (document.getElementById('cobroRapidoWhatsapp') && document.getElementById('cobroRapidoWhatsapp').value) ? document.getElementById('cobroRapidoWhatsapp').value.trim() : '';
+        var whatsappDigits = (whatsappRaw || '').replace(/\D/g, '');
+        if (method === 'fiado' || method === 'transferencia_pendiente') {
+          document.getElementById('cobroRapidoWhatsappWrap').classList.remove('hidden');
+          if (whatsappDigits.length < 8) {
+            document.getElementById('cobroRapidoWhatsappErr').textContent = 'Ingresá el número de WhatsApp (mín. 8 dígitos) para poder cobrar después.';
+            document.getElementById('cobroRapidoWhatsappErr').classList.remove('hidden');
+            return;
+          }
+        }
+        document.getElementById('cobroRapidoWhatsappErr').classList.add('hidden');
+        completeQuickSale(method, clientName, whatsappRaw || whatsappDigits);
       };
     });
 
@@ -1831,9 +1949,23 @@
 
     document.querySelectorAll('[data-payment]').forEach(btn => {
       btn.onclick = () => {
+        const method = btn.dataset.payment;
         const client = document.getElementById('paymentClientName')?.value?.trim() || '';
-        completeSaleWithMethod(btn.dataset.payment, client);
+        const whatsappRaw = document.getElementById('paymentWhatsapp')?.value?.trim() || '';
+        const whatsappDigits = (whatsappRaw || '').replace(/\D/g, '');
+        if (method === 'fiado' || method === 'transferencia_pendiente') {
+          document.getElementById('paymentWhatsappWrap').classList.remove('hidden');
+          if (whatsappDigits.length < 8) {
+            var errEl = document.getElementById('paymentWhatsappErr');
+            if (errEl) { errEl.textContent = 'Ingresá el número de WhatsApp (mín. 8 dígitos) para poder cobrar después.'; errEl.classList.remove('hidden'); }
+            document.getElementById('paymentWhatsapp').focus();
+            return;
+          }
+        }
+        document.getElementById('paymentWhatsappErr').classList.add('hidden');
+        completeSaleWithMethod(method, client, whatsappRaw || whatsappDigits);
         document.getElementById('paymentClientName').value = '';
+        document.getElementById('paymentWhatsapp').value = '';
         document.getElementById('cartClientName').value = '';
       };
     });
@@ -1994,6 +2126,7 @@
         const d = getData();
         d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
         d.transacciones = 0;
+        d.lastCierreDate = new Date().toISOString().slice(0, 10);
         state.transaccionesList = [];
         Object.keys(d.products || {}).forEach(function (codigo) {
           var p = d.products[codigo];
@@ -2045,10 +2178,13 @@
         document.getElementById('productModal').classList.remove('flex');
       }
     };
-    document.getElementById('modalOverlay').onclick = () => {
+    function closeProductModal() {
+      window._scanForProductCode = false;
       document.getElementById('productModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('flex');
-    };
+    }
+    document.getElementById('modalOverlay').onclick = closeProductModal;
+    document.getElementById('productModalBack').onclick = closeProductModal;
     document.getElementById('prodEscanearCodigo').onclick = () => {
       document.getElementById('productModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('flex');
