@@ -353,9 +353,9 @@
           <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <p class="text-sm text-white/60 mb-0.5">Resumen del día</p>
-              <p id="resumenDiaTexto" class="text-2xl sm:text-3xl font-bold text-[#a78bfa]">Hoy llevás $0</p>
+              <p id="resumenDiaTexto" class="text-2xl sm:text-3xl font-bold text-[#a78bfa]">Entraron $0</p>
               <p id="resumenDiaVentas" class="text-sm text-white/50 mt-1">0 ventas</p>
-              <p id="resumenDiaUtilidad" class="text-sm text-green-400/90 mt-1">Utilidad: $0</p>
+              <p id="resumenDiaUtilidad" class="text-sm text-green-400/90 mt-1">Ganancia (precio − costo): $0</p>
             </div>
             <button type="button" id="btnCobroRapido" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target shrink-0">
               <i data-lucide="zap" class="w-5 h-5"></i> Cobro rápido
@@ -379,14 +379,14 @@
           </h2>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             <button type="button" id="btnVentasCard" class="glass rounded-xl p-4 border border-white/10 text-left transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
-              <p class="text-xs text-white/60 mb-1">Ventas</p>
+              <p class="text-xs text-white/60 mb-1">Dinero que entró</p>
               <p id="metricVentas" class="text-2xl font-bold text-[#a78bfa]">$0</p>
-              <p class="text-xs text-white/50 mt-1">Ver productos vendidos</p>
+              <p class="text-xs text-white/50 mt-1">Facturación del día</p>
             </button>
             <button type="button" id="btnTransCard" class="glass rounded-xl p-4 border border-white/10 text-left transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
-              <p class="text-xs text-white/60 mb-1">Ganancia hoy</p>
-              <p id="metricTrans" class="text-2xl font-bold">$0</p>
-              <p class="text-xs text-white/50 mt-1">Ver detalle</p>
+              <p class="text-xs text-white/60 mb-1">Ganancia / Rentabilidad</p>
+              <p id="metricTrans" class="text-2xl font-bold text-green-400">$0</p>
+              <p class="text-xs text-white/50 mt-1">Precio − costo de productos</p>
             </button>
           </div>
         </div>
@@ -488,7 +488,7 @@
             <span id="cajaTransfPend" class="font-bold">$0</span>
           </div>
           <div class="flex justify-between py-3 border-b border-white/10">
-            <span class="text-green-400/90">Utilidad del día</span>
+            <span class="text-green-400/90">Ganancia del día (precio − costo)</span>
             <span id="cajaUtilidad" class="font-bold text-green-400">$0</span>
           </div>
           <div class="flex justify-between py-4 text-lg">
@@ -1365,11 +1365,11 @@
       var cajaUtilidadEl = document.getElementById('cajaUtilidad');
       if (cajaUtilidadEl) cajaUtilidadEl.textContent = '$' + Math.round(utilidadDia).toLocaleString('es-AR');
       var resumenUtilidadEl = document.getElementById('resumenDiaUtilidad');
-      if (resumenUtilidadEl) resumenUtilidadEl.textContent = 'Utilidad: $' + Math.round(utilidadDia).toLocaleString('es-AR');
+      if (resumenUtilidadEl) resumenUtilidadEl.textContent = 'Ganancia (precio − costo): $' + Math.round(utilidadDia).toLocaleString('es-AR');
 
       var resumenEl = document.getElementById('resumenDiaTexto');
       var resumenVentasEl = document.getElementById('resumenDiaVentas');
-      if (resumenEl) resumenEl.textContent = 'Hoy llevás $' + total.toLocaleString('es-AR');
+      if (resumenEl) resumenEl.textContent = 'Entraron $' + total.toLocaleString('es-AR');
       if (resumenVentasEl) resumenVentasEl.textContent = (d.transacciones || 0) + ' ventas';
 
       renderSaldosACobrar();
@@ -2103,11 +2103,11 @@
         <p>Transferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}</p>
         <p>Fiado: $${fiado.toLocaleString('es-AR')}</p>
         <p>Transf. pendiente: $${transfPend.toLocaleString('es-AR')}</p>
-        <p>Transacciones: ${d.transacciones || 0}</p>
-        <p class="text-green-400">Utilidad del día: $${Math.round(utilidadDiaTicket).toLocaleString('es-AR')}</p>
+        <p>Cant. ventas: ${d.transacciones || 0}</p>
+        <p class="text-green-400">Ganancia del día (precio − costo): $${Math.round(utilidadDiaTicket).toLocaleString('es-AR')}</p>
       `;
-      document.getElementById('ticketTotal').textContent = `TOTAL: $${total.toLocaleString('es-AR')}`;
-      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransf. pendiente: $${transfPend.toLocaleString('es-AR')}\nTransacciones: ${d.transacciones || 0}\nUtilidad del día: $${Math.round(utilidadDiaTicket).toLocaleString('es-AR')}\n\nTOTAL: $${total.toLocaleString('es-AR')}`;
+      document.getElementById('ticketTotal').textContent = `TOTAL facturado: $${total.toLocaleString('es-AR')}`;
+      const texto = `FERRIOL OS - Cierre de Caja\n${new Date().toLocaleString('es-AR')}\n\nEfectivo: $${(v.efectivo || 0).toLocaleString('es-AR')}\nTarjeta: $${(v.tarjeta || 0).toLocaleString('es-AR')}\nTransferencia: $${(v.transferencia || 0).toLocaleString('es-AR')}\nFiado: $${fiado.toLocaleString('es-AR')}\nTransf. pendiente: $${transfPend.toLocaleString('es-AR')}\nCant. ventas: ${d.transacciones || 0}\nGanancia del día (precio − costo): $${Math.round(utilidadDiaTicket).toLocaleString('es-AR')}\n\nTOTAL facturado: $${total.toLocaleString('es-AR')}`;
       if (navigator.share) {
         try {
           await navigator.share({
