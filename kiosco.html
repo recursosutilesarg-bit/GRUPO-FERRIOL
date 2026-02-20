@@ -467,6 +467,9 @@
           <button id="addProduct" class="btn-glow rounded-xl px-4 py-3 sm:py-2.5 flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Agregar
           </button>
+          <button type="button" id="exportProductosCSVBtn" class="btn-neomorphic rounded-xl px-4 py-3 sm:py-2.5 flex items-center justify-center gap-2 touch-target" title="Exportar a Excel/hoja de cálculo">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar CSV
+          </button>
         </div>
         <div id="inventoryList" class="inventory-scroll space-y-2 sm:space-y-3 max-h-[55vh] sm:max-h-[60vh] overflow-y-auto">
           <!-- productos dinámicos -->
@@ -481,6 +484,7 @@
           <i data-lucide="banknote" class="w-5 h-5 text-[#a78bfa]"></i>
           Cierre de caja ejecutivo
         </h2>
+        <p class="text-sm text-white/70 mb-4">Al cerrar caja se guarda el resumen del día y se reinician los totales (efectivo, tarjeta, etc.) para empezar el día siguiente. Las ventas ya quedan guardadas en el historial.</p>
         <div id="cajaSummary" class="space-y-4 mb-6">
           <div class="flex justify-between py-3 border-b border-white/10">
             <span>Efectivo</span>
@@ -520,42 +524,7 @@
       </div>
     </section>
 
-    <!-- Deudores VIP -->
-    <section id="panel-deudores" class="panel hidden">
-      <div class="glass rounded-2xl p-6 slide-up">
-        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
-          <i data-lucide="user-check" class="w-5 h-5 text-[#a78bfa]"></i>
-          Deudores VIP — Cobro por WhatsApp
-        </h2>
-        <div class="space-y-4 mb-6">
-          <div>
-            <label class="block text-sm text-white/70 mb-2">Cliente</label>
-            <input type="text" id="deudorNombre" placeholder="Nombre del cliente" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-          </div>
-          <div>
-            <label class="block text-sm text-white/70 mb-2">Teléfono (con código país)</label>
-            <input type="tel" id="deudorTel" placeholder="5493513703186" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-          </div>
-          <div>
-            <label class="block text-sm text-white/70 mb-2">Monto adeudado</label>
-            <input type="number" id="deudorMonto" placeholder="0" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-          </div>
-          <div>
-            <label class="block text-sm text-white/70 mb-2">Nivel de confianza</label>
-            <select id="deudorConfianza" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] bg-[#1e1b4b]/80">
-              <option value="amigo">Amigo / Cliente frecuente</option>
-              <option value="regular">Cliente regular</option>
-              <option value="nuevo">Cliente nuevo</option>
-            </select>
-          </div>
-        </div>
-        <button id="sendWhatsApp" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
-          <i data-lucide="message-circle" class="w-5 h-5"></i> Enviar cobro por WhatsApp
-        </button>
-      </div>
-    </section>
-
-    <!-- Más (Deudores + Config) — pantalla de acceso rápido -->
+    <!-- Más — Historial, Configuración, Clientes -->
     <section id="panel-mas" class="panel hidden">
       <div class="glass rounded-2xl p-6 slide-up">
         <h2 class="font-bold text-xl mb-6 flex items-center gap-2">
@@ -563,26 +532,19 @@
           Más opciones
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <button data-nav="deudores" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
+          <button data-nav="historial" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
             <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
-              <i data-lucide="users" class="w-7 h-7 text-[#a78bfa]"></i>
+              <i data-lucide="history" class="w-7 h-7 text-[#a78bfa]"></i>
             </div>
-            <span class="font-semibold text-base">Deudores VIP</span>
-            <span class="text-xs text-white/60">Cobro por WhatsApp</span>
+            <span class="font-semibold text-base">Historial</span>
+            <span class="text-xs text-white/60">Ventas y deudores</span>
           </button>
           <button data-nav="config" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
             <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
               <i data-lucide="settings" class="w-7 h-7 text-[#a78bfa]"></i>
             </div>
             <span class="font-semibold text-base">Configuración</span>
-            <span class="text-xs text-white/60">Nombre y mensajes</span>
-          </button>
-          <button data-nav="historial" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
-            <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
-              <i data-lucide="history" class="w-7 h-7 text-[#a78bfa]"></i>
-            </div>
-            <span class="font-semibold text-base">Historial de ventas</span>
-            <span class="text-xs text-white/60">Últimos 2 meses</span>
+            <span class="text-xs text-white/60">Nombre, mensajes y copia de seguridad</span>
           </button>
           <button data-nav="clientes" class="glass rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-3 text-left w-full transition-all hover:border-[#7c3aed]/50 active:scale-[0.98] touch-target">
             <div class="w-14 h-14 rounded-2xl bg-[#7c3aed]/30 flex items-center justify-center">
@@ -595,23 +557,60 @@
       </div>
     </section>
 
-    <!-- Historial de ventas (últimos 2 meses) -->
+    <!-- Historial unificado: Ventas + Deudores (con pestañas) -->
     <section id="panel-historial" class="panel hidden">
       <div class="glass rounded-2xl p-6 slide-up">
-        <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
-          <i data-lucide="history" class="w-5 h-5 text-[#a78bfa]"></i>
-          Historial de ventas
-        </h2>
-        <p class="text-xs text-white/50 mb-4">Últimos 2 meses. Cada venta muestra fecha, hora, cliente y productos.</p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-filter="hoy">Hoy</button>
-          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="ayer">Ayer</button>
-          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana">Esta semana</button>
-          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana_pasada">Semana pasada</button>
-          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="mes">Último mes</button>
-          <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="2meses">Últimos 2 meses</button>
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+          <h2 class="font-bold text-xl flex items-center gap-2">
+            <i data-lucide="history" class="w-5 h-5 text-[#a78bfa]"></i>
+            Historial
+          </h2>
+          <div class="flex gap-2">
+            <button type="button" class="historial-tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all touch-target bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-tab="ventas">Ventas</button>
+            <button type="button" class="historial-tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all touch-target glass border border-white/10" data-tab="deudores">Deudores</button>
+          </div>
         </div>
-        <div id="historialList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+        <!-- Pestaña Ventas -->
+        <div id="historialVentasWrap" class="historial-tab-pane">
+          <p class="text-xs text-white/50 mb-4">Filtros por período. Tocá una venta y «Ver detalles» para recordar la compra.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-filter="hoy">Hoy</button>
+            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="ayer">Ayer</button>
+            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana">Esta semana</button>
+            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana_pasada">Semana pasada</button>
+            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="mes">Último mes</button>
+            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="2meses">Últimos 2 meses</button>
+            <button type="button" id="exportVentasCSVBtn" class="btn-neomorphic rounded-xl px-4 py-2 text-sm flex items-center justify-center gap-2 touch-target ml-auto" title="Exportar a Excel/hoja de cálculo">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar CSV
+            </button>
+          </div>
+          <div id="historialList" class="space-y-3 max-h-[55vh] overflow-y-auto"></div>
+        </div>
+        <!-- Pestaña Deudores -->
+        <div id="historialDeudoresWrap" class="historial-tab-pane hidden">
+          <p class="text-xs text-white/50 mb-4">Pendientes de cobro y quienes ya pagaron. Tocá una venta cobrada para ver el detalle.</p>
+          <div class="space-y-6 mb-4">
+            <div>
+              <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm text-white/90">
+                <i data-lucide="clock" class="w-4 h-4 text-[#f59e0b]"></i>
+                Pendientes de cobro
+              </h3>
+              <div id="deudoresPendientesList" class="space-y-3 max-h-[30vh] overflow-y-auto"></div>
+              <p id="deudoresPendientesEmpty" class="text-sm text-white/50 py-3 hidden">No hay saldos pendientes.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm text-white/90">
+                <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+                Cobrados
+              </h3>
+              <div id="deudoresCobradosList" class="space-y-3 max-h-[30vh] overflow-y-auto"></div>
+              <p id="deudoresCobradosEmpty" class="text-sm text-white/50 py-3 hidden">Aún no hay deudores cobrados.</p>
+            </div>
+          </div>
+          <button type="button" id="exportDeudoresCSVBtn" class="w-full btn-neomorphic rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target" title="Exportar a Excel/hoja de cálculo">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Exportar historial de deudores a hoja de cálculo (CSV)
+          </button>
+        </div>
       </div>
     </section>
 
@@ -639,6 +638,7 @@
           <i data-lucide="settings" class="w-5 h-5 text-[#a78bfa]"></i>
           Configuración del kiosco
         </h2>
+        <p class="text-sm text-white/70 mb-4">Podés exportar o importar una copia de tus datos (productos, ventas del día, saldos a cobrar) más abajo en esta pantalla.</p>
         <div class="space-y-4">
           <div>
             <label class="block text-sm text-white/70 mb-2">Nombre del kiosco</label>
@@ -650,12 +650,12 @@
           </div>
           <button id="saveConfig" class="btn-glow rounded-xl py-3 px-6 font-semibold">Guardar</button>
 
-          <div class="mt-8 pt-6 border-t border-white/10">
+          <div class="mt-6 pt-6 border-t border-white/10">
             <h3 class="font-semibold mb-2 flex items-center gap-2">
               <i data-lucide="database-backup" class="w-4 h-4 text-[#a78bfa]"></i>
               Copia de seguridad
             </h3>
-            <p class="text-sm text-white/60 mb-3">Antes de una actualización, exportá tus datos. Si algo falla, importá el archivo para recuperar todo.</p>
+            <p class="text-sm text-white/60 mb-3">Exportá tus datos (productos, caja, saldos a cobrar) antes de una actualización. Si algo falla, importá el archivo para recuperar todo.</p>
             <div class="flex flex-wrap gap-3">
               <button type="button" id="btnExportBackup" class="btn-glow rounded-xl py-3 px-4 font-medium flex items-center gap-2 touch-target">
                 <i data-lucide="download" class="w-4 h-4"></i> Exportar copia
@@ -674,44 +674,65 @@
     <!-- Panel Súper: lista de kiosqueros -->
     <section id="panel-super" class="panel hidden">
       <div class="glass rounded-2xl p-4 sm:p-6 slide-up space-y-6 sm:space-y-8">
-        <!-- Contacto del administrador (solo WhatsApp) -->
-        <div class="glass rounded-xl p-4 border border-white/10">
-          <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i data-lucide="message-circle" class="w-4 h-4 text-[#a78bfa]"></i>
-            WhatsApp del administrador
-          </h3>
-          <p class="text-xs text-white/50 mb-3">Número con código de país (ej. 54911 1234-5678). Los kiosqueros verán este contacto cuando la cuenta esté desactivada o se termine la prueba.</p>
-          <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
-          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar WhatsApp</button>
-          <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+        <!-- Botón destacado: Nuevo kiosquero -->
+        <div class="flex justify-end">
+          <button type="button" id="btnOpenNewKiosqueroModal" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target">
+            <i data-lucide="user-plus" class="w-5 h-5"></i> Nuevo kiosquero
+          </button>
         </div>
+        <!-- Lista Kiosqueros — Membresías -->
         <div>
           <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
             <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
             Kiosqueros — Membresías
           </h2>
-          <p class="text-xs text-white/50 mb-3">Tocá un negocio para ver detalles y gestionar membresía, estado y contraseña.</p>
+          <p class="text-xs text-white/50 mb-3">Tocá un negocio para ver detalles y gestionar membresía (cuenta regresiva en días, horas, minutos y segundos), estado y contraseña.</p>
           <div id="superUsersList" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
             <!-- Lista por nombre de negocio (se llena con JS) -->
           </div>
         </div>
-        <div class="border-t border-white/10 pt-6">
-          <h3 class="font-semibold mb-4 flex items-center gap-2">
-            <i data-lucide="user-plus" class="w-4 h-4 text-[#a78bfa]"></i>
-            Crear nuevo usuario
+        <!-- Ajustes: WhatsApp administrador -->
+        <div class="glass rounded-xl p-4 border border-white/10">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <i data-lucide="settings" class="w-4 h-4 text-[#a78bfa]"></i>
+            Ajustes
           </h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <input type="email" id="newUserEmail" placeholder="Email (usuario)" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-            <input type="password" id="newUserPassword" placeholder="Contraseña" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-            <input type="text" id="newUserKioscoName" placeholder="Nombre del kiosco (opcional)" class="glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-            <button type="button" id="btnCreateUser" class="btn-glow rounded-xl py-3 px-4 font-semibold flex items-center justify-center gap-2">
-              <i data-lucide="user-plus" class="w-4 h-4"></i> Crear usuario
-            </button>
-          </div>
-          <p id="createUserMsg" class="text-sm text-white/60 hidden"></p>
+          <p class="text-xs text-white/50 mb-2">WhatsApp del administrador (con código de país, ej. 54911 1234-5678). Los kiosqueros verán este contacto cuando la cuenta esté desactivada o se termine la prueba.</p>
+          <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar WhatsApp</button>
+          <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
         </div>
       </div>
     </section>
+
+    <!-- Modal Nuevo kiosquero (registro desde admin) -->
+    <div id="newKiosqueroModal" class="fixed inset-0 z-[74] hidden items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="newKiosqueroModalOverlay"></div>
+      <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scale-in">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg">Nuevo kiosquero</h3>
+          <button type="button" id="newKiosqueroModalClose" class="btn-neomorphic rounded-xl p-2 touch-target">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="text-sm text-white/70 mb-4">Completá los datos para dar de alta un nuevo usuario. Podrá iniciar sesión con el email y contraseña que ingreses.</p>
+        <div id="newKiosqueroErr" class="login-err hidden mb-3"></div>
+        <input type="email" id="newKiosqueroEmail" placeholder="Email (obligatorio)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+        <input type="tel" id="newKiosqueroPhone" placeholder="Teléfono (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+        <div class="password-wrap mb-3">
+          <input type="password" id="newKiosqueroPassword" placeholder="Contraseña (mín. 6)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" minlength="6">
+          <label class="toggle-pwd" for="showNewKiosqueroPwd" title="Ver contraseña">
+            <input type="checkbox" id="showNewKiosqueroPwd" class="pwd-checkbox">
+            <span class="pwd-label">Ver</span>
+          </label>
+        </div>
+        <input type="text" id="newKiosqueroKioscoName" placeholder="Nombre del negocio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-4">
+        <button type="button" id="btnCreateUserInModal" class="btn-glow rounded-xl py-3 w-full font-semibold flex items-center justify-center gap-2 touch-target">
+          <i data-lucide="user-plus" class="w-5 h-5"></i> Crear kiosquero
+        </button>
+        <p id="createUserMsgModal" class="text-sm mt-3 text-green-300 hidden"></p>
+      </div>
+    </div>
 
     <!-- Modal detalle de usuario (admin) -->
     <div id="superUserDetailModal" class="fixed inset-0 z-[75] hidden items-center justify-center p-4">
@@ -946,6 +967,42 @@
     </div>
   </div>
 
+  <!-- Modal Detalle de venta (historial) -->
+  <div id="detalleVentaModal" class="fixed inset-0 z-[67] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="detalleVentaModalOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <i data-lucide="receipt" class="w-5 h-5 text-[#a78bfa]"></i>
+          Detalle de la venta
+        </h3>
+        <button type="button" id="detalleVentaModalClose" class="btn-neomorphic rounded-xl p-2 touch-target">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="detalleVentaModalContent" class="space-y-3 text-sm"></div>
+      <button type="button" id="detalleVentaModalCloseBtn" class="mt-4 w-full btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal Detalle deudor cobrado -->
+  <div id="detalleDeudorModal" class="fixed inset-0 z-[67] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="detalleDeudorModalOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+          Detalle de la compra (cobrado)
+        </h3>
+        <button type="button" id="detalleDeudorModalClose" class="btn-neomorphic rounded-xl p-2 touch-target">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="detalleDeudorModalContent" class="space-y-3 text-sm"></div>
+      <button type="button" id="detalleDeudorModalCloseBtn" class="mt-4 w-full btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cerrar</button>
+    </div>
+  </div>
+
   <!-- Toast (escáner: producto no encontrado / agregado) -->
   <div id="scanToast" class="fixed bottom-24 left-4 right-4 z-[80] hidden items-center justify-center pointer-events-none">
     <span id="scanToastText" class="glass-strong rounded-xl px-4 py-3 text-sm font-medium shadow-lg"></span>
@@ -983,6 +1040,75 @@
       : null;
 
     const DEFAULT_WHATSAPP = 'Hola {cliente}, te recordamos que tenés un saldo de ${monto} en nuestro kiosco. ¡Gracias!';
+
+    function escapeCSV(str) {
+      if (str == null) return '';
+      var s = String(str);
+      if (/[;,"\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+    function downloadCSV(filename, csvContent) {
+      var BOM = '\uFEFF';
+      var blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    function exportDeudoresCSV() {
+      var list = _dataCache.saldosACobrar || [];
+      var header = 'Cliente;Estado;Fecha;Método;Total;WhatsApp;Productos';
+      var rows = list.map(function (s) {
+        var estado = s.paid ? 'Cobrado' : 'Pendiente';
+        var fecha = (s.createdAt ? new Date(s.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
+        var productos = (s.items || []).map(function (i) { return (i.nombre || '') + ' x' + (i.cant || 0) + ' $' + (i.precio || 0); }).join(' | ');
+        return escapeCSV(s.clientName || '') + ';' + escapeCSV(estado) + ';' + escapeCSV(fecha) + ';' + escapeCSV(s.method === 'fiado' ? 'Fiado' : 'Transf. pendiente') + ';' + (s.total || 0) + ';' + escapeCSV(s.whatsapp || '') + ';' + escapeCSV(productos);
+      });
+      var csv = header + '\r\n' + rows.join('\r\n');
+      downloadCSV('historial_deudores_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    }
+    function exportProductosCSV() {
+      var prods = getData().products || {};
+      var header = 'Código;Nombre;Precio;Costo;Ganancia unitaria;Stock';
+      var rows = Object.entries(prods).map(function (_ref) {
+        var codigo = _ref[0];
+        var p = _ref[1];
+        var precio = Number(p.precio) || 0;
+        var costo = Number(p.costo) || 0;
+        var ganancia = precio - costo;
+        return escapeCSV(codigo) + ';' + escapeCSV(p.nombre || '') + ';' + precio + ';' + costo + ';' + ganancia + ';' + (p.stock != null ? p.stock : '');
+      });
+      var csv = header + '\r\n' + rows.join('\r\n');
+      downloadCSV('productos_precios_ganancias_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    }
+    async function exportVentasCSV() {
+      if (!supabaseClient || !currentUser?.id) {
+        alert('Configurá Supabase para exportar el historial de ventas.');
+        return;
+      }
+      var end = new Date();
+      var start = new Date(end);
+      start.setMonth(start.getMonth() - 2);
+      start.setHours(0, 0, 0, 0);
+      var rangeStart = start.toISOString();
+      var rangeEnd = end.toISOString();
+      var methodLabels = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', fiado: 'Fiado', transferencia_pendiente: 'Transf. pendiente' };
+      var _r = await supabaseClient.from('ventas').select('id, fecha_hora, total, metodo_pago, cliente_nombre, items').eq('user_id', currentUser.id).gte('fecha_hora', rangeStart).lte('fecha_hora', rangeEnd).order('fecha_hora', { ascending: false });
+      var list = _r.data || [];
+      if (_r.error) {
+        alert('No se pudo cargar el historial. Revisá la tabla ventas en Supabase.');
+        return;
+      }
+      var header = 'Fecha y hora;Cliente;Método de pago;Total;Productos';
+      var rows = list.map(function (v) {
+        var fecha = v.fecha_hora ? new Date(v.fecha_hora).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+        var productos = (v.items || []).map(function (i) { return (i.nombre || '') + ' x' + (i.cant || 0) + ' $' + ((i.precio || 0) * (i.cant || 0)); }).join(' | ');
+        return escapeCSV(fecha) + ';' + escapeCSV(v.cliente_nombre || '') + ';' + escapeCSV(methodLabels[v.metodo_pago] || v.metodo_pago) + ';' + (v.total || 0) + ';' + escapeCSV(productos);
+      });
+      var csv = header + '\r\n' + rows.join('\r\n');
+      downloadCSV('historial_ventas_' + new Date().toISOString().slice(0, 10) + '.csv', csv);
+    }
 
     let currentUser = null;
     let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [], saldosACobrar: [], lastCierreDate: null };
@@ -1142,7 +1268,9 @@
       cart: [],
       transaccionesList: [],  // { id, method, client, items: [{ nombre, codigo, precio, cant }], total }
       currentPanel: 'dashboard',
-      _restoringFromHistory: false
+      _restoringFromHistory: false,
+      historialTab: 'ventas',
+      historialFilter: '2meses'
     };
 
     function roundToNearest100(x) {
@@ -1461,11 +1589,125 @@
           var id = btn.dataset.id;
           var list = _dataCache.saldosACobrar || [];
           var idx = list.findIndex(function (x) { return x.id === id; });
-          if (idx >= 0) { list[idx].paid = true; setData({ saldosACobrar: list }); renderSaldosACobrar(); updateDashboard(); }
+          if (idx >= 0) { list[idx].paid = true; setData({ saldosACobrar: list }); renderSaldosACobrar(); updateDashboard(); if (document.getElementById('panel-historial') && !document.getElementById('panel-historial').classList.contains('hidden') && state.historialTab === 'deudores') renderDeudoresPanel(); }
         };
       });
       lucide.createIcons();
     }
+    var methodLabelsDeudores = { fiado: 'Fiado', transferencia_pendiente: 'Transf. pendiente' };
+    function renderDeudoresPanel() {
+      var list = _dataCache.saldosACobrar || [];
+      var pendientes = list.filter(function (s) { return !s.paid; });
+      var cobrados = list.filter(function (s) { return s.paid; });
+      var pendientesEl = document.getElementById('deudoresPendientesList');
+      var cobradosEl = document.getElementById('deudoresCobradosList');
+      var pendientesEmpty = document.getElementById('deudoresPendientesEmpty');
+      var cobradosEmpty = document.getElementById('deudoresCobradosEmpty');
+      if (pendientesEl) {
+        if (pendientes.length === 0) {
+          pendientesEl.innerHTML = '';
+          if (pendientesEmpty) pendientesEmpty.classList.remove('hidden');
+        } else {
+          if (pendientesEmpty) pendientesEmpty.classList.add('hidden');
+          var msg = (currentUser && currentUser.whatsappMessage) ? currentUser.whatsappMessage : DEFAULT_WHATSAPP;
+          pendientesEl.innerHTML = pendientes.map(function (s) {
+            var itemsText = (s.items || []).map(function (i) { return (i.nombre || '') + ' x' + (i.cant || 0); }).join(', ');
+            var tel = (s.whatsapp || '').replace(/\D/g, '');
+            var waMsg = msg.replace(/\{cliente\}/gi, s.clientName || 'Cliente').replace(/\{monto\}/gi, (s.total || 0));
+            var waUrl = tel.length >= 8 ? ('https://wa.me/' + tel + '?text=' + encodeURIComponent(waMsg)) : '#';
+            return '<div class="glass rounded-xl p-4 border border-white/10" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
+              '<div class="flex justify-between items-start gap-2 flex-wrap">' +
+              '<div class="min-w-0 flex-1">' +
+              '<p class="font-medium truncate">' + (s.clientName || 'Cliente').replace(/</g, '&lt;') + '</p>' +
+              '<p class="text-xs text-white/60 mt-0.5">' + (methodLabelsDeudores[s.method] || s.method) + '</p>' +
+              '<p class="text-xs text-white/50 mt-1 truncate" title="' + itemsText.replace(/"/g, '&quot;') + '">' + itemsText.replace(/</g, '&lt;').slice(0, 50) + (itemsText.length > 50 ? '…' : '') + '</p>' +
+              '<p class="font-semibold text-[#a78bfa] mt-1">$' + (s.total || 0).toLocaleString('es-AR') + '</p>' +
+              '</div>' +
+              '<div class="flex gap-2 shrink-0">' +
+              (tel.length >= 8 ? '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn-neomorphic rounded-xl py-2 px-3 text-sm touch-target inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-4 h-4"></i></a>' : '') +
+              '<button type="button" class="deudor-pagar-btn btn-glow rounded-xl py-2 px-3 text-sm font-medium touch-target" data-id="' + (s.id || '').replace(/"/g, '&quot;') + '">Pagado</button>' +
+              '</div></div></div>';
+          }).join('');
+          pendientesEl.querySelectorAll('.deudor-pagar-btn').forEach(function (btn) {
+            btn.onclick = function () {
+              var id = btn.dataset.id;
+              var arr = _dataCache.saldosACobrar || [];
+              var idx = arr.findIndex(function (x) { return x.id === id; });
+              if (idx >= 0) { arr[idx].paid = true; setData({ saldosACobrar: arr }); renderSaldosACobrar(); updateDashboard(); renderDeudoresPanel(); }
+            };
+          });
+        }
+      }
+      if (cobradosEl) {
+        if (cobrados.length === 0) {
+          cobradosEl.innerHTML = '';
+          if (cobradosEmpty) cobradosEmpty.classList.remove('hidden');
+        } else {
+          if (cobradosEmpty) cobradosEmpty.classList.add('hidden');
+          cobradosEl.innerHTML = cobrados.map(function (s) {
+            var fecha = (s.createdAt ? new Date(s.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
+            return '<button type="button" class="deudor-cobrado-card w-full text-left glass rounded-xl p-4 border border-white/10 hover:border-[#7c3aed]/40 active:scale-[0.99] transition-all touch-target" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
+              '<p class="font-medium truncate">' + (s.clientName || 'Cliente').replace(/</g, '&lt;') + '</p>' +
+              '<p class="text-xs text-white/60 mt-0.5">' + fecha + ' · ' + (methodLabelsDeudores[s.method] || s.method) + '</p>' +
+              '<p class="font-semibold text-green-400 mt-1">$' + (s.total || 0).toLocaleString('es-AR') + '</p>' +
+              '</button>';
+          }).join('');
+          cobradosEl.querySelectorAll('.deudor-cobrado-card').forEach(function (btn) {
+            btn.onclick = function () {
+              var id = btn.dataset.saldoId;
+              var saldo = (_dataCache.saldosACobrar || []).find(function (x) { return x.id === id; });
+              if (saldo) openDetalleDeudorModal(saldo);
+            };
+          });
+        }
+      }
+      lucide.createIcons();
+    }
+    function openDetalleDeudorModal(saldo) {
+      var content = document.getElementById('detalleDeudorModalContent');
+      if (!content) return;
+      var fecha = (saldo.createdAt ? new Date(saldo.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
+      var items = (saldo.items || []).map(function (i) {
+        var subtotal = (i.precio || 0) * (i.cant || 0);
+        return '<li class="flex justify-between py-1 border-b border-white/10">' +
+          '<span>' + (i.nombre || '—').replace(/</g, '&lt;') + ' x ' + (i.cant || 0) + '</span>' +
+          '<span>$' + subtotal.toLocaleString('es-AR') + '</span></li>';
+      }).join('');
+      content.innerHTML = '<p><span class="text-white/50">Cliente:</span> ' + (saldo.clientName || '—').replace(/</g, '&lt;') + '</p>' +
+        '<p><span class="text-white/50">Fecha:</span> ' + fecha + '</p>' +
+        '<p><span class="text-white/50">Método:</span> ' + (methodLabelsDeudores[saldo.method] || saldo.method) + '</p>' +
+        '<p><span class="text-white/50">Total:</span> <strong class="text-[#a78bfa]">$' + (saldo.total || 0).toLocaleString('es-AR') + '</strong></p>' +
+        '<div class="pt-2"><p class="text-white/70 mb-2">Productos:</p><ul class="space-y-0">' + items + '</ul></div>';
+      document.getElementById('detalleDeudorModal').classList.remove('hidden');
+      document.getElementById('detalleDeudorModal').classList.add('flex');
+      lucide.createIcons();
+    }
+    function openDetalleVentaModal(v) {
+      var content = document.getElementById('detalleVentaModalContent');
+      if (!content || !v) return;
+      var fmt = (s) => s ? new Date(s).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+      var methodLabels = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', fiado: 'Fiado', transferencia_pendiente: 'Transf. pend.' };
+      var items = (v.items || []).map(function (i) {
+        var subtotal = (i.precio || 0) * (i.cant || 0);
+        return '<li class="flex justify-between py-1 border-b border-white/10">' +
+          '<span>' + (i.nombre || '—').replace(/</g, '&lt;') + ' x ' + (i.cant || 0) + '</span>' +
+          '<span>$' + subtotal.toLocaleString('es-AR') + '</span></li>';
+      }).join('');
+      content.innerHTML = '<p><span class="text-white/50">Fecha y hora:</span> ' + fmt(v.fecha_hora) + '</p>' +
+        '<p><span class="text-white/50">Cliente:</span> ' + (v.cliente_nombre || '—').replace(/</g, '&lt;') + '</p>' +
+        '<p><span class="text-white/50">Método de pago:</span> ' + (methodLabels[v.metodo_pago] || v.metodo_pago) + '</p>' +
+        '<p><span class="text-white/50">Total:</span> <strong class="text-[#a78bfa]">$' + Number(v.total).toLocaleString('es-AR') + '</strong></p>' +
+        '<div class="pt-2"><p class="text-white/70 mb-2">Productos:</p><ul class="space-y-0">' + items + '</ul></div>';
+      document.getElementById('detalleVentaModal').classList.remove('hidden');
+      document.getElementById('detalleVentaModal').classList.add('flex');
+      lucide.createIcons();
+    }
+    document.getElementById('detalleVentaModalClose').onclick = function () { document.getElementById('detalleVentaModal').classList.add('hidden'); document.getElementById('detalleVentaModal').classList.remove('flex'); };
+    document.getElementById('detalleVentaModalCloseBtn').onclick = function () { document.getElementById('detalleVentaModal').classList.add('hidden'); document.getElementById('detalleVentaModal').classList.remove('flex'); };
+    document.getElementById('detalleVentaModalOverlay').onclick = function () { document.getElementById('detalleVentaModal').classList.add('hidden'); document.getElementById('detalleVentaModal').classList.remove('flex'); };
+    document.getElementById('detalleDeudorModalClose').onclick = function () { document.getElementById('detalleDeudorModal').classList.add('hidden'); document.getElementById('detalleDeudorModal').classList.remove('flex'); };
+    document.getElementById('detalleDeudorModalCloseBtn').onclick = function () { document.getElementById('detalleDeudorModal').classList.add('hidden'); document.getElementById('detalleDeudorModal').classList.remove('flex'); };
+    document.getElementById('detalleDeudorModalOverlay').onclick = function () { document.getElementById('detalleDeudorModal').classList.add('hidden'); document.getElementById('detalleDeudorModal').classList.remove('flex'); };
     function getFrequentProductsToday(maxItems) {
       var list = state.transaccionesList || [];
       var agg = {};
@@ -1614,6 +1856,21 @@
     }
 
     // Navegación (barra inferior + panel Más)
+    function showLoginScreenTrialEnded() {
+      document.getElementById('appWrap').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('loginFormWrap').classList.remove('hidden');
+      document.getElementById('signUpBox').classList.add('hidden');
+      var errEl = document.getElementById('loginErr');
+      errEl.textContent = 'Tu período de prueba terminó. La cuenta se desactivó. Contactá por WhatsApp para renovar.';
+      errEl.classList.add('show');
+      var wrap = document.getElementById('loginContactAdminWrap');
+      var link = document.getElementById('loginContactWhatsAppBtn');
+      if (wrap && link) {
+        link.href = getWhatsAppUrl(window._adminWhatsappForContact || adminContact.whatsapp, 'Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
+        wrap.classList.remove('hidden');
+      }
+    }
     function updateTrialCountdown() {
       const banner = document.getElementById('trialCountdownBanner');
       const textEl = document.getElementById('trialCountdownText');
@@ -1623,11 +1880,30 @@
       if (!endsAt) { banner.classList.add('hidden'); return; }
       const end = new Date(endsAt);
       const now = new Date();
-      const daysLeft = Math.ceil((end - now) / (24 * 60 * 60 * 1000));
-      if (daysLeft <= 0) { banner.classList.add('hidden'); return; }
+      const msLeft = end - now;
+      if (msLeft <= 0) {
+        banner.classList.add('hidden');
+        if (supabaseClient && currentUser && currentUser.id && !currentUser._trialBlockTriggered) {
+          currentUser._trialBlockTriggered = true;
+          supabaseClient.from('profiles').update({ active: false }).eq('id', currentUser.id).then(function () {
+            loadAdminContactForTrialEnded().then(function () {
+              window._adminWhatsappForContact = adminContact.whatsapp;
+              supabaseClient.auth.signOut().then(showLoginScreenTrialEnded);
+            });
+          });
+        }
+        return;
+      }
+      const daysLeft = Math.ceil(msLeft / (24 * 60 * 60 * 1000));
       banner.classList.remove('hidden');
       daysEl.textContent = daysLeft;
       textEl.textContent = daysLeft === 1 ? 'Último día de prueba' : (daysLeft + ' días de prueba restantes');
+    }
+    function loadAdminContactForTrialEnded() {
+      if (!supabaseClient) return Promise.resolve();
+      return supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle().then(function (r) {
+        if (r.data && r.data.value) adminContact.whatsapp = r.data.value;
+      }).catch(function () {});
     }
     document.getElementById('trialRenovarBtn') && document.getElementById('trialRenovarBtn').addEventListener('click', function () {
       var link = document.getElementById('renovarWhatsAppLink');
@@ -1650,6 +1926,8 @@
       document.getElementById('paymentModal') && (function () { var m = document.getElementById('paymentModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
       document.getElementById('cobroRapidoModal') && (function () { var m = document.getElementById('cobroRapidoModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
       document.getElementById('renovarModal') && (function () { var m = document.getElementById('renovarModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      document.getElementById('detalleVentaModal') && (function () { var m = document.getElementById('detalleVentaModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
+      document.getElementById('detalleDeudorModal') && (function () { var m = document.getElementById('detalleDeudorModal'); m.classList.add('hidden'); m.classList.remove('flex'); })();
       var cartPanel = document.getElementById('cartPanel');
       var cartDrawer = document.getElementById('cartDrawer');
       if (cartPanel) cartPanel.classList.remove('translate-x-0');
@@ -1659,20 +1937,29 @@
       if (name !== 'scanner') window._scanForProductCode = false;
       state.currentPanel = name;
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const navKey = (name === 'deudores' || name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
+      const navKey = (name === 'config' || name === 'historial' || name === 'clientes') ? 'mas' : name;
       const btn = document.querySelector('[data-nav="' + navKey + '"]');
       if (btn) btn.classList.add('active');
       document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
       const panel = document.getElementById('panel-' + name);
       if (panel) panel.classList.remove('hidden');
       if (name === 'config') fillConfigForm();
-      if (name === 'super') renderSuper();
+      if (name === 'super') {
+        if (superListCountdownInterval) clearInterval(superListCountdownInterval);
+        renderSuper();
+        superListCountdownInterval = setInterval(updateSuperListCountdowns, 1000);
+      } else {
+        if (superListCountdownInterval) { clearInterval(superListCountdownInterval); superListCountdownInterval = null; }
+      }
       if (name === 'dashboard') {
         updateTrialCountdown();
         updateDashboard();
         if (currentUser && currentUser.role === 'kiosquero') loadAdminContact();
       }
-      if (name === 'historial') renderHistorial('2meses');
+      if (name === 'historial') {
+        switchHistorialTab('ventas');
+        renderHistorial('2meses');
+      }
       if (name === 'clientes') loadClientes().then(renderClientes);
       lucide.createIcons();
     }
@@ -1882,7 +2169,8 @@
         return;
       }
       const fmt = (s) => s ? new Date(s).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
-      listEl.innerHTML = list.map(v => {
+      state.historialRows = list;
+      listEl.innerHTML = list.map((v, idx) => {
         const items = (v.items || []);
         return `
           <div class="glass rounded-xl p-3 border border-white/10">
@@ -1897,13 +2185,37 @@
             <ul class="mt-2 pt-2 border-t border-white/10 space-y-0.5 text-xs text-white/70">
               ${items.map(i => `<li>${(i.nombre || '').replace(/</g, '&lt;')} x ${i.cant} — $${((i.precio || 0) * (i.cant || 0)).toLocaleString('es-AR')}</li>`).join('')}
             </ul>
+            <button type="button" class="historial-ver-detalles mt-2 w-full py-2 rounded-lg text-xs font-medium bg-[#7c3aed]/30 border border-[#7c3aed]/50 hover:bg-[#7c3aed]/50 touch-target" data-index="${idx}">Ver detalles</button>
           </div>
         `;
       }).join('');
+      listEl.querySelectorAll('.historial-ver-detalles').forEach(btn => {
+        btn.onclick = () => {
+          const idx = parseInt(btn.dataset.index, 10);
+          if (state.historialRows && state.historialRows[idx]) openDetalleVentaModal(state.historialRows[idx]);
+        };
+      });
       lucide.createIcons();
     }
     document.querySelectorAll('.historial-filter').forEach(btn => {
-      btn.onclick = () => renderHistorial(btn.dataset.filter);
+      btn.onclick = () => { state.historialFilter = btn.dataset.filter; renderHistorial(btn.dataset.filter); };
+    });
+    function switchHistorialTab(tabName) {
+      state.historialTab = tabName;
+      var ventasWrap = document.getElementById('historialVentasWrap');
+      var deudoresWrap = document.getElementById('historialDeudoresWrap');
+      document.querySelectorAll('.historial-tab-btn').forEach(function (btn) {
+        var isActive = btn.dataset.tab === tabName;
+        btn.className = 'historial-tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all touch-target ' + (isActive ? 'bg-[#7c3aed]/30 border border-[#7c3aed]/50' : 'glass border border-white/10');
+      });
+      if (ventasWrap) ventasWrap.classList.toggle('hidden', tabName !== 'ventas');
+      if (deudoresWrap) deudoresWrap.classList.toggle('hidden', tabName !== 'deudores');
+      if (tabName === 'ventas') renderHistorial(state.historialFilter || '2meses');
+      if (tabName === 'deudores') renderDeudoresPanel();
+      lucide.createIcons();
+    }
+    document.querySelectorAll('.historial-tab-btn').forEach(function (btn) {
+      btn.onclick = function () { switchHistorialTab(btn.dataset.tab); };
     });
 
     let clientesCache = [];
@@ -2187,15 +2499,22 @@
       }
     };
 
-    // WhatsApp Deudores — usa mensaje configurado en Ajustes ({cliente}, {monto})
-    document.getElementById('sendWhatsApp').onclick = () => {
-      const tel = document.getElementById('deudorTel').value.replace(/\D/g, '');
-      const nombre = document.getElementById('deudorNombre').value || 'Cliente';
-      const monto = document.getElementById('deudorMonto').value || '0';
-      const template = (currentUser && currentUser.whatsappMessage) ? currentUser.whatsappMessage : DEFAULT_WHATSAPP;
-      const msg = template.replace(/\{cliente\}/gi, nombre).replace(/\{monto\}/gi, monto);
-      window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
-    };
+    document.getElementById('exportDeudoresCSVBtn').onclick = function () { exportDeudoresCSV(); lucide.createIcons(); };
+    document.getElementById('exportProductosCSVBtn').onclick = function () { exportProductosCSV(); lucide.createIcons(); };
+    document.getElementById('exportVentasCSVBtn').onclick = function () { exportVentasCSV().then(function () { lucide.createIcons(); }); };
+
+    // WhatsApp Deudores (manual) — solo si existe el botón (bloque opcional)
+    var sendWhatsAppEl = document.getElementById('sendWhatsApp');
+    if (sendWhatsAppEl) {
+      sendWhatsAppEl.onclick = function () {
+        var tel = (document.getElementById('deudorTel') && document.getElementById('deudorTel').value || '').replace(/\D/g, '');
+        var nombre = (document.getElementById('deudorNombre') && document.getElementById('deudorNombre').value) || 'Cliente';
+        var monto = (document.getElementById('deudorMonto') && document.getElementById('deudorMonto').value) || '0';
+        var template = (currentUser && currentUser.whatsappMessage) ? currentUser.whatsappMessage : DEFAULT_WHATSAPP;
+        var msg = template.replace(/\{cliente\}/gi, nombre).replace(/\{monto\}/gi, monto);
+        window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
+      };
+    }
 
     // Modal producto
     document.getElementById('addProduct').onclick = () => {
@@ -2315,6 +2634,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         goToPanel('super');
         lucide.createIcons();
     } else {
+        if (window._trialCountdownInterval) clearInterval(window._trialCountdownInterval);
+        window._trialCountdownInterval = setInterval(updateTrialCountdown, 1000);
         await initData(); // <--- AHORA EL 'await' SÍ FUNCIONA
         renderInventory();
         updateCartUI();
@@ -2707,20 +3028,47 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (days <= 0) return { text: 'Vencida', days: 0 };
       return { text: days + ' días', days };
     }
+    /** Cuenta regresiva completa: días, horas, minutos, segundos (para panel admin) */
+    function trialLabelFull(endsAt) {
+      if (!endsAt) return { text: '—', d: 0, h: 0, m: 0, s: 0, expired: true };
+      const end = new Date(endsAt);
+      const now = new Date();
+      let ms = end - now;
+      if (isNaN(ms) || ms <= 0) return { text: 'Vencida', d: 0, h: 0, m: 0, s: 0, expired: true };
+      const s = Math.floor((ms / 1000) % 60);
+      const m = Math.floor((ms / (1000 * 60)) % 60);
+      const h = Math.floor((ms / (1000 * 60 * 60)) % 24);
+      const d = Math.floor(ms / (1000 * 60 * 60 * 24));
+      const text = d + 'd ' + h + 'h ' + m + 'm ' + s + 's';
+      return { text, d, h, m, s, expired: false };
+    }
+    var superDetailCountdownInterval = null;
+    var superListCountdownInterval = null;
+    function updateSuperListCountdowns() {
+      document.querySelectorAll('#panel-super .super-list-countdown').forEach(function (span) {
+        var card = span.closest('.super-user-card');
+        var endsAt = card && card.getAttribute('data-trial-ends-at');
+        var t = trialLabelFull(endsAt);
+        span.textContent = t.expired ? 'Vencida' : t.text;
+        span.className = 'super-list-countdown px-2 py-1 rounded-lg text-xs ' + (t.expired ? 'bg-red-500/20 text-red-300' : 'bg-[#7c3aed]/30 text-[#a78bfa]');
+      });
+    }
     function openSuperUserDetail(user) {
+      if (superDetailCountdownInterval) clearInterval(superDetailCountdownInterval);
+      superDetailCountdownInterval = null;
       const modal = document.getElementById('superUserDetailModal');
       const title = document.getElementById('superUserDetailTitle');
       const content = document.getElementById('superUserDetailContent');
       const name = (user.kiosco_name || user.email || 'Sin nombre').replace(/</g, '&lt;');
       const email = (user.email || '').replace(/</g, '&lt;');
-      const trial = trialLabel(user.trial_ends_at);
+      const trialFull = trialLabelFull(user.trial_ends_at);
       title.textContent = name;
       content.innerHTML = `
         <div class="space-y-1 text-sm text-white/80">
           <p><span class="text-white/50">Email:</span> ${email || '—'}</p>
           <p><span class="text-white/50">Rol:</span> ${(user.role || 'kiosquero').replace(/</g, '&lt;')}</p>
           <p><span class="text-white/50">Estado:</span> <span class="${user.active ? 'text-green-300' : 'text-red-300'}">${user.active ? 'Activo' : 'Inactivo'}</span></p>
-          <p><span class="text-white/50">Membresía:</span> <span class="${trial.days <= 0 ? 'text-red-300' : 'text-[#a78bfa]'}">${trial.text}</span></p>
+          <p><span class="text-white/50">Membresía:</span> <span id="superDetailCountdown" class="${trialFull.expired ? 'text-red-300' : 'text-[#a78bfa]'}">${trialFull.text}</span></p>
         </div>
         <div class="border-t border-white/10 pt-4 space-y-3">
           <div class="flex items-center gap-2 flex-wrap">
@@ -2764,8 +3112,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         const newEnd = new Date(from);
         newEnd.setDate(newEnd.getDate() + days);
         u.trial_ends_at = newEnd.toISOString().slice(0, 19) + 'Z';
-        const { error } = await supabaseClient.from('profiles').update({ trial_ends_at: u.trial_ends_at }).eq('id', u.id);
+        const { error } = await supabaseClient.from('profiles').update({ trial_ends_at: u.trial_ends_at, active: true }).eq('id', u.id);
         if (error) { alert('Error: ' + error.message); return; }
+        u.active = true;
         openSuperUserDetail(u);
       };
       content.querySelector('.super-detail-remove-days').onclick = async () => {
@@ -2795,13 +3144,23 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         if (supabaseAuthUrl && confirm(msg)) window.open(supabaseAuthUrl, '_blank');
         else alert(msg);
       };
+      const countdownEl = content.querySelector('#superDetailCountdown');
+      if (countdownEl) {
+        superDetailCountdownInterval = setInterval(function () {
+          const t = trialLabelFull(u.trial_ends_at);
+          countdownEl.textContent = t.text;
+          countdownEl.className = t.expired ? 'text-red-300' : 'text-[#a78bfa]';
+        }, 1000);
+      }
     }
     document.getElementById('superUserDetailClose').onclick = () => {
+      if (superDetailCountdownInterval) clearInterval(superDetailCountdownInterval);
+      superDetailCountdownInterval = null;
       document.getElementById('superUserDetailModal').classList.add('hidden');
       document.getElementById('superUserDetailModal').classList.remove('flex');
       renderSuper();
     };
-    document.getElementById('superUserDetailOverlay').onclick = () => document.getElementById('superUserDetailClose').click();
+    document.getElementById('superUserDetailOverlay').onclick = () => { if (superDetailCountdownInterval) clearInterval(superDetailCountdownInterval); superDetailCountdownInterval = null; document.getElementById('superUserDetailClose').click(); };
 
     async function renderSuper() {
       if (!supabaseClient) return;
@@ -2831,17 +3190,18 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       }
       listEl.innerHTML = list.map(u => {
         const name = (u.kiosco_name || u.email || 'Sin nombre').replace(/</g, '&lt;');
-        const trial = trialLabel(u.trial_ends_at);
-        const badge = trial.days <= 0 ? 'Vencida' : trial.text;
-        const badgeClass = trial.days <= 0 ? 'bg-red-500/20 text-red-300' : 'bg-[#7c3aed]/30 text-[#a78bfa]';
+        const trialFull = trialLabelFull(u.trial_ends_at);
+        const badge = trialFull.expired ? 'Vencida' : trialFull.text;
+        const badgeClass = trialFull.expired ? 'bg-red-500/20 text-red-300' : 'bg-[#7c3aed]/30 text-[#a78bfa]';
+        const endIso = (u.trial_ends_at || '').replace(/"/g, '&quot;');
         return `
-          <button type="button" class="super-user-card w-full text-left glass rounded-xl p-4 flex items-center justify-between gap-3 border border-white/10 hover:border-[#7c3aed]/40 active:scale-[0.99] transition-all touch-target" data-id="${u.id}">
+          <button type="button" class="super-user-card w-full text-left glass rounded-xl p-4 flex items-center justify-between gap-3 border border-white/10 hover:border-[#7c3aed]/40 active:scale-[0.99] transition-all touch-target" data-id="${u.id}" data-trial-ends-at="${endIso}">
             <div class="flex-1 min-w-0">
               <p class="font-semibold truncate">${name}</p>
               <p class="text-xs text-white/50 truncate mt-0.5">${(u.email || '').replace(/</g, '&lt;')}</p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <span class="px-2 py-1 rounded-lg text-xs ${badgeClass}">${badge}</span>
+              <span class="super-list-countdown px-2 py-1 rounded-lg text-xs ${badgeClass}">${badge}</span>
               <i data-lucide="chevron-right" class="w-5 h-5 text-white/40"></i>
             </div>
           </button>
@@ -2873,44 +3233,69 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       lucide.createIcons();
     };
 
-    document.getElementById('btnCreateUser').onclick = async () => {
-      const email = document.getElementById('newUserEmail').value.trim();
-      const password = document.getElementById('newUserPassword').value;
-      const kioscoName = document.getElementById('newUserKioscoName').value.trim();
-      const msgEl = document.getElementById('createUserMsg');
+    function openNewKiosqueroModal() {
+      document.getElementById('newKiosqueroErr').classList.add('hidden');
+      document.getElementById('createUserMsgModal').classList.add('hidden');
+      document.getElementById('newKiosqueroEmail').value = '';
+      document.getElementById('newKiosqueroPhone').value = '';
+      document.getElementById('newKiosqueroPassword').value = '';
+      document.getElementById('newKiosqueroKioscoName').value = '';
+      document.getElementById('newKiosqueroModal').classList.remove('hidden');
+      document.getElementById('newKiosqueroModal').classList.add('flex');
+      lucide.createIcons();
+    }
+    function closeNewKiosqueroModal() {
+      document.getElementById('newKiosqueroModal').classList.add('hidden');
+      document.getElementById('newKiosqueroModal').classList.remove('flex');
+      renderSuper();
+      lucide.createIcons();
+    }
+    document.getElementById('btnOpenNewKiosqueroModal').onclick = openNewKiosqueroModal;
+    document.getElementById('newKiosqueroModalClose').onclick = closeNewKiosqueroModal;
+    document.getElementById('newKiosqueroModalOverlay').onclick = closeNewKiosqueroModal;
+    setupPasswordToggle('showNewKiosqueroPwd', 'newKiosqueroPassword');
+    document.getElementById('btnCreateUserInModal').onclick = async () => {
+      const email = document.getElementById('newKiosqueroEmail').value.trim();
+      const password = document.getElementById('newKiosqueroPassword').value;
+      const kioscoName = document.getElementById('newKiosqueroKioscoName').value.trim();
+      const errEl = document.getElementById('newKiosqueroErr');
+      const msgEl = document.getElementById('createUserMsgModal');
+      errEl.classList.add('hidden');
       msgEl.classList.add('hidden');
       if (!email) {
-        msgEl.textContent = 'El email (usuario) es obligatorio.';
-        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        errEl.textContent = 'El email es obligatorio.';
+        errEl.classList.remove('hidden'); errEl.classList.add('show');
         return;
       }
-      if (!password || password.length < 4) {
-        msgEl.textContent = 'La contraseña es obligatoria y debe tener al menos 4 caracteres.';
-        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+      if (!password || password.length < 6) {
+        errEl.textContent = 'La contraseña es obligatoria y debe tener al menos 6 caracteres.';
+        errEl.classList.remove('hidden'); errEl.classList.add('show');
         return;
       }
       if (!supabaseClient) {
-        msgEl.textContent = 'Supabase no está configurado.';
-        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        errEl.textContent = 'Supabase no está configurado.';
+        errEl.classList.remove('hidden'); errEl.classList.add('show');
         return;
       }
       const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({ email, password });
       if (signUpErr) {
-        msgEl.textContent = signUpErr.message.includes('already registered') ? 'Ya existe un usuario con ese email.' : signUpErr.message;
-        msgEl.classList.remove('hidden'); msgEl.classList.add('text-red-300');
+        errEl.textContent = signUpErr.message.includes('already registered') ? 'Ya existe un usuario con ese email.' : signUpErr.message;
+        errEl.classList.remove('hidden'); errEl.classList.add('show');
         return;
       }
       const newId = signUpData.user?.id;
       if (newId) {
         await supabaseClient.from('profiles').update({ kiosco_name: kioscoName || '' }).eq('id', newId);
       }
-      document.getElementById('newUserEmail').value = '';
-      document.getElementById('newUserPassword').value = '';
-      document.getElementById('newUserKioscoName').value = '';
-      msgEl.textContent = 'Usuario creado. Ya puede iniciar sesión con ese email y contraseña.';
-      msgEl.classList.remove('hidden'); msgEl.classList.remove('text-red-300'); msgEl.classList.add('text-green-300');
+      msgEl.textContent = 'Kiosquero creado. Ya puede iniciar sesión con ese email y contraseña.';
+      msgEl.classList.remove('hidden');
+      document.getElementById('newKiosqueroEmail').value = '';
+      document.getElementById('newKiosqueroPhone').value = '';
+      document.getElementById('newKiosqueroPassword').value = '';
+      document.getElementById('newKiosqueroKioscoName').value = '';
       renderSuper();
       lucide.createIcons();
+      setTimeout(closeNewKiosqueroModal, 2000);
     };
 
     (async function init() {
