@@ -284,6 +284,20 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
+        <div class="relative kiosquero-only">
+          <button id="notifBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95 touch-target" title="Notificaciones">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span id="notifCount" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center hidden">0</span>
+          </button>
+          <div id="notifDropdown" class="absolute right-0 top-full mt-2 w-80 max-h-[70vh] overflow-hidden hidden z-[55] rounded-2xl glass-strong border border-white/10 shadow-xl">
+            <div class="p-3 border-b border-white/10 flex items-center justify-between">
+              <span class="font-semibold text-sm">Notificaciones</span>
+              <button type="button" id="notifDropdownClose" class="p-1 rounded-lg hover:bg-white/10 touch-target"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="notifList" class="p-3 overflow-y-auto max-h-[60vh] space-y-3 text-sm"></div>
+            <p id="notifEmpty" class="p-4 text-center text-white/50 text-sm hidden">No hay notificaciones.</p>
+          </div>
+        </div>
         <button id="cartBtn" class="btn-neomorphic rounded-xl p-2.5 relative transition-all duration-300 hover:scale-105 active:scale-95 touch-target kiosquero-only">
           <i data-lucide="shopping-cart" class="w-5 h-5"></i>
           <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7c3aed] text-xs font-bold flex items-center justify-center">0</span>
@@ -655,7 +669,7 @@
               <i data-lucide="database-backup" class="w-4 h-4 text-[#a78bfa]"></i>
               Copia de seguridad
             </h3>
-            <p class="text-sm text-white/60 mb-3">Exportá tus datos (productos, caja, saldos a cobrar) antes de una actualización. Si algo falla, importá el archivo para recuperar todo.</p>
+            <p class="text-sm text-white/60 mb-3">Exportá tus datos (productos, caja, ventas del día, saldos a cobrar) antes de actualizar la app. Así podés actualizar sin riesgo: si algo falla, importá el archivo para recuperar todo. Los datos también se guardan en la nube (Supabase) cuando hay conexión.</p>
             <div class="flex flex-wrap gap-3">
               <button type="button" id="btnExportBackup" class="btn-glow rounded-xl py-3 px-4 font-medium flex items-center gap-2 touch-target">
                 <i data-lucide="download" class="w-4 h-4"></i> Exportar copia
@@ -691,6 +705,19 @@
             <!-- Lista por nombre de negocio (se llena con JS) -->
           </div>
         </div>
+        <!-- Notificaciones a todos los kiosqueros -->
+        <div class="glass rounded-xl p-4 border border-white/10">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <i data-lucide="bell" class="w-4 h-4 text-[#a78bfa]"></i>
+            Notificaciones
+          </h3>
+          <p class="text-xs text-white/50 mb-2">Escribí un mensaje y enviálo a todos los kiosqueros. Lo verán en la campana de la app.</p>
+          <textarea id="adminNotificationMessage" rows="3" placeholder="Ej: Mañana cerramos a las 18 hs. / Recordá hacer cierre de caja." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base resize-y mb-3"></textarea>
+          <button type="button" id="sendNotificationBtn" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
+            <i data-lucide="send" class="w-4 h-4"></i> Enviar a todos
+          </button>
+          <p id="adminNotificationMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+        </div>
         <!-- Ajustes: WhatsApp administrador -->
         <div class="glass rounded-xl p-4 border border-white/10">
           <h3 class="font-semibold mb-3 flex items-center gap-2">
@@ -701,6 +728,16 @@
           <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
           <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar WhatsApp</button>
           <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+        </div>
+        <!-- Otro administrador -->
+        <div class="glass rounded-xl p-4 border border-white/10">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <i data-lucide="user-cog" class="w-4 h-4 text-[#a78bfa]"></i>
+            Agregar otro administrador
+          </h3>
+          <p class="text-xs text-white/50 mb-2">Para que <strong>rama40401698@gmail.com</strong> sea administrador: que cree una cuenta en la app (Crear cuenta) si no tiene. Luego en Supabase → SQL Editor ejecutá:</p>
+          <pre class="text-xs bg-black/30 rounded-lg p-3 overflow-x-auto text-[#a78bfa] mb-2" id="sqlAddAdmin">UPDATE profiles SET role = 'super' WHERE id = (SELECT id FROM auth.users WHERE email = 'rama40401698@gmail.com');</pre>
+          <p class="text-xs text-white/50">Así tu hermano podrá entrar al panel de Kiosqueros y notificaciones como vos.</p>
         </div>
       </div>
     </section>
@@ -1031,6 +1068,12 @@
     // ALTER TABLE ventas ENABLE ROW LEVEL SECURITY; CREATE POLICY "ventas_policy" ON ventas FOR ALL USING (auth.uid() = user_id);
     // CREATE TABLE clientes ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, nombre text, telefono text, email text, direccion text, notas text, created_at timestamptz DEFAULT now() );
     // ALTER TABLE clientes ENABLE ROW LEVEL SECURITY; CREATE POLICY "clientes_policy" ON clientes FOR ALL USING (auth.uid() = user_id);
+    // Saldos a cobrar (fiado / transf. pendiente) — para no perder datos al cambiar de dispositivo:
+    // CREATE TABLE saldos_acobrar ( id text NOT NULL, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, client_name text, whatsapp text, items jsonb DEFAULT '[]'::jsonb, total numeric DEFAULT 0, method text, paid boolean DEFAULT false, created_at timestamptz DEFAULT now(), PRIMARY KEY (user_id, id) );
+    // ALTER TABLE saldos_acobrar ENABLE ROW LEVEL SECURITY; CREATE POLICY "saldos_acobrar_policy" ON saldos_acobrar FOR ALL USING (auth.uid() = user_id);
+    // Notificaciones del admin a los kiosqueros:
+    // CREATE TABLE notifications ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), created_at timestamptz DEFAULT now(), message text NOT NULL );
+    // ALTER TABLE notifications ENABLE ROW LEVEL SECURITY; CREATE POLICY "notifications_select" ON notifications FOR SELECT TO authenticated USING (true); CREATE POLICY "notifications_insert" ON notifications FOR INSERT TO authenticated WITH CHECK (true);
     const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
     // URL de tu app en producción (para enlaces de recuperar contraseña)
@@ -1048,8 +1091,9 @@
       return s;
     }
     function downloadCSV(filename, csvContent) {
-      var BOM = '\uFEFF';
-      var blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      var BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      var enc = new TextEncoder().encode(csvContent);
+      var blob = new Blob([BOM, enc], { type: 'text/csv;charset=utf-8' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = filename;
@@ -1152,6 +1196,23 @@
             supabaseClient.from('products').select('*').eq('user_id', uid),
             supabaseClient.from('caja').select('*').eq('user_id', uid).maybeSingle()
           ]);
+          var saldosList = [];
+          try {
+            var saldosRes = await supabaseClient.from('saldos_acobrar').select('*').eq('user_id', uid).order('created_at', { ascending: false });
+            if (saldosRes.data && Array.isArray(saldosRes.data)) {
+              saldosList = saldosRes.data.map(s => ({
+                id: s.id,
+                clientName: s.client_name || '',
+                whatsapp: s.whatsapp || '',
+                items: s.items || [],
+                total: Number(s.total) || 0,
+                method: s.method || 'fiado',
+                paid: !!s.paid,
+                createdAt: s.created_at || null
+              }));
+            }
+          } catch (_) {}
+          if (saldosList.length === 0 && prevLocal && prevLocal.saldosACobrar && prevLocal.saldosACobrar.length > 0) saldosList = prevLocal.saldosACobrar;
           const products = {};
           (prodsRes.data || []).forEach(p => {
             products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock, costo: p.costo != null ? Number(p.costo) : 0 };
@@ -1166,7 +1227,7 @@
             ventas: caja ? { efectivo: Number(caja.efectivo), tarjeta: Number(caja.tarjeta), transferencia: Number(caja.transferencia), fiado: Number(caja.fiado), transferencia_pendiente: Number(caja.transferencia_pendiente || 0) } : { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
             transacciones: caja ? (caja.transacciones || 0) : 0,
             deudores: _dataCache.deudores || [],
-            saldosACobrar: (prevLocal && prevLocal.saldosACobrar) ? prevLocal.saldosACobrar : (_dataCache.saldosACobrar || []),
+            saldosACobrar: saldosList,
             lastCierreDate: (prevLocal && prevLocal.lastCierreDate) ? prevLocal.lastCierreDate : (_dataCache.lastCierreDate || null)
           };
           restoreTodayFromLocalStorage();
@@ -1230,6 +1291,26 @@
             transferencia_pendiente: (v.transferencia_pendiente || 0),
             transacciones: t
           }, { onConflict: 'user_id' });
+        }
+        if (updates.saldosACobrar !== undefined) {
+          var list = updates.saldosACobrar || [];
+          await supabaseClient.from('saldos_acobrar').delete().eq('user_id', uid);
+          if (list.length > 0) {
+            var rows = list.map(function (s) {
+              return {
+                user_id: uid,
+                id: String(s.id || ''),
+                client_name: s.clientName || '',
+                whatsapp: s.whatsapp || '',
+                items: s.items || [],
+                total: Number(s.total) || 0,
+                method: s.method || 'fiado',
+                paid: !!s.paid,
+                created_at: s.createdAt || new Date().toISOString()
+              };
+            });
+            await supabaseClient.from('saldos_acobrar').insert(rows);
+          }
         }
       } catch (e) { console.warn('Supabase save failed, data saved in this device (localStorage):', e); }
     }
@@ -1416,26 +1497,45 @@
       document.getElementById('cartCount').textContent = count;
       const itemsEl = document.getElementById('cartItems');
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
-      itemsEl.innerHTML = state.cart.map((item, idx) => `
-        <div class="flex items-center gap-3 glass rounded-xl p-3">
-          <div class="w-10 h-10 rounded-lg bg-[#7c3aed]/30 flex items-center justify-center">
-            <i data-lucide="package" class="w-5 h-5 text-[#a78bfa]"></i>
+      if (state.cart.length === 0) {
+        itemsEl.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-10 px-4 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4">
+              <i data-lucide="shopping-cart" class="w-8 h-8 text-white/50"></i>
+            </div>
+            <p class="font-medium text-white/80 mb-1">Tu carrito está vacío</p>
+            <p class="text-sm text-white/50 mb-4">Agregá productos desde el escáner o la lista de productos.</p>
+            <button type="button" id="cartEmptyAddBtn" class="btn-glow rounded-xl py-2.5 px-5 text-sm font-medium flex items-center gap-2 touch-target">
+              <i data-lucide="package" class="w-4 h-4"></i> Ir a productos
+            </button>
+          </div>`;
+        lucide.createIcons();
+        document.getElementById('cartEmptyAddBtn').onclick = function () {
+          closeCart();
+          setTimeout(function () { goToPanel('inventory'); }, 320);
+        };
+      } else {
+        itemsEl.innerHTML = state.cart.map((item, idx) => `
+          <div class="flex items-center gap-3 glass rounded-xl p-3">
+            <div class="w-10 h-10 rounded-lg bg-[#7c3aed]/30 flex items-center justify-center">
+              <i data-lucide="package" class="w-5 h-5 text-[#a78bfa]"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium truncate">${item.nombre}</p>
+              <p class="text-sm text-white/60">$${item.precio} x ${item.cant}</p>
+            </div>
+            <p class="font-semibold">$${item.precio * item.cant}</p>
+            <button class="remove-cart text-red-400 p-2 touch-target rounded-lg hover:bg-red-500/20" data-idx="${idx}">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-medium truncate">${item.nombre}</p>
-            <p class="text-sm text-white/60">$${item.precio} x ${item.cant}</p>
-          </div>
-          <p class="font-semibold">$${item.precio * item.cant}</p>
-          <button class="remove-cart text-red-400 p-2 touch-target rounded-lg hover:bg-red-500/20" data-idx="${idx}">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-          </button>
-        </div>
-      `).join('');
+        `).join('');
+        lucide.createIcons();
+        itemsEl.querySelectorAll('.remove-cart').forEach(btn => {
+          btn.onclick = () => removeFromCart(parseInt(btn.dataset.idx));
+        });
+      }
       document.getElementById('cartTotal').textContent = `$${total.toLocaleString('es-AR')}`;
-      lucide.createIcons();
-      itemsEl.querySelectorAll('.remove-cart').forEach(btn => {
-        btn.onclick = () => removeFromCart(parseInt(btn.dataset.idx));
-      });
     }
 
     function openPaymentModal() {
@@ -1455,7 +1555,7 @@
       document.getElementById('paymentModal').classList.add('hidden');
       document.getElementById('paymentModal').classList.remove('flex');
     }
-    function completeSaleWithMethod(method, clientName, whatsapp) {
+    async function completeSaleWithMethod(method, clientName, whatsapp) {
       const total = state.cart.reduce((a, i) => a + i.precio * i.cant, 0);
       const items = state.cart.map(i => ({ nombre: i.nombre, codigo: i.codigo, precio: i.precio, cant: i.cant, costo: i.costo != null ? i.costo : 0 }));
       const fechaHora = new Date().toISOString();
@@ -1482,14 +1582,20 @@
         _dataCache.saldosACobrar = list;
       }
       if (supabaseClient && currentUser?.id) {
-        supabaseClient.from('ventas').insert({
-          user_id: currentUser.id,
-          fecha_hora: fechaHora,
-          total,
-          metodo_pago: method,
-          cliente_nombre: (clientName || '').trim() || null,
-          items
-        }).then(({ error }) => { if (error) console.warn('No se guardó venta en historial:', error.message); });
+        try {
+          var ventaRes = await supabaseClient.from('ventas').insert({
+            user_id: currentUser.id,
+            fecha_hora: fechaHora,
+            total,
+            metodo_pago: method,
+            cliente_nombre: (clientName || '').trim() || null,
+            items
+          });
+          if (ventaRes.error) throw ventaRes.error;
+        } catch (err) {
+          console.warn('No se guardó venta en la nube:', err && err.message);
+          if (typeof showScanToast === 'function') showScanToast('Venta guardada en este dispositivo. Revisá la conexión para sincronizar.', false);
+        }
       }
       const d = getData();
       d.ventas = d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
@@ -1505,6 +1611,7 @@
       updateDashboard();
       closePaymentModal();
       closeCart();
+      showScanToast('¡Venta registrada! $' + total.toLocaleString('es-AR'), false);
     }
     function completeSale() {
       if (state.cart.length === 0) return;
@@ -1954,7 +2061,13 @@
       if (name === 'dashboard') {
         updateTrialCountdown();
         updateDashboard();
-        if (currentUser && currentUser.role === 'kiosquero') loadAdminContact();
+        if (currentUser && currentUser.role === 'kiosquero') { loadAdminContact(); loadNotifications(); }
+      }
+      if (name === 'scanner') {
+        setTimeout(function () {
+          var manualInput = document.getElementById('manualCode');
+          if (manualInput) manualInput.focus();
+        }, 150);
       }
       if (name === 'historial') {
         switchHistorialTab('ventas');
@@ -1979,6 +2092,18 @@
       btn.onclick = () => goToPanel(btn.dataset.nav);
     });
 
+    document.getElementById('notifBtn').onclick = function () {
+      var dd = document.getElementById('notifDropdown');
+      if (dd.classList.contains('hidden')) { dd.classList.remove('hidden'); loadNotifications(); }
+      else dd.classList.add('hidden');
+      lucide.createIcons();
+    };
+    document.getElementById('notifDropdownClose').onclick = function () { document.getElementById('notifDropdown').classList.add('hidden'); lucide.createIcons(); };
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('notifDropdown');
+      var btn = document.getElementById('notifBtn');
+      if (dd && !dd.classList.contains('hidden') && btn && !dd.contains(e.target) && !btn.contains(e.target)) dd.classList.add('hidden');
+    });
     // Carrito
     document.getElementById('cartBtn').onclick = openCart;
     document.getElementById('closeCart').onclick = closeCart;
@@ -3229,6 +3354,52 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       } catch (e) {
         msgEl.textContent = 'Error: ' + (e.message || 'Revisá que exista la tabla app_settings (ejecutá supabase_app_settings.sql).');
         msgEl.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    };
+
+    var notificationsCache = [];
+    async function loadNotifications() {
+      if (!supabaseClient) return;
+      try {
+        var res = await supabaseClient.from('notifications').select('id, created_at, message').order('created_at', { ascending: false }).limit(50);
+        notificationsCache = (res.data || []);
+        var listEl = document.getElementById('notifList');
+        var emptyEl = document.getElementById('notifEmpty');
+        var countEl = document.getElementById('notifCount');
+        if (listEl) {
+          if (notificationsCache.length === 0) {
+            listEl.innerHTML = '';
+            if (emptyEl) { emptyEl.classList.remove('hidden'); }
+          } else {
+            if (emptyEl) emptyEl.classList.add('hidden');
+            listEl.innerHTML = notificationsCache.map(function (n) {
+              var fecha = n.created_at ? new Date(n.created_at).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+              var msg = (n.message || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
+              return '<div class="glass rounded-xl p-3 border border-white/10"><p class="text-white/90 text-sm">' + msg + '</p><p class="text-white/50 text-xs mt-1">' + fecha + '</p></div>';
+            }).join('');
+          }
+        }
+        if (countEl) {
+          if (notificationsCache.length > 0) { countEl.textContent = notificationsCache.length > 99 ? '99+' : notificationsCache.length; countEl.classList.remove('hidden'); }
+          else countEl.classList.add('hidden');
+        }
+        lucide.createIcons();
+      } catch (_) {}
+    }
+    document.getElementById('sendNotificationBtn').onclick = async function () {
+      var textarea = document.getElementById('adminNotificationMessage');
+      var msgEl = document.getElementById('adminNotificationMsg');
+      var msg = (textarea && textarea.value) ? textarea.value.trim() : '';
+      if (!msg) { if (msgEl) { msgEl.textContent = 'Escribí un mensaje.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-amber-300'; } return; }
+      if (!supabaseClient || currentUser?.role !== 'super') return;
+      try {
+        var err = (await supabaseClient.from('notifications').insert({ message: msg })).error;
+        if (err) throw err;
+        if (textarea) textarea.value = '';
+        if (msgEl) { msgEl.textContent = 'Enviado a todos los kiosqueros.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-green-300'; setTimeout(function () { msgEl.classList.add('hidden'); }, 4000); }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = 'Error: ' + (e.message || 'Creá la tabla notifications en Supabase (ver comentarios en el código).'); msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-red-300'; }
       }
       lucide.createIcons();
     };
