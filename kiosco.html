@@ -1533,7 +1533,8 @@
       list.innerHTML = items.map(p => {
         const status = getStockStatus(p.stock);
         const stockInicial = p.stockInicial || p.stock || 1;
-        const pct = stockInicial > 0 ? Math.round((Number(p.stock) || 0) / stockInicial * 100) : 0;
+        const quedan = Math.max(0, Number(p.stock) || 0);
+        const pct = stockInicial > 0 ? Math.round(quedan / stockInicial * 100) : 0;
         const barClass = pct <= 0 ? 'bg-red-500' : pct <= 20 ? 'bg-amber-500' : 'bg-green-500';
         return `
           <div class="inventory-item glass rounded-xl p-3 sm:p-4 flex gap-3 items-center border border-white/10 touch-target cursor-pointer active:scale-[0.99] transition-transform" data-codigo="${p.codigo}" role="button" tabindex="0">
@@ -1544,7 +1545,7 @@
                 <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden min-w-[60px]">
                   <div class="h-full rounded-full ${barClass} transition-all duration-300" style="width: ${Math.min(100, pct)}%"></div>
                 </div>
-                <span class="text-xs text-white/70 shrink-0">${pct}%</span>
+                <span class="text-xs text-white/70 shrink-0">${pct}% · ${quedan} quedan</span>
               </div>
             </div>
             <button type="button" class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target shrink-0" data-codigo="${p.codigo}" title="Agregar al carrito">
