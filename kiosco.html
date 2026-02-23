@@ -127,6 +127,7 @@
     .bottom-nav-bar { border-radius: 1.25rem 1.25rem 0 0; }
     .bottom-nav-btn { color: rgba(255,255,255,0.7); }
     .bottom-nav-btn:hover, .bottom-nav-btn.active { color: #fff; background: rgba(124,58,237,0.25); }
+    #headerSuperAjustesBtn.active { background: rgba(124,58,237,0.35); color: #fff; box-shadow: 0 0 20px rgba(124,58,237,0.3); }
     .scanner-circle { border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 0 0 4px rgba(124,58,237,0.3); }
     .scanner-circle:active { transform: scale(0.95); }
     /* Login SaaS — glassmorphism */
@@ -322,6 +323,9 @@
           <i data-lucide="shopping-cart" class="w-5 h-5"></i>
           <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7c3aed] text-xs font-bold flex items-center justify-center">0</span>
         </button>
+        <button id="headerSuperAjustesBtn" class="btn-neomorphic rounded-xl p-2.5 touch-target super-only transition-all duration-300 hover:scale-105 active:scale-95" title="Ajustes">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
         <button id="logoutBtn" class="btn-neomorphic rounded-xl p-2.5 touch-target super-only" title="Cerrar sesión">
           <i data-lucide="log-out" class="w-5 h-5"></i>
         </button>
@@ -336,10 +340,6 @@
         <button data-super-section="negocios" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Negocios">
           <i data-lucide="store" class="w-5 h-5 shrink-0"></i>
           <span class="truncate w-full text-center">Negocios</span>
-        </button>
-        <button data-super-section="ajustes" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Ajustes">
-          <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
-          <span class="truncate w-full text-center">Ajustes</span>
         </button>
         <button data-super-section="notificaciones" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Notificaciones">
           <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
@@ -2380,8 +2380,12 @@
       document.querySelectorAll('.super-nav-btn').forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.superSection === state.superSection);
       });
+      var headerAjustesBtn = document.getElementById('headerSuperAjustesBtn');
+      if (headerAjustesBtn) headerAjustesBtn.classList.toggle('active', state.superSection === 'ajustes');
       lucide.createIcons();
     }
+    var headerAjustesBtnEl = document.getElementById('headerSuperAjustesBtn');
+    if (headerAjustesBtnEl) headerAjustesBtnEl.addEventListener('click', function () { switchSuperSection('ajustes'); });
     document.querySelectorAll('.super-nav-btn').forEach(function (btn) {
       btn.onclick = function () {
         if (btn.dataset.superSection) switchSuperSection(btn.dataset.superSection);
@@ -3125,7 +3129,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('appWrap').classList.remove('hidden');
     document.querySelectorAll('.kiosquero-only').forEach(el => el.style.display = isSuper ? 'none' : '');
-    document.querySelectorAll('.super-only').forEach(el => el.style.display = isSuper ? '' : 'none');
+    document.querySelectorAll('.super-only').forEach(el => {
+      el.style.display = isSuper ? (el.tagName === 'BUTTON' ? 'inline-flex' : 'block') : 'none';
+    });
     document.getElementById('navKiosquero').classList.toggle('hidden', isSuper);
     var navSuperBottom = document.getElementById('navSuperBottom');
     if (navSuperBottom) navSuperBottom.classList.toggle('hidden', !isSuper);
