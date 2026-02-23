@@ -104,9 +104,18 @@
     .touch-target { min-height: 44px; min-width: 44px; }
     .inventory-scroll { -webkit-overflow-scrolling: touch; }
     .header-gradient {
-      background: linear-gradient(90deg, rgba(30,27,75,0.95) 0%, rgba(34,197,94,0.4) 45%, rgba(34,197,94,0.5) 50%, rgba(34,197,94,0.4) 55%, rgba(30,27,75,0.95) 100%);
+      background: linear-gradient(90deg,
+        rgba(30,27,75,0.98) 0%,
+        rgba(55,48,163,0.9) 28%,
+        rgba(34,197,94,0.75) 42%,
+        rgba(22,163,74,0.85) 50%,
+        rgba(34,197,94,0.75) 58%,
+        rgba(55,48,163,0.9) 72%,
+        rgba(30,27,75,0.98) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      border-bottom: 2px solid rgba(124,58,237,0.6);
+      box-shadow: inset 0 0 0 1px rgba(124,58,237,0.25);
     }
     .notif-panel {
       background: rgba(30,27,75,0.97);
@@ -375,13 +384,14 @@
             <button type="button" id="closeRenovarModal" class="w-full mt-3 py-2.5 rounded-xl border border-white/20 text-white/80 text-sm touch-target">Cerrar</button>
           </div>
         </div>
-        <!-- Resumen del día: solo entraron + ventas (ganancia está en Métricas) -->
+        <!-- Resumen del día: entraron + ventas + chips por método -->
         <div id="dashboardResumenDia" class="glass rounded-2xl p-5 slide-up kiosquero-only border border-[#7c3aed]/30">
           <div class="flex items-center justify-between gap-4 flex-wrap">
-            <div>
+            <div class="flex-1 min-w-0">
               <p class="text-sm text-white/60 mb-0.5">Resumen del día</p>
               <p id="resumenDiaTexto" class="text-2xl sm:text-3xl font-bold text-[#a78bfa]">Entraron $0</p>
               <p id="resumenDiaVentas" class="text-sm text-white/50 mt-1">0 ventas</p>
+              <div id="resumenDiaPorMetodo" class="flex flex-wrap gap-1.5 mt-2"></div>
             </div>
             <button type="button" id="btnCobroRapido" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target shrink-0">
               <i data-lucide="zap" class="w-5 h-5"></i> Cobro rápido
@@ -589,8 +599,11 @@
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" class="historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-tab="ventas">Ventas</button>
             <button type="button" class="historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target glass border border-white/10" data-tab="deudores">Deudores</button>
+            <button type="button" class="historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border border-white/20" data-filter="hoy">Hoy</button>
+            <button type="button" class="historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border border-white/20" data-filter="semana">Semana</button>
+            <button type="button" class="historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border border-white/20" data-filter="mes">Mes</button>
             <div class="relative">
-              <button type="button" id="historialFiltroBtn" class="historial-filter-btn px-3 py-1.5 rounded-xl text-sm glass border border-white/10 text-left touch-target flex items-center justify-between gap-1 min-w-[7rem]" data-filter="hoy" title="Período">
+              <button type="button" id="historialFiltroBtn" class="historial-filter-btn px-3 py-1.5 rounded-xl text-sm glass border border-white/10 text-left touch-target flex items-center justify-between gap-1 min-w-[7rem]" data-filter="hoy" title="Más períodos">
                 <span class="historial-filtro-label">Hoy</span>
                 <i data-lucide="chevron-down" class="w-4 h-4 shrink-0"></i>
               </button>
@@ -940,13 +953,19 @@
         <p id="cobroRapidoListaEmpty" class="text-sm text-white/40 py-2">Aún no agregaste nada. Elegí producto y monto y tocá Agregar.</p>
         <p id="cobroRapidoTotal" class="text-right font-bold text-[#a78bfa] mt-2 hidden">Total: $0</p>
       </div>
+      <div id="cobroRapidoAtajoWrap" class="hidden mb-3">
+        <button type="button" id="cobroRapidoAtajoBtn" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+          <span id="cobroRapidoAtajoLabel">Cobrar con Efectivo</span>
+        </button>
+      </div>
       <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
       <div id="cobroRapidoWhatsappWrap" class="hidden mb-4">
         <label class="block text-xs text-white/70 mb-1">WhatsApp (obligatorio para fiado / transf. pendiente)</label>
         <input type="tel" id="cobroRapidoWhatsapp" placeholder="Ej: 54911 1234-5678" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         <p id="cobroRapidoWhatsappErr" class="text-red-300 text-xs mt-1 hidden">Ingresá el número de WhatsApp.</p>
       </div>
-      <p class="text-sm text-white/60 mb-2">Método de pago</p>
+      <p class="text-sm text-white/60 mb-2">Otro método de pago</p>
       <div class="grid grid-cols-2 gap-2 mb-4">
         <button type="button" data-quick-payment="efectivo" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
           <i data-lucide="banknote" class="w-6 h-6 text-[#a78bfa]"></i>
@@ -1243,6 +1262,7 @@
 
     const STORAGE_KEY_PREFIX = 'ferriol_data_';
     const COBRO_RAPIDO_PRODUCTOS_KEY = 'ferriol_cobro_rapido_productos';
+    const LAST_QUICK_PAYMENT_KEY = 'ferriol_last_quick_payment';
     function getCobroRapidoProductosList() {
       try {
         var raw = localStorage.getItem(COBRO_RAPIDO_PRODUCTOS_KEY);
@@ -1769,6 +1789,22 @@
       var resumenVentasEl = document.getElementById('resumenDiaVentas');
       if (resumenEl) resumenEl.textContent = 'Entraron $' + total.toLocaleString('es-AR');
       if (resumenVentasEl) resumenVentasEl.textContent = (d.transacciones || 0) + ' ventas';
+      var porMetodoEl = document.getElementById('resumenDiaPorMetodo');
+      if (porMetodoEl) {
+        var methods = [
+          { key: 'efectivo', label: 'Efectivo', icon: 'banknote', color: 'text-green-400', bg: 'bg-green-500/20' },
+          { key: 'tarjeta', label: 'Tarjeta', icon: 'credit-card', color: 'text-blue-400', bg: 'bg-blue-500/20' },
+          { key: 'transferencia', label: 'Transf.', icon: 'smartphone', color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
+          { key: 'fiado', label: 'Fiado', icon: 'user-check', color: 'text-amber-400', bg: 'bg-amber-500/20' },
+          { key: 'transferencia_pendiente', label: 'Pend.', icon: 'clock', color: 'text-orange-400', bg: 'bg-orange-500/20' }
+        ];
+        porMetodoEl.innerHTML = methods.map(function (m) {
+          var val = ventas[m.key] || 0;
+          if (val === 0) return '';
+          return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium ' + m.bg + ' ' + m.color + '"><i data-lucide="' + m.icon + '" class="w-3 h-3"></i>' + m.label + ' $' + val.toLocaleString('es-AR') + '</span>';
+        }).filter(Boolean).join('');
+        lucide.createIcons();
+      }
 
       renderSaldosACobrar();
       renderFrequentProducts();
@@ -1984,6 +2020,8 @@
         return;
       }
       if (emptyEl) emptyEl.classList.add('hidden');
+      var atajoWrap = document.getElementById('cobroRapidoAtajoWrap');
+      if (atajoWrap) atajoWrap.classList.add('hidden');
       var total = items.reduce(function (s, it) { return s + (it.precio || 0); }, 0);
       listEl.innerHTML = items.map(function (it, i) {
         var nombre = (it.nombre || 'Item').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -1991,6 +2029,15 @@
         return '<div class="flex items-center justify-between gap-2 py-1.5 px-2 rounded-lg bg-white/10"><span class="text-sm text-white truncate flex-1">' + nombre + ' <span class="text-white/60">$' + precio + '</span></span><button type="button" class="cobro-rapido-quitar shrink-0 p-1.5 rounded-lg text-red-300 hover:bg-red-500/20 touch-target" data-index="' + i + '" aria-label="Quitar">×</button></div>';
       }).join('');
       if (totalEl) { totalEl.classList.remove('hidden'); totalEl.textContent = 'Total: $' + total; }
+      var atajoWrap = document.getElementById('cobroRapidoAtajoWrap');
+      var atajoLabel = document.getElementById('cobroRapidoAtajoLabel');
+      if (atajoWrap && atajoLabel) {
+        atajoWrap.classList.remove('hidden');
+        var lastMethod = '';
+        try { lastMethod = localStorage.getItem(LAST_QUICK_PAYMENT_KEY) || 'efectivo'; } catch (_) { lastMethod = 'efectivo'; }
+        var labels = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', fiado: 'Fiado', transferencia_pendiente: 'Transf. pendiente' };
+        atajoLabel.textContent = 'Cobrar con ' + (labels[lastMethod] || 'Efectivo');
+      }
       listEl.querySelectorAll('.cobro-rapido-quitar').forEach(function (btn) {
         btn.onclick = function () {
           var idx = parseInt(btn.dataset.index, 10);
@@ -2024,6 +2071,13 @@
         el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
       });
       document.querySelectorAll('.quick-payment-option').forEach(function (el) { el.classList.remove('ring-2', 'ring-[#7c3aed]'); });
+      var lastMethod = '';
+      try { lastMethod = localStorage.getItem(LAST_QUICK_PAYMENT_KEY) || ''; } catch (_) {}
+      if (lastMethod) document.querySelectorAll('.quick-payment-option').forEach(function (el) { if (el.dataset.quickPayment === lastMethod) el.classList.add('ring-2', 'ring-[#7c3aed]'); });
+      if (list.length === 1) {
+        var firstBtn = wrap.querySelector('.cobro-rapido-producto');
+        if (firstBtn) { firstBtn.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25'); }
+      }
       updateCobroRapidoLista();
       document.getElementById('cobroRapidoModal').classList.remove('hidden');
       document.getElementById('cobroRapidoModal').classList.add('flex');
@@ -2112,6 +2166,7 @@
       setData(d);
       updateDashboard();
       state.cobroRapidoItems = [];
+      try { localStorage.setItem(LAST_QUICK_PAYMENT_KEY, method); } catch (_) {}
       closeCobroRapidoModal();
       if (typeof playBeep === 'function') playBeep();
     }
@@ -2325,6 +2380,23 @@
       document.getElementById('cobroRapidoMonto').value = '';
       updateCobroRapidoLista();
     };
+    document.getElementById('cobroRapidoAtajoBtn').onclick = function () {
+      var lastMethod = '';
+      try { lastMethod = localStorage.getItem(LAST_QUICK_PAYMENT_KEY) || 'efectivo'; } catch (_) { lastMethod = 'efectivo'; }
+      var clientName = (document.getElementById('cobroRapidoCliente') && document.getElementById('cobroRapidoCliente').value) ? document.getElementById('cobroRapidoCliente').value.trim() : '';
+      var whatsappRaw = (document.getElementById('cobroRapidoWhatsapp') && document.getElementById('cobroRapidoWhatsapp').value) ? document.getElementById('cobroRapidoWhatsapp').value.trim() : '';
+      var whatsappDigits = (whatsappRaw || '').replace(/\D/g, '');
+      if (lastMethod === 'fiado' || lastMethod === 'transferencia_pendiente') {
+        document.getElementById('cobroRapidoWhatsappWrap').classList.remove('hidden');
+        if (whatsappDigits.length < 8) {
+          document.getElementById('cobroRapidoWhatsappErr').textContent = 'Ingresá el número de WhatsApp (mín. 8 dígitos) para poder cobrar después.';
+          document.getElementById('cobroRapidoWhatsappErr').classList.remove('hidden');
+          return;
+        }
+      }
+      document.getElementById('cobroRapidoWhatsappErr').classList.add('hidden');
+      completeQuickSale(lastMethod, clientName, whatsappRaw || whatsappDigits);
+    };
     document.querySelectorAll('.quick-payment-option').forEach(function (btn) {
       btn.onclick = function () {
         var method = btn.dataset.quickPayment;
@@ -2472,6 +2544,7 @@
     async function renderHistorial(filter) {
       const listEl = document.getElementById('historialList');
       if (!listEl) return;
+      if (typeof applyHistorialFilterUI === 'function') applyHistorialFilterUI(filter);
       const range = getHistorialRange(filter);
       if (!supabaseClient || !currentUser?.id) {
         listEl.innerHTML = '<p class="text-white/60 py-4">Configurá Supabase para ver el historial.</p>';
@@ -2490,11 +2563,6 @@
         lucide.createIcons();
         return;
       }
-      var filterLabels = { hoy: 'Hoy', ayer: 'Ayer', semana: 'Esta semana', semana_pasada: 'Semana pasada', mes: 'Último mes', '2meses': 'Últimos 2 meses' };
-      var filtroBtn = document.getElementById('historialFiltroBtn');
-      var filtroLabel = filtroBtn && filtroBtn.querySelector('.historial-filtro-label');
-      if (filtroBtn) filtroBtn.dataset.filter = filter;
-      if (filtroLabel) filtroLabel.textContent = filterLabels[filter] || filter;
       state.historialRows = list;
       listEl.innerHTML = list.map((v, idx) => {
         var cliente = (v.cliente_nombre || '').trim();
@@ -2520,6 +2588,27 @@
         state.historialFilter = btn.dataset.filter;
         var dd = document.getElementById('historialFiltroDropdown');
         if (dd) dd.classList.add('hidden');
+        applyHistorialFilterUI(btn.dataset.filter);
+        renderHistorial(btn.dataset.filter);
+        lucide.createIcons();
+      };
+    });
+    function applyHistorialFilterUI(filter) {
+      var filterLabels = { hoy: 'Hoy', ayer: 'Ayer', semana: 'Esta semana', semana_pasada: 'Semana pasada', mes: 'Último mes', '2meses': 'Últimos 2 meses' };
+      var filtroBtn = document.getElementById('historialFiltroBtn');
+      var filtroLabel = filtroBtn && filtroBtn.querySelector('.historial-filtro-label');
+      if (filtroBtn) filtroBtn.dataset.filter = filter;
+      if (filtroLabel) filtroLabel.textContent = filterLabels[filter] || filter;
+      document.querySelectorAll('.historial-chip').forEach(function (chip) {
+        var active = chip.dataset.filter === filter;
+        chip.className = 'historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border ' + (active ? 'bg-[#7c3aed]/30 border-[#7c3aed]/50' : 'border-white/20');
+      });
+    }
+    document.querySelectorAll('.historial-chip').forEach(function (btn) {
+      btn.onclick = function () {
+        state.historialFilter = btn.dataset.filter;
+        document.getElementById('historialFiltroDropdown').classList.add('hidden');
+        applyHistorialFilterUI(btn.dataset.filter);
         renderHistorial(btn.dataset.filter);
         lucide.createIcons();
       };
