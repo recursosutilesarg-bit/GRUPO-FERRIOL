@@ -329,12 +329,27 @@
     </div>
   </header>
 
-  <!-- Navigation admin (panel Negocios) — visible solo para super -->
-  <nav id="navSuper" class="sticky top-[60px] z-40 glass border-b border-white/10 hidden">
-    <div class="flex gap-1 p-2">
-      <button data-nav="super" class="nav-item active flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium touch-target">
-        <i data-lucide="crown" class="w-4 h-4"></i> Negocios
-      </button>
+  <!-- Barra inferior admin (panel de control): secciones al pie, como la app de negocios -->
+  <nav id="navSuperBottom" class="fixed bottom-0 left-0 right-0 z-40 super-only hidden" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0)); padding-left: env(safe-area-inset-left, 0); padding-right: env(safe-area-inset-right, 0);">
+    <div class="bottom-nav-bar glass-strong border-t border-white/10 px-2 py-3 max-w-2xl mx-auto">
+      <div class="flex items-center justify-between gap-1">
+        <button data-super-section="negocios" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Negocios">
+          <i data-lucide="store" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Negocios</span>
+        </button>
+        <button data-super-section="ajustes" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Ajustes">
+          <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Ajustes</span>
+        </button>
+        <button data-super-section="notificaciones" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Notificaciones">
+          <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Avisos</span>
+        </button>
+        <button data-super-section="mas" class="super-nav-btn bottom-nav-btn flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1 rounded-xl text-xs font-medium transition-all duration-300 touch-target" title="Más">
+          <i data-lucide="user-cog" class="w-5 h-5 shrink-0"></i>
+          <span class="truncate w-full text-center">Más</span>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -752,11 +767,11 @@
       </div>
     </section>
 
-    <!-- Panel Admin: secciones Ajustes y Negocios -->
+    <!-- Panel Admin: secciones al pie (Negocios, Ajustes, Notificaciones, Más) -->
     <section id="panel-super" class="panel hidden">
-      <div class="glass rounded-2xl p-4 sm:p-6 slide-up space-y-6 sm:space-y-8">
-        <!-- Sección Negocios: agregar / quitar -->
-        <div>
+      <div class="space-y-4 pb-24">
+        <!-- Sección Negocios -->
+        <div id="super-section-negocios" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up">
           <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
             <i data-lucide="store" class="w-5 h-5 text-[#a78bfa]"></i>
             Negocios
@@ -772,17 +787,17 @@
             <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-white/20 glass" data-filter="activos">Activos</button>
             <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-white/20 glass" data-filter="inactivos">Inactivos</button>
           </div>
-          <div id="superUsersList" class="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+          <div id="superUsersList" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
             <!-- Lista por JS -->
           </div>
         </div>
         <!-- Sección Ajustes -->
-        <div class="glass rounded-xl p-4 border border-white/10">
-          <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i data-lucide="settings" class="w-4 h-4 text-[#a78bfa]"></i>
+        <div id="super-section-ajustes" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
+          <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
+            <i data-lucide="settings" class="w-5 h-5 text-[#a78bfa]"></i>
             Ajustes
-          </h3>
-          <p class="text-xs text-white/50 mb-2">Números de contacto que verán los usuarios cuando la cuenta esté desactivada o se termine la prueba.</p>
+          </h2>
+          <p class="text-xs text-white/50 mb-3">Números de contacto que verán los usuarios cuando la cuenta esté desactivada o se termine la prueba.</p>
           <label class="block text-xs text-white/60 mb-1">Contacto 1 (WhatsApp)</label>
           <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
           <label class="block text-xs text-white/60 mb-1">Contacto 2 (WhatsApp)</label>
@@ -792,26 +807,26 @@
           <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar ajustes</button>
           <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
         </div>
-        <!-- Notificaciones -->
-        <div class="glass rounded-xl p-4 border border-white/10">
-          <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i data-lucide="bell" class="w-4 h-4 text-[#a78bfa]"></i>
+        <!-- Sección Notificaciones -->
+        <div id="super-section-notificaciones" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
+          <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
+            <i data-lucide="bell" class="w-5 h-5 text-[#a78bfa]"></i>
             Notificaciones
-          </h3>
-          <p class="text-xs text-white/50 mb-2">Enviá un mensaje a todos los negocios. Lo verán en la campana de la app.</p>
+          </h2>
+          <p class="text-xs text-white/50 mb-3">Enviá un mensaje a todos los negocios. Lo verán en la campana de la app.</p>
           <textarea id="adminNotificationMessage" rows="3" placeholder="Ej: Mañana cerramos a las 18 hs." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base resize-y mb-3"></textarea>
           <button type="button" id="sendNotificationBtn" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
             <i data-lucide="send" class="w-4 h-4"></i> Enviar a todos
           </button>
           <p id="adminNotificationMsg" class="text-xs mt-2 text-green-300 hidden"></p>
         </div>
-        <!-- Otro administrador -->
-        <div class="glass rounded-xl p-4 border border-white/10">
-          <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i data-lucide="user-cog" class="w-4 h-4 text-[#a78bfa]"></i>
+        <!-- Sección Más -->
+        <div id="super-section-mas" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
+          <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
+            <i data-lucide="user-cog" class="w-5 h-5 text-[#a78bfa]"></i>
             Agregar otro administrador
-          </h3>
-          <p class="text-xs text-white/50 mb-2">En Supabase → SQL Editor ejecutá (cambiá el email):</p>
+          </h2>
+          <p class="text-xs text-white/50 mb-3">En Supabase → SQL Editor ejecutá (cambiá el email):</p>
           <pre class="text-xs bg-black/30 rounded-lg p-3 overflow-x-auto text-[#a78bfa] mb-2" id="sqlAddAdmin">UPDATE profiles SET role = 'super' WHERE id = (SELECT id FROM auth.users WHERE email = 'tu-email@ejemplo.com');</pre>
         </div>
       </div>
@@ -1497,7 +1512,8 @@
       currentPanel: 'dashboard',
       _restoringFromHistory: false,
       historialTab: 'ventas',
-      historialFilter: 'hoy'
+      historialFilter: 'hoy',
+      superSection: 'negocios'  // negocios | ajustes | notificaciones | mas
     };
 
     function roundToNearest100(x) {
@@ -2300,8 +2316,13 @@
         if (superListCountdownInterval) clearInterval(superListCountdownInterval);
         renderSuper();
         superListCountdownInterval = setInterval(updateSuperListCountdowns, 1000);
+        var navSuperBottom = document.getElementById('navSuperBottom');
+        if (navSuperBottom) navSuperBottom.classList.remove('hidden');
+        switchSuperSection('negocios');
       } else {
         if (superListCountdownInterval) { clearInterval(superListCountdownInterval); superListCountdownInterval = null; }
+        var navSuperBottom = document.getElementById('navSuperBottom');
+        if (navSuperBottom) navSuperBottom.classList.add('hidden');
       }
       if (name === 'dashboard') {
         updateTrialCountdown();
@@ -2335,6 +2356,23 @@
     });
     document.querySelectorAll('[data-nav]').forEach(btn => {
       btn.onclick = () => goToPanel(btn.dataset.nav);
+    });
+    function switchSuperSection(sectionName) {
+      state.superSection = sectionName || 'negocios';
+      document.querySelectorAll('.super-section').forEach(function (el) {
+        el.classList.add('hidden');
+      });
+      var section = document.getElementById('super-section-' + state.superSection);
+      if (section) section.classList.remove('hidden');
+      document.querySelectorAll('.super-nav-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.superSection === state.superSection);
+      });
+      lucide.createIcons();
+    }
+    document.querySelectorAll('.super-nav-btn').forEach(function (btn) {
+      btn.onclick = function () {
+        if (btn.dataset.superSection) switchSuperSection(btn.dataset.superSection);
+      };
     });
 
     document.getElementById('notifBtn').addEventListener('click', function (e) {
