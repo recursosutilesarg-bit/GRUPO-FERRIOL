@@ -377,14 +377,13 @@
             <button type="button" id="closeRenovarModal" class="w-full mt-3 py-2.5 rounded-xl border border-white/20 text-white/80 text-sm touch-target">Cerrar</button>
           </div>
         </div>
-        <!-- Resumen del día (cómo va hoy) -->
+        <!-- Resumen del día: solo entraron + ventas (ganancia está en Métricas) -->
         <div id="dashboardResumenDia" class="glass rounded-2xl p-5 slide-up kiosquero-only border border-[#7c3aed]/30">
           <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <p class="text-sm text-white/60 mb-0.5">Resumen del día</p>
               <p id="resumenDiaTexto" class="text-2xl sm:text-3xl font-bold text-[#a78bfa]">Entraron $0</p>
               <p id="resumenDiaVentas" class="text-sm text-white/50 mt-1">0 ventas</p>
-              <p id="resumenDiaUtilidad" class="text-sm text-green-400/90 mt-1">Ganancia (precio − costo): $0</p>
             </div>
             <button type="button" id="btnCobroRapido" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target shrink-0">
               <i data-lucide="zap" class="w-5 h-5"></i> Cobro rápido
@@ -571,58 +570,54 @@
       </div>
     </section>
 
-    <!-- Historial unificado: Ventas + Deudores (con pestañas) -->
+    <!-- Historial unificado: Ventas + Deudores + Filtros en una fila -->
     <section id="panel-historial" class="panel hidden">
-      <div class="glass rounded-2xl p-6 slide-up">
-        <div class="flex flex-wrap items-center gap-4 mb-4">
-          <h2 class="font-bold text-xl flex items-center gap-2">
+      <div class="glass rounded-2xl p-4 sm:p-6 slide-up">
+        <div class="flex items-center gap-2 mb-3 flex-wrap">
+          <h2 class="font-bold text-lg sm:text-xl flex items-center gap-2 shrink-0">
             <i data-lucide="history" class="w-5 h-5 text-[#a78bfa]"></i>
             Historial
           </h2>
-          <div class="flex gap-2">
-            <button type="button" class="historial-tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all touch-target bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-tab="ventas">Ventas</button>
-            <button type="button" class="historial-tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all touch-target glass border border-white/10" data-tab="deudores">Deudores</button>
+          <div class="flex gap-1.5 flex-1 min-w-0">
+            <button type="button" class="historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-tab="ventas">Ventas</button>
+            <button type="button" class="historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target glass border border-white/10" data-tab="deudores">Deudores</button>
+            <div class="relative flex-1 min-w-0 sm:min-w-[120px]">
+              <button type="button" id="historialFiltroBtn" class="historial-filter-btn w-full px-3 py-1.5 rounded-xl text-sm glass border border-white/10 text-left truncate touch-target flex items-center justify-between gap-1" data-filter="hoy" title="Período">
+                <span class="historial-filtro-label">Hoy</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 shrink-0"></i>
+              </button>
+              <div id="historialFiltroDropdown" class="hidden absolute top-full left-0 mt-1 w-40 rounded-xl glass-strong border border-white/10 py-1 z-10 shadow-xl">
+                <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="hoy">Hoy</button>
+                <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="ayer">Ayer</button>
+                <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="semana">Esta semana</button>
+                <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="semana_pasada">Semana pasada</button>
+                <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="mes">Último mes</button>
+                <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="2meses">Últimos 2 meses</button>
+              </div>
+            </div>
+            <button type="button" id="exportVentasCSVBtn" class="btn-neomorphic rounded-xl p-2 touch-target shrink-0" title="Exportar CSV"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i></button>
           </div>
         </div>
-        <!-- Pestaña Ventas -->
+        <!-- Pestaña Ventas: una fila por venta (cliente | monto), tocar = detalle -->
         <div id="historialVentasWrap" class="historial-tab-pane">
-          <p class="text-xs text-white/50 mb-4">Filtros por período. Tocá una venta y «Ver detalles» para recordar la compra.</p>
-          <div class="flex flex-wrap gap-2 mb-4">
-            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-filter="hoy">Hoy</button>
-            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="ayer">Ayer</button>
-            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana">Esta semana</button>
-            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="semana_pasada">Semana pasada</button>
-            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="mes">Último mes</button>
-            <button type="button" class="historial-filter px-3 py-1.5 rounded-xl text-sm glass border border-white/10" data-filter="2meses">Últimos 2 meses</button>
-            <button type="button" id="exportVentasCSVBtn" class="btn-neomorphic rounded-xl px-4 py-2 text-sm flex items-center justify-center gap-2 touch-target ml-auto" title="Exportar a Excel/hoja de cálculo">
-              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar CSV
-            </button>
-          </div>
-          <div id="historialList" class="space-y-3 max-h-[55vh] overflow-y-auto"></div>
+          <div id="historialList" class="space-y-0 max-h-[60vh] overflow-y-auto"></div>
         </div>
-        <!-- Pestaña Deudores -->
+        <!-- Pestaña Deudores: filas compactas tipo cuaderno -->
         <div id="historialDeudoresWrap" class="historial-tab-pane hidden">
-          <p class="text-xs text-white/50 mb-4">Pendientes de cobro y quienes ya pagaron. Tocá una venta cobrada para ver el detalle.</p>
-          <div class="space-y-6 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
-              <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm text-white/90">
-                <i data-lucide="clock" class="w-4 h-4 text-[#f59e0b]"></i>
-                Pendientes de cobro
-              </h3>
-              <div id="deudoresPendientesList" class="space-y-3 max-h-[30vh] overflow-y-auto"></div>
-              <p id="deudoresPendientesEmpty" class="text-sm text-white/50 py-3 hidden">No hay saldos pendientes.</p>
+              <p class="text-xs text-white/50 mb-1">Pendientes</p>
+              <div id="deudoresPendientesList" class="space-y-1 max-h-[35vh] overflow-y-auto"></div>
+              <p id="deudoresPendientesEmpty" class="text-sm text-white/50 py-2 hidden">No hay pendientes.</p>
             </div>
             <div>
-              <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm text-white/90">
-                <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
-                Cobrados
-              </h3>
-              <div id="deudoresCobradosList" class="space-y-3 max-h-[30vh] overflow-y-auto"></div>
-              <p id="deudoresCobradosEmpty" class="text-sm text-white/50 py-3 hidden">Aún no hay deudores cobrados.</p>
+              <p class="text-xs text-white/50 mb-1">Cobrados</p>
+              <div id="deudoresCobradosList" class="space-y-1 max-h-[35vh] overflow-y-auto"></div>
+              <p id="deudoresCobradosEmpty" class="text-sm text-white/50 py-2 hidden">Sin cobrados.</p>
             </div>
           </div>
-          <button type="button" id="exportDeudoresCSVBtn" class="w-full btn-neomorphic rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target" title="Exportar a Excel/hoja de cálculo">
-            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Exportar historial de deudores a hoja de cálculo (CSV)
+          <button type="button" id="exportDeudoresCSVBtn" class="w-full btn-neomorphic rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2 touch-target" title="Exportar CSV">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar deudores
           </button>
         </div>
       </div>
@@ -663,6 +658,20 @@
             <textarea id="configWhatsappMsg" rows="4" placeholder="Hola {cliente}, tenés un saldo de ${monto}..." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] resize-y"></textarea>
           </div>
           <button id="saveConfig" class="btn-glow rounded-xl py-3 px-6 font-semibold">Guardar</button>
+
+          <div class="mt-6 pt-6 border-t border-white/10">
+            <h3 class="font-semibold mb-2 flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4 text-[#a78bfa]"></i>
+              Productos para cobro rápido
+            </h3>
+            <p class="text-sm text-white/60 mb-3">Nombres que aparecen en Cobro rápido (cualquier tipo de negocio). Por defecto: Producto 1, 2, 3, 4.</p>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+              <input type="text" id="configCobroRapido1" placeholder="Producto 1" class="glass rounded-xl px-3 py-2 border border-white/20 text-white placeholder-white/40 text-sm">
+              <input type="text" id="configCobroRapido2" placeholder="Producto 2" class="glass rounded-xl px-3 py-2 border border-white/20 text-white placeholder-white/40 text-sm">
+              <input type="text" id="configCobroRapido3" placeholder="Producto 3" class="glass rounded-xl px-3 py-2 border border-white/20 text-white placeholder-white/40 text-sm">
+              <input type="text" id="configCobroRapido4" placeholder="Producto 4" class="glass rounded-xl px-3 py-2 border border-white/20 text-white placeholder-white/40 text-sm">
+            </div>
+          </div>
 
           <div class="mt-6 pt-6 border-t border-white/10">
             <h3 class="font-semibold mb-2 flex items-center gap-2">
@@ -872,11 +881,8 @@
       <h3 class="font-bold text-lg mb-2 text-center">Cobro rápido</h3>
       <p class="text-sm text-white/60 text-center mb-3">Elegí el producto y el monto</p>
       <p class="text-xs text-white/50 mb-2">Producto</p>
-      <div class="flex flex-wrap gap-2 mb-3">
-        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Pan">Pan</button>
-        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Verdura">Verdura</button>
-        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Carne">Carne</button>
-        <button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Otro" id="cobroRapidoProductoOtro">Otro</button>
+      <div id="cobroRapidoProductosWrap" class="flex flex-wrap gap-2 mb-3">
+        <!-- Se llenan con JS desde config (Producto 1, 2, 3, 4 + Otro) -->
       </div>
       <div id="cobroRapidoOtroWrap" class="hidden mb-3">
         <input type="text" id="cobroRapidoOtroNombre" placeholder="Nombre del producto" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
@@ -1091,9 +1097,15 @@
       return s;
     }
     function downloadCSV(filename, csvContent) {
-      var BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
-      var enc = new TextEncoder().encode(csvContent);
-      var blob = new Blob([BOM, enc], { type: 'text/csv;charset=utf-8' });
+      if (typeof csvContent !== 'string') csvContent = String(csvContent);
+      var normalized = csvContent.normalize('NFC');
+      var enc = new TextEncoder().encode(normalized);
+      var full = new Uint8Array(3 + enc.length);
+      full[0] = 0xEF;
+      full[1] = 0xBB;
+      full[2] = 0xBF;
+      full.set(enc, 3);
+      var blob = new Blob([full], { type: 'text/csv;charset=utf-8' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = filename;
@@ -1158,6 +1170,22 @@
     let _dataCache = { products: {}, ventas: { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 }, transacciones: 0, deudores: [], saldosACobrar: [], lastCierreDate: null };
 
     const STORAGE_KEY_PREFIX = 'ferriol_data_';
+    const COBRO_RAPIDO_PRODUCTOS_KEY = 'ferriol_cobro_rapido_productos';
+    function getCobroRapidoProductosList() {
+      try {
+        var raw = localStorage.getItem(COBRO_RAPIDO_PRODUCTOS_KEY);
+        if (raw) {
+          var arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.length >= 4) return arr.slice(0, 4);
+        }
+      } catch (_) {}
+      return ['Producto 1', 'Producto 2', 'Producto 3', 'Producto 4'];
+    }
+    function setCobroRapidoProductosList(arr) {
+      try {
+        localStorage.setItem(COBRO_RAPIDO_PRODUCTOS_KEY, JSON.stringify((arr || []).slice(0, 4)));
+      } catch (_) {}
+    }
     function getStorageKey() { return currentUser?.id ? STORAGE_KEY_PREFIX + currentUser.id : null; }
     function loadFromLocalStorage() {
       const key = getStorageKey();
@@ -1351,7 +1379,7 @@
       currentPanel: 'dashboard',
       _restoringFromHistory: false,
       historialTab: 'ventas',
-      historialFilter: '2meses'
+      historialFilter: 'hoy'
     };
 
     function roundToNearest100(x) {
@@ -1649,9 +1677,6 @@
       }, 0);
       var cajaUtilidadEl = document.getElementById('cajaUtilidad');
       if (cajaUtilidadEl) cajaUtilidadEl.textContent = '$' + Math.round(utilidadDia).toLocaleString('es-AR');
-      var resumenUtilidadEl = document.getElementById('resumenDiaUtilidad');
-      if (resumenUtilidadEl) resumenUtilidadEl.textContent = 'Ganancia (precio − costo): $' + Math.round(utilidadDia).toLocaleString('es-AR');
-
       var resumenEl = document.getElementById('resumenDiaTexto');
       var resumenVentasEl = document.getElementById('resumenDiaVentas');
       if (resumenEl) resumenEl.textContent = 'Entraron $' + total.toLocaleString('es-AR');
@@ -1718,22 +1743,20 @@
           if (pendientesEmpty) pendientesEmpty.classList.add('hidden');
           var msg = (currentUser && currentUser.whatsappMessage) ? currentUser.whatsappMessage : DEFAULT_WHATSAPP;
           pendientesEl.innerHTML = pendientes.map(function (s) {
-            var itemsText = (s.items || []).map(function (i) { return (i.nombre || '') + ' x' + (i.cant || 0); }).join(', ');
+            var nombre = (s.clientName || '').trim() || 'Sin nombre';
+            nombre = nombre.replace(/</g, '&lt;');
             var tel = (s.whatsapp || '').replace(/\D/g, '');
             var waMsg = msg.replace(/\{cliente\}/gi, s.clientName || 'Cliente').replace(/\{monto\}/gi, (s.total || 0));
             var waUrl = tel.length >= 8 ? ('https://wa.me/' + tel + '?text=' + encodeURIComponent(waMsg)) : '#';
-            return '<div class="glass rounded-xl p-4 border border-white/10" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
-              '<div class="flex justify-between items-start gap-2 flex-wrap">' +
-              '<div class="min-w-0 flex-1">' +
-              '<p class="font-medium truncate">' + (s.clientName || 'Cliente').replace(/</g, '&lt;') + '</p>' +
-              '<p class="text-xs text-white/60 mt-0.5">' + (methodLabelsDeudores[s.method] || s.method) + '</p>' +
-              '<p class="text-xs text-white/50 mt-1 truncate" title="' + itemsText.replace(/"/g, '&quot;') + '">' + itemsText.replace(/</g, '&lt;').slice(0, 50) + (itemsText.length > 50 ? '…' : '') + '</p>' +
-              '<p class="font-semibold text-[#a78bfa] mt-1">$' + (s.total || 0).toLocaleString('es-AR') + '</p>' +
+            return '<div class="flex items-center justify-between gap-2 py-2 px-2 rounded-lg border border-white/10 hover:bg-white/5" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
+              '<div class="min-w-0 flex-1 flex items-center gap-2">' +
+              '<span class="font-medium truncate">' + nombre + '</span>' +
+              '<span class="font-semibold text-[#a78bfa] shrink-0">$' + (s.total || 0).toLocaleString('es-AR') + '</span>' +
               '</div>' +
-              '<div class="flex gap-2 shrink-0">' +
-              (tel.length >= 8 ? '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn-neomorphic rounded-xl py-2 px-3 text-sm touch-target inline-flex items-center gap-1"><i data-lucide="message-circle" class="w-4 h-4"></i></a>' : '') +
-              '<button type="button" class="deudor-pagar-btn btn-glow rounded-xl py-2 px-3 text-sm font-medium touch-target" data-id="' + (s.id || '').replace(/"/g, '&quot;') + '">Pagado</button>' +
-              '</div></div></div>';
+              '<div class="flex gap-1 shrink-0">' +
+              (tel.length >= 8 ? '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn-neomorphic rounded-lg p-1.5 touch-target inline-flex" title="WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>' : '') +
+              '<button type="button" class="deudor-pagar-btn btn-glow rounded-lg py-1.5 px-2 text-xs font-medium touch-target" data-id="' + (s.id || '').replace(/"/g, '&quot;') + '">Pagado</button>' +
+              '</div></div>';
           }).join('');
           pendientesEl.querySelectorAll('.deudor-pagar-btn').forEach(function (btn) {
             btn.onclick = function () {
@@ -1752,11 +1775,11 @@
         } else {
           if (cobradosEmpty) cobradosEmpty.classList.add('hidden');
           cobradosEl.innerHTML = cobrados.map(function (s) {
-            var fecha = (s.createdAt ? new Date(s.createdAt).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
-            return '<button type="button" class="deudor-cobrado-card w-full text-left glass rounded-xl p-4 border border-white/10 hover:border-[#7c3aed]/40 active:scale-[0.99] transition-all touch-target" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
-              '<p class="font-medium truncate">' + (s.clientName || 'Cliente').replace(/</g, '&lt;') + '</p>' +
-              '<p class="text-xs text-white/60 mt-0.5">' + fecha + ' · ' + (methodLabelsDeudores[s.method] || s.method) + '</p>' +
-              '<p class="font-semibold text-green-400 mt-1">$' + (s.total || 0).toLocaleString('es-AR') + '</p>' +
+            var nombre = (s.clientName || '').trim() || 'Sin nombre';
+            nombre = nombre.replace(/</g, '&lt;');
+            return '<button type="button" class="deudor-cobrado-card w-full text-left flex items-center justify-between gap-2 py-2 px-2 rounded-lg border border-white/10 hover:bg-white/5 active:bg-[#7c3aed]/20 touch-target transition-colors" data-saldo-id="' + (s.id || '').replace(/"/g, '&quot;') + '">' +
+              '<span class="font-medium truncate">' + nombre + '</span>' +
+              '<span class="font-semibold text-green-400 shrink-0">$' + (s.total || 0).toLocaleString('es-AR') + '</span>' +
               '</button>';
           }).join('');
           cobradosEl.querySelectorAll('.deudor-cobrado-card').forEach(function (btn) {
@@ -1801,7 +1824,7 @@
           '<span>$' + subtotal.toLocaleString('es-AR') + '</span></li>';
       }).join('');
       content.innerHTML = '<p><span class="text-white/50">Fecha y hora:</span> ' + fmt(v.fecha_hora) + '</p>' +
-        '<p><span class="text-white/50">Cliente:</span> ' + (v.cliente_nombre || '—').replace(/</g, '&lt;') + '</p>' +
+        '<p><span class="text-white/50">Cliente:</span> ' + ((v.cliente_nombre || '').trim() || 'Sin nombre').replace(/</g, '&lt;') + '</p>' +
         '<p><span class="text-white/50">Método de pago:</span> ' + (methodLabels[v.metodo_pago] || v.metodo_pago) + '</p>' +
         '<p><span class="text-white/50">Total:</span> <strong class="text-[#a78bfa]">$' + Number(v.total).toLocaleString('es-AR') + '</strong></p>' +
         '<div class="pt-2"><p class="text-white/70 mb-2">Productos:</p><ul class="space-y-0">' + items + '</ul></div>';
@@ -1868,6 +1891,13 @@
       var crw = document.getElementById('cobroRapidoWhatsappWrap'); if (crw) crw.classList.add('hidden');
       document.getElementById('cobroRapidoWhatsapp').value = '';
       var crwe = document.getElementById('cobroRapidoWhatsappErr'); if (crwe) crwe.classList.add('hidden');
+      var list = getCobroRapidoProductosList();
+      var wrap = document.getElementById('cobroRapidoProductosWrap');
+      if (wrap) {
+        var html = list.map(function (nombre) { return '<button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="' + (nombre || '').replace(/"/g, '&quot;') + '">' + (nombre || '').replace(/</g, '&lt;') + '</button>'; }).join('');
+        html += '<button type="button" class="cobro-rapido-producto px-4 py-2.5 rounded-xl text-sm font-medium border border-white/20 bg-white/5 hover:bg-[#7c3aed]/30 hover:border-[#7c3aed]/50 touch-target transition-all" data-producto="Otro" id="cobroRapidoProductoOtro">Otro</button>';
+        wrap.innerHTML = html;
+      }
       document.querySelectorAll('.cobro-rapido-producto').forEach(function (el) {
         el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
       });
@@ -2071,7 +2101,7 @@
       }
       if (name === 'historial') {
         switchHistorialTab('ventas');
-        renderHistorial('2meses');
+        renderHistorial(state.historialFilter || 'hoy');
       }
       if (name === 'clientes') loadClientes().then(renderClientes);
       lucide.createIcons();
@@ -2115,15 +2145,15 @@
     document.getElementById('btnCobroRapido').onclick = openCobroRapidoModal;
     document.getElementById('closeCobroRapido').onclick = closeCobroRapidoModal;
     document.getElementById('cobroRapidoOverlay').onclick = closeCobroRapidoModal;
-    document.querySelectorAll('.cobro-rapido-producto').forEach(function (btn) {
-      btn.onclick = function () {
-        document.querySelectorAll('.cobro-rapido-producto').forEach(function (el) {
-          el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
-        });
-        btn.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
-        var wrap = document.getElementById('cobroRapidoOtroWrap');
-        if (btn.dataset.producto === 'Otro') wrap.classList.remove('hidden'); else wrap.classList.add('hidden');
-      };
+    document.getElementById('cobroRapidoProductosWrap').addEventListener('click', function (e) {
+      var btn = e.target.closest('.cobro-rapido-producto');
+      if (!btn) return;
+      document.querySelectorAll('.cobro-rapido-producto').forEach(function (el) {
+        el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
+      });
+      btn.classList.add('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
+      var wrap = document.getElementById('cobroRapidoOtroWrap');
+      if (btn.dataset.producto === 'Otro') wrap.classList.remove('hidden'); else wrap.classList.add('hidden');
     });
     document.querySelectorAll('.quick-payment-option').forEach(function (btn) {
       btn.onclick = function () {
@@ -2272,9 +2302,6 @@
     async function renderHistorial(filter) {
       const listEl = document.getElementById('historialList');
       if (!listEl) return;
-      document.querySelectorAll('.historial-filter').forEach(btn => {
-        btn.className = 'historial-filter px-3 py-1.5 rounded-xl text-sm ' + (btn.dataset.filter === filter ? 'bg-[#7c3aed]/30 border border-[#7c3aed]/50' : 'glass border border-white/10');
-      });
       const range = getHistorialRange(filter);
       if (!supabaseClient || !currentUser?.id) {
         listEl.innerHTML = '<p class="text-white/60 py-4">Configurá Supabase para ver el historial.</p>';
@@ -2293,37 +2320,44 @@
         lucide.createIcons();
         return;
       }
-      const fmt = (s) => s ? new Date(s).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+      var filterLabels = { hoy: 'Hoy', ayer: 'Ayer', semana: 'Esta semana', semana_pasada: 'Semana pasada', mes: 'Último mes', '2meses': 'Últimos 2 meses' };
+      var filtroBtn = document.getElementById('historialFiltroBtn');
+      var filtroLabel = filtroBtn && filtroBtn.querySelector('.historial-filtro-label');
+      if (filtroBtn) filtroBtn.dataset.filter = filter;
+      if (filtroLabel) filtroLabel.textContent = filterLabels[filter] || filter;
       state.historialRows = list;
       listEl.innerHTML = list.map((v, idx) => {
-        const items = (v.items || []);
-        return `
-          <div class="glass rounded-xl p-3 border border-white/10">
-            <div class="flex justify-between items-start gap-2">
-              <div class="min-w-0">
-                <p class="text-[10px] text-white/40">${fmt(v.fecha_hora)}</p>
-                <p class="text-sm font-medium truncate">${(v.cliente_nombre || '—').replace(/</g, '&lt;')}</p>
-                <p class="text-xs text-white/60">${methodLabels[v.metodo_pago] || v.metodo_pago}</p>
-              </div>
-              <span class="font-bold text-[#a78bfa] shrink-0">$${Number(v.total).toLocaleString('es-AR')}</span>
-            </div>
-            <ul class="mt-2 pt-2 border-t border-white/10 space-y-0.5 text-xs text-white/70">
-              ${items.map(i => `<li>${(i.nombre || '').replace(/</g, '&lt;')} x ${i.cant} — $${((i.precio || 0) * (i.cant || 0)).toLocaleString('es-AR')}</li>`).join('')}
-            </ul>
-            <button type="button" class="historial-ver-detalles mt-2 w-full py-2 rounded-lg text-xs font-medium bg-[#7c3aed]/30 border border-[#7c3aed]/50 hover:bg-[#7c3aed]/50 touch-target" data-index="${idx}">Ver detalles</button>
-          </div>
-        `;
+        var cliente = (v.cliente_nombre || '').trim();
+        if (!cliente) cliente = 'Sin nombre';
+        cliente = cliente.replace(/</g, '&lt;');
+        return '<button type="button" class="historial-venta-row w-full flex items-center justify-between gap-3 py-3 px-3 rounded-xl border-b border-white/10 hover:bg-white/5 active:bg-[#7c3aed]/20 text-left touch-target transition-colors" data-index="' + idx + '"><span class="font-medium truncate min-w-0">' + cliente + '</span><span class="font-bold text-[#a78bfa] shrink-0">$' + Number(v.total).toLocaleString('es-AR') + '</span></button>';
       }).join('');
-      listEl.querySelectorAll('.historial-ver-detalles').forEach(btn => {
-        btn.onclick = () => {
-          const idx = parseInt(btn.dataset.index, 10);
+      listEl.querySelectorAll('.historial-venta-row').forEach(btn => {
+        btn.onclick = function () {
+          var idx = parseInt(btn.dataset.index, 10);
           if (state.historialRows && state.historialRows[idx]) openDetalleVentaModal(state.historialRows[idx]);
         };
       });
       lucide.createIcons();
     }
+    document.getElementById('historialFiltroBtn').onclick = function () {
+      var dd = document.getElementById('historialFiltroDropdown');
+      if (dd) dd.classList.toggle('hidden');
+      lucide.createIcons();
+    };
     document.querySelectorAll('.historial-filter').forEach(btn => {
-      btn.onclick = () => { state.historialFilter = btn.dataset.filter; renderHistorial(btn.dataset.filter); };
+      btn.onclick = function () {
+        state.historialFilter = btn.dataset.filter;
+        var dd = document.getElementById('historialFiltroDropdown');
+        if (dd) dd.classList.add('hidden');
+        renderHistorial(btn.dataset.filter);
+        lucide.createIcons();
+      };
+    });
+    document.addEventListener('click', function (e) {
+      var dd = document.getElementById('historialFiltroDropdown');
+      var btn = document.getElementById('historialFiltroBtn');
+      if (dd && !dd.classList.contains('hidden') && btn && !dd.contains(e.target) && !btn.contains(e.target)) dd.classList.add('hidden');
     });
     function switchHistorialTab(tabName) {
       state.historialTab = tabName;
@@ -2331,11 +2365,11 @@
       var deudoresWrap = document.getElementById('historialDeudoresWrap');
       document.querySelectorAll('.historial-tab-btn').forEach(function (btn) {
         var isActive = btn.dataset.tab === tabName;
-        btn.className = 'historial-tab-btn px-4 py-2 rounded-xl text-sm font-medium transition-all touch-target ' + (isActive ? 'bg-[#7c3aed]/30 border border-[#7c3aed]/50' : 'glass border border-white/10');
+        btn.className = 'historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target ' + (isActive ? 'bg-[#7c3aed]/30 border border-[#7c3aed]/50' : 'glass border border-white/10');
       });
       if (ventasWrap) ventasWrap.classList.toggle('hidden', tabName !== 'ventas');
       if (deudoresWrap) deudoresWrap.classList.toggle('hidden', tabName !== 'deudores');
-      if (tabName === 'ventas') renderHistorial(state.historialFilter || '2meses');
+      if (tabName === 'ventas') renderHistorial(state.historialFilter || 'hoy');
       if (tabName === 'deudores') renderDeudoresPanel();
       lucide.createIcons();
     }
@@ -2688,16 +2722,32 @@
     document.getElementById('addAnotherProduct').onclick = () => {
       closeCart();
     };
+    var _updatingPrecioFromCosto = false;
+    var _updatingCostoFromPrecio = false;
     function updatePrecioFromCostoMargen() {
+      if (_updatingCostoFromPrecio) return;
       var costo = parseFloat(document.getElementById('prodCosto').value) || 0;
       var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
       if (costo > 0 && margen >= 0) {
-        var precioCalc = roundToNearest100(costo * (1 + margen / 100));
-        document.getElementById('prodPrecio').value = precioCalc;
+        _updatingPrecioFromCosto = true;
+        document.getElementById('prodPrecio').value = roundToNearest100(costo * (1 + margen / 100));
+        _updatingPrecioFromCosto = false;
+      }
+    }
+    function updateCostoFromPrecioMargen() {
+      if (_updatingPrecioFromCosto) return;
+      var precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
+      var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
+      if (precio > 0 && margen >= 0) {
+        var costoCalc = Math.round(precio / (1 + margen / 100));
+        _updatingCostoFromPrecio = true;
+        document.getElementById('prodCosto').value = costoCalc;
+        _updatingCostoFromPrecio = false;
       }
     }
     document.getElementById('prodCosto').addEventListener('input', updatePrecioFromCostoMargen);
-    document.getElementById('prodMargen').addEventListener('input', updatePrecioFromCostoMargen);
+    document.getElementById('prodMargen').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoFromPrecioMargen(); });
+    document.getElementById('prodPrecio').addEventListener('input', updateCostoFromPrecioMargen);
     document.getElementById('saveProduct').onclick = () => {
       const nombre = document.getElementById('prodNombre').value.trim();
       const codigoNuevo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
@@ -3059,11 +3109,22 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (!currentUser || currentUser.role === 'super') return;
       document.getElementById('configKioscoName').value = currentUser.kioscoName || '';
       document.getElementById('configWhatsappMsg').value = currentUser.whatsappMessage || DEFAULT_WHATSAPP;
+      var list = getCobroRapidoProductosList();
+      for (var i = 1; i <= 4; i++) {
+        var el = document.getElementById('configCobroRapido' + i);
+        if (el) el.value = list[i - 1] || '';
+      }
     }
     async function saveConfig() {
       if (!currentUser || currentUser.role === 'super') return;
       const kioscoName = document.getElementById('configKioscoName').value.trim();
       const whatsappMessage = document.getElementById('configWhatsappMsg').value.trim() || DEFAULT_WHATSAPP;
+      var cr = [];
+      for (var i = 1; i <= 4; i++) {
+        var el = document.getElementById('configCobroRapido' + i);
+        cr.push(el ? ((el.value || '').trim() || 'Producto ' + i) : 'Producto ' + i);
+      }
+      setCobroRapidoProductosList(cr);
       if (supabaseClient) {
         await supabaseClient.from('profiles').update({ kiosco_name: kioscoName, whatsapp_message: whatsappMessage }).eq('id', currentUser.id);
       }
