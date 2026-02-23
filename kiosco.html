@@ -104,7 +104,7 @@
     .touch-target { min-height: 44px; min-width: 44px; }
     .inventory-scroll { -webkit-overflow-scrolling: touch; }
     .header-gradient {
-      background: linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(30,27,75,0.95) 35%, rgba(124,58,237,0.35) 70%, rgba(30,27,75,0.95) 100%);
+      background: linear-gradient(90deg, rgba(30,27,75,0.95) 0%, rgba(34,197,94,0.4) 45%, rgba(34,197,94,0.5) 50%, rgba(34,197,94,0.4) 55%, rgba(30,27,75,0.95) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
@@ -485,7 +485,7 @@
           <i data-lucide="package-search" class="w-5 h-5 text-[#a78bfa]"></i>
           Productos
         </h2>
-        <p class="text-xs text-white/50 mb-2">Máximo 200 productos. Buscá o agregá uno nuevo.</p>
+        <p class="text-xs text-white/50 mb-2">Máximo 100 productos. Buscá o agregá uno nuevo.</p>
         <div class="flex flex-col sm:flex-row gap-2 mb-4">
           <input type="text" id="searchInventory" placeholder="Buscar producto..." class="flex-1 glass rounded-xl px-4 py-3 sm:py-2.5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" autocomplete="off">
           <button id="addProduct" class="btn-glow rounded-xl px-4 py-3 sm:py-2.5 flex items-center justify-center gap-2 touch-target">
@@ -916,21 +916,30 @@
     </div>
   </div>
 
-  <!-- Modal Cobro rápido (venta por monto sin producto) -->
+  <!-- Modal Cobro rápido (varios productos en una sola venta) -->
   <div id="cobroRapidoModal" class="fixed inset-0 z-[66] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="cobroRapidoOverlay"></div>
     <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in max-h-[90vh] overflow-y-auto">
       <h3 class="font-bold text-lg mb-2 text-center">Cobro rápido</h3>
-      <p class="text-sm text-white/60 text-center mb-3">Elegí el producto y el monto</p>
-      <p class="text-xs text-white/50 mb-2">Producto</p>
-      <div id="cobroRapidoProductosWrap" class="flex flex-wrap gap-2 mb-3">
-        <!-- Se llenan con JS desde config (Producto 1, 2, 3, 4 + Otro) -->
+      <p class="text-sm text-white/60 text-center mb-3">Agregá uno o más productos con su monto. Una sola venta.</p>
+      <p class="text-xs text-white/50 mb-1">Producto</p>
+      <div id="cobroRapidoProductosWrap" class="flex flex-wrap gap-2 mb-2">
+        <!-- Se llenan con JS -->
       </div>
-      <div id="cobroRapidoOtroWrap" class="hidden mb-3">
+      <div id="cobroRapidoOtroWrap" class="hidden mb-2">
         <input type="text" id="cobroRapidoOtroNombre" placeholder="Nombre del producto" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
       </div>
-      <p class="text-xs text-white/50 mb-2">Monto ($)</p>
-      <input type="number" id="cobroRapidoMonto" placeholder="Monto ($)" min="1" step="1" class="w-full glass rounded-xl px-4 py-4 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-xl text-center mb-3">
+      <p class="text-xs text-white/50 mb-1">Monto ($)</p>
+      <div class="flex gap-2 mb-3">
+        <input type="number" id="cobroRapidoMonto" placeholder="Monto ($)" min="1" step="1" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-center">
+        <button type="button" id="cobroRapidoAgregarBtn" class="btn-glow rounded-xl px-4 py-3 font-medium shrink-0 touch-target">Agregar</button>
+      </div>
+      <div id="cobroRapidoListaWrap" class="mb-3">
+        <p class="text-xs text-white/50 mb-1">Items en esta venta</p>
+        <div id="cobroRapidoLista" class="space-y-1.5 max-h-32 overflow-y-auto"></div>
+        <p id="cobroRapidoListaEmpty" class="text-sm text-white/40 py-2">Aún no agregaste nada. Elegí producto y monto y tocá Agregar.</p>
+        <p id="cobroRapidoTotal" class="text-right font-bold text-[#a78bfa] mt-2 hidden">Total: $0</p>
+      </div>
       <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
       <div id="cobroRapidoWhatsappWrap" class="hidden mb-4">
         <label class="block text-xs text-white/70 mb-1">WhatsApp (obligatorio para fiado / transf. pendiente)</label>
@@ -1013,7 +1022,8 @@
           <label class="block text-xs text-white/60 mb-1">Precio al consumidor ($)</label>
           <input type="number" id="prodPrecio" placeholder="Precio (calculado o manual)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         </div>
-        <input type="number" id="prodStock" placeholder="Stock actual" value="10" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <label class="block text-xs text-white/60 mb-1">Stock disponible</label>
+        <input type="number" id="prodStock" placeholder="Stock disponible" value="10" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
         <div id="prodStockInicialWrap" class="hidden">
           <label class="block text-xs text-white/60 mb-1">Stock inicial (solo referencia)</label>
           <input type="number" id="prodStockInicial" placeholder="Ej. 50" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
@@ -1444,6 +1454,7 @@
     // Estado en memoria (cart + lista de transacciones del día hasta cierre de caja)
     const state = {
       cart: [],
+      cobroRapidoItems: [],  // [{ nombre, precio, costo }] para una sola venta con varios productos
       transaccionesList: [],  // { id, method, client, items: [{ nombre, codigo, precio, cant }], total }
       currentPanel: 'dashboard',
       _restoringFromHistory: false,
@@ -1501,12 +1512,20 @@
       );
       list.innerHTML = items.map(p => {
         const status = getStockStatus(p.stock);
+        const stockInicial = p.stockInicial || p.stock || 1;
+        const pct = stockInicial > 0 ? Math.round((Number(p.stock) || 0) / stockInicial * 100) : 0;
+        const barClass = pct <= 0 ? 'bg-red-500' : pct <= 20 ? 'bg-amber-500' : 'bg-green-500';
         return `
           <div class="inventory-item glass rounded-xl p-3 sm:p-4 flex gap-3 items-center border border-white/10 touch-target cursor-pointer active:scale-[0.99] transition-transform" data-codigo="${p.codigo}" role="button" tabindex="0">
             <div class="flex-1 min-w-0" data-action="edit">
               <p class="font-semibold truncate text-base">${(p.nombre || '').replace(/</g, '&lt;')}</p>
               <p class="text-[#a78bfa] font-medium text-sm sm:text-base">$${(p.precio ?? 0).toLocaleString('es-AR')}</p>
-              <span class="inline-block mt-1 px-2 py-0.5 rounded-lg text-xs border ${status.class}">${status.label}</span>
+              <div class="mt-1.5 flex items-center gap-2">
+                <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden min-w-[60px]">
+                  <div class="h-full rounded-full ${barClass} transition-all duration-300" style="width: ${Math.min(100, pct)}%"></div>
+                </div>
+                <span class="text-xs text-white/70 shrink-0">${pct}%</span>
+              </div>
             </div>
             <button type="button" class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target shrink-0" data-codigo="${p.codigo}" title="Agregar al carrito">
               <i data-lucide="plus" class="w-5 h-5"></i>
@@ -1952,7 +1971,37 @@
       lucide.createIcons();
     }
 
+    function updateCobroRapidoLista() {
+      var listEl = document.getElementById('cobroRapidoLista');
+      var emptyEl = document.getElementById('cobroRapidoListaEmpty');
+      var totalEl = document.getElementById('cobroRapidoTotal');
+      if (!listEl) return;
+      var items = state.cobroRapidoItems || [];
+      if (items.length === 0) {
+        listEl.innerHTML = '';
+        if (emptyEl) emptyEl.classList.remove('hidden');
+        if (totalEl) { totalEl.classList.add('hidden'); totalEl.textContent = 'Total: $0'; }
+        return;
+      }
+      if (emptyEl) emptyEl.classList.add('hidden');
+      var total = items.reduce(function (s, it) { return s + (it.precio || 0); }, 0);
+      listEl.innerHTML = items.map(function (it, i) {
+        var nombre = (it.nombre || 'Item').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+        var precio = it.precio || 0;
+        return '<div class="flex items-center justify-between gap-2 py-1.5 px-2 rounded-lg bg-white/10"><span class="text-sm text-white truncate flex-1">' + nombre + ' <span class="text-white/60">$' + precio + '</span></span><button type="button" class="cobro-rapido-quitar shrink-0 p-1.5 rounded-lg text-red-300 hover:bg-red-500/20 touch-target" data-index="' + i + '" aria-label="Quitar">×</button></div>';
+      }).join('');
+      if (totalEl) { totalEl.classList.remove('hidden'); totalEl.textContent = 'Total: $' + total; }
+      listEl.querySelectorAll('.cobro-rapido-quitar').forEach(function (btn) {
+        btn.onclick = function () {
+          var idx = parseInt(btn.dataset.index, 10);
+          state.cobroRapidoItems.splice(idx, 1);
+          updateCobroRapidoLista();
+        };
+      });
+      lucide.createIcons();
+    }
     function openCobroRapidoModal() {
+      state.cobroRapidoItems = [];
       document.getElementById('cobroRapidoMonto').value = '';
       document.getElementById('cobroRapidoCliente').value = '';
       document.getElementById('cobroRapidoOtroNombre').value = '';
@@ -1975,6 +2024,7 @@
         el.classList.remove('ring-2', 'ring-[#7c3aed]', 'bg-[#7c3aed]/25');
       });
       document.querySelectorAll('.quick-payment-option').forEach(function (el) { el.classList.remove('ring-2', 'ring-[#7c3aed]'); });
+      updateCobroRapidoLista();
       document.getElementById('cobroRapidoModal').classList.remove('hidden');
       document.getElementById('cobroRapidoModal').classList.add('flex');
       if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'cobroRapido' }, '', location.href);
@@ -2001,18 +2051,26 @@
       document.getElementById('cobroRapidoModal').classList.remove('flex');
     }
     function completeQuickSale(method, clientName, whatsapp) {
-      var montoEl = document.getElementById('cobroRapidoMonto');
-      var amount = parseInt(montoEl.value.replace(/\D/g, ''), 10) || 0;
-      if (amount <= 0) {
-        alert('Ingresá un monto mayor a 0.');
-        return;
+      var items;
+      var total;
+      if (state.cobroRapidoItems && state.cobroRapidoItems.length > 0) {
+        items = state.cobroRapidoItems.map(function (it) {
+          var nombre = it.nombre || 'Venta rápida';
+          var codigoRapida = '_rapida_' + (nombre.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta') + '_' + Date.now();
+          return { nombre: nombre, codigo: codigoRapida, precio: it.precio || 0, cant: 1, costo: it.costo || 0 };
+        });
+        total = items.reduce(function (s, it) { return s + (it.precio || 0); }, 0);
+      } else {
+        var montoEl = document.getElementById('cobroRapidoMonto');
+        var amount = parseInt((montoEl.value || '').replace(/\D/g, ''), 10) || 0;
+        if (amount <= 0) { alert('Agregá al menos un producto (producto + monto → Agregar) o ingresá un monto.'); return; }
+        var productName = getCobroRapidoProductoNombre();
+        var margen = getCobroRapidoProductoMargen();
+        var costo = margen > 0 ? Math.round(amount / (1 + margen / 100)) : 0;
+        var codigoRapida = '_rapida_' + (productName.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta');
+        items = [{ nombre: productName, codigo: codigoRapida, precio: amount, cant: 1, costo: costo }];
+        total = amount;
       }
-      var productName = getCobroRapidoProductoNombre();
-      var margen = getCobroRapidoProductoMargen();
-      var costo = margen > 0 ? Math.round(amount / (1 + margen / 100)) : 0;
-      var codigoRapida = '_rapida_' + (productName.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta');
-      var items = [{ nombre: productName, codigo: codigoRapida, precio: amount, cant: 1, costo: costo }];
-      var total = amount;
       var fechaHora = new Date().toISOString();
       if (method === 'fiado' || method === 'transferencia_pendiente') {
         var list = _dataCache.saldosACobrar || [];
@@ -2053,6 +2111,7 @@
       d.lastCierreDate = new Date().toISOString().slice(0, 10);
       setData(d);
       updateDashboard();
+      state.cobroRapidoItems = [];
       closeCobroRapidoModal();
       if (typeof playBeep === 'function') playBeep();
     }
@@ -2209,15 +2268,25 @@
       btn.onclick = () => goToPanel(btn.dataset.nav);
     });
 
-    document.getElementById('notifBtn').onclick = function () {
+    document.getElementById('notifBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       var dd = document.getElementById('notifDropdown');
       if (dd.classList.contains('hidden')) {
         dd.classList.remove('hidden');
-        loadNotifications();
+        loadNotifications().then(function () {
+          setNotifLastRead();
+          var countEl = document.getElementById('notifCount');
+          if (countEl) { countEl.classList.add('hidden'); countEl.textContent = '0'; }
+        });
         if (typeof playBeep === 'function') playBeep();
       } else dd.classList.add('hidden');
       lucide.createIcons();
-    };
+    });
+    document.getElementById('notifBtn').addEventListener('touchend', function (e) {
+      e.preventDefault();
+      document.getElementById('notifBtn').click();
+    }, { passive: false });
     document.getElementById('notifDropdownClose').onclick = function () { document.getElementById('notifDropdown').classList.add('hidden'); lucide.createIcons(); };
     document.addEventListener('click', function (e) {
       var dd = document.getElementById('notifDropdown');
@@ -2245,6 +2314,17 @@
       var wrap = document.getElementById('cobroRapidoOtroWrap');
       if (btn.dataset.producto === 'Otro') wrap.classList.remove('hidden'); else wrap.classList.add('hidden');
     });
+    document.getElementById('cobroRapidoAgregarBtn').onclick = function () {
+      var amount = parseInt((document.getElementById('cobroRapidoMonto').value || '').replace(/\D/g, ''), 10) || 0;
+      if (amount <= 0) { alert('Ingresá un monto mayor a 0.'); return; }
+      var productName = getCobroRapidoProductoNombre();
+      var margen = getCobroRapidoProductoMargen();
+      var costo = margen > 0 ? Math.round(amount / (1 + margen / 100)) : 0;
+      state.cobroRapidoItems = state.cobroRapidoItems || [];
+      state.cobroRapidoItems.push({ nombre: productName, precio: amount, costo: costo });
+      document.getElementById('cobroRapidoMonto').value = '';
+      updateCobroRapidoLista();
+    };
     document.querySelectorAll('.quick-payment-option').forEach(function (btn) {
       btn.onclick = function () {
         var method = btn.dataset.quickPayment;
@@ -2769,8 +2849,8 @@
     // Modal producto
     document.getElementById('addProduct').onclick = () => {
       const d = getData();
-      if (Object.keys(d.products || {}).length >= 200) {
-        alert('Llegaste al límite de 200 productos. Eliminá alguno para agregar uno nuevo.');
+      if (Object.keys(d.products || {}).length >= 100) {
+        alert('Llegaste al límite de 100 productos. Eliminá alguno para agregar uno nuevo.');
         return;
       }
       document.getElementById('productModalTitle').textContent = 'Nuevo producto';
@@ -2852,8 +2932,8 @@
       const d = getData();
       d.products = d.products || {};
       const isNew = !editCodigo;
-      if (isNew && Object.keys(d.products).length >= 200) {
-        alert('Límite de 200 productos alcanzado.');
+      if (isNew && Object.keys(d.products).length >= 100) {
+        alert('Límite de 100 productos alcanzado.');
         return;
       }
       if (!nombre || precio <= 0) return;
@@ -3528,11 +3608,32 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     };
 
     var notificationsCache = [];
+    var NOTIF_LAST_READ_KEY = 'ferriol_notif_last_read';
+    function getNotifLastRead() {
+      try {
+        var s = localStorage.getItem(NOTIF_LAST_READ_KEY);
+        return s ? new Date(s).getTime() : 0;
+      } catch (_) { return 0; }
+    }
+    function setNotifLastRead() {
+      try {
+        var latest = 0;
+        notificationsCache.forEach(function (n) {
+          if (n.created_at) {
+            var t = new Date(n.created_at).getTime();
+            if (t > latest) latest = t;
+          }
+        });
+        localStorage.setItem(NOTIF_LAST_READ_KEY, latest ? new Date(latest).toISOString() : new Date().toISOString());
+      } catch (_) {}
+    }
     async function loadNotifications() {
       if (!supabaseClient) return;
       try {
         var res = await supabaseClient.from('notifications').select('id, created_at, message').order('created_at', { ascending: false }).limit(50);
         notificationsCache = (res.data || []);
+        var lastRead = getNotifLastRead();
+        var unread = notificationsCache.filter(function (n) { return n.created_at && new Date(n.created_at).getTime() > lastRead; });
         var listEl = document.getElementById('notifList');
         var emptyEl = document.getElementById('notifEmpty');
         var countEl = document.getElementById('notifCount');
@@ -3550,7 +3651,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           }
         }
         if (countEl) {
-          if (notificationsCache.length > 0) { countEl.textContent = notificationsCache.length > 99 ? '99+' : notificationsCache.length; countEl.classList.remove('hidden'); }
+          if (unread.length > 0) { countEl.textContent = unread.length > 99 ? '99+' : unread.length; countEl.classList.remove('hidden'); }
           else countEl.classList.add('hidden');
         }
         lucide.createIcons();
