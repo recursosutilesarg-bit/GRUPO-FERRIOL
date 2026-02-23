@@ -769,9 +769,9 @@
 
     <!-- Panel Admin: secciones al pie (Negocios, Ajustes, Notificaciones, Más) -->
     <section id="panel-super" class="panel hidden">
-      <div class="space-y-4 pb-24">
+      <div class="relative min-h-[50vh] pb-24">
         <!-- Sección Negocios -->
-        <div id="super-section-negocios" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up">
+        <div id="super-section-negocios" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up relative">
           <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
             <i data-lucide="store" class="w-5 h-5 text-[#a78bfa]"></i>
             Negocios
@@ -782,6 +782,7 @@
             </button>
           </div>
           <p class="text-xs text-white/50 mb-3">Tocá un negocio para ver detalles, membresía y estado. Para quitar a una persona se pide contraseña de admin (configurarla en Ajustes).</p>
+          <input type="text" id="superSearchEmail" placeholder="Buscar por email o nombre..." class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-sm mb-3" autocomplete="off">
           <div class="flex gap-2 mb-2">
             <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-[#7c3aed]/50 bg-[#7c3aed]/30" data-filter="todos">Todos</button>
             <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-white/20 glass" data-filter="activos">Activos</button>
@@ -792,7 +793,7 @@
           </div>
         </div>
         <!-- Sección Ajustes -->
-        <div id="super-section-ajustes" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden" style="display: none;">
+        <div id="super-section-ajustes" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden absolute inset-x-0 top-0" style="display: none;">
           <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
             <i data-lucide="settings" class="w-5 h-5 text-[#a78bfa]"></i>
             Ajustes
@@ -814,7 +815,7 @@
           </div>
         </div>
         <!-- Sección Notificaciones -->
-        <div id="super-section-notificaciones" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
+        <div id="super-section-notificaciones" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden absolute inset-x-0 top-0" style="display: none;">
           <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
             <i data-lucide="bell" class="w-5 h-5 text-[#a78bfa]"></i>
             Notificaciones
@@ -827,7 +828,7 @@
           <p id="adminNotificationMsg" class="text-xs mt-2 text-green-300 hidden"></p>
         </div>
         <!-- Sección Más -->
-        <div id="super-section-mas" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
+        <div id="super-section-mas" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden absolute inset-x-0 top-0" style="display: none;">
           <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
             <i data-lucide="user-cog" class="w-5 h-5 text-[#a78bfa]"></i>
             Agregar otro administrador
@@ -2365,14 +2366,16 @@
     });
     function switchSuperSection(sectionName) {
       state.superSection = sectionName || 'negocios';
-      document.querySelectorAll('.super-section').forEach(function (el) {
+      document.querySelectorAll('#panel-super .super-section').forEach(function (el) {
         el.classList.add('hidden');
         el.style.display = 'none';
+        el.style.zIndex = '0';
       });
       var section = document.getElementById('super-section-' + state.superSection);
       if (section) {
         section.classList.remove('hidden');
         section.style.display = 'block';
+        section.style.zIndex = '1';
       }
       document.querySelectorAll('.super-nav-btn').forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.superSection === state.superSection);
@@ -3731,6 +3734,13 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (superFilterState === 'activos') list = list.filter(u => u.active);
       if (superFilterState === 'inactivos') list = list.filter(u => !u.active);
       superUserListCache = list.slice();
+      var searchEl = document.getElementById('superSearchEmail');
+      var searchTerm = (searchEl && searchEl.value) ? searchEl.value.trim().toLowerCase() : '';
+      if (searchTerm) list = list.filter(function (u) {
+        var email = (u.email || '').toLowerCase();
+        var name = (u.kiosco_name || '').toLowerCase();
+        return email.indexOf(searchTerm) !== -1 || name.indexOf(searchTerm) !== -1;
+      });
       list.sort((a, b) => {
         const na = (a.kiosco_name || '').toLowerCase().trim() || 'zzz';
         const nb = (b.kiosco_name || '').toLowerCase().trim() || 'zzz';
@@ -3743,7 +3753,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         return;
       }
       if (list.length === 0 && currentUser?.role === 'super') {
-        var msg = superFilterState === 'activos' ? 'No hay negocios activos.' : superFilterState === 'inactivos' ? 'No hay negocios inactivos.' : 'No hay otros negocios. Agregá uno con el botón de arriba.';
+        var msg = searchTerm ? 'Ningún usuario coincide con la búsqueda.' : (superFilterState === 'activos' ? 'No hay negocios activos.' : superFilterState === 'inactivos' ? 'No hay negocios inactivos.' : 'No hay otros negocios. Agregá uno con el botón de arriba.');
         listEl.innerHTML = '<p class="py-6 text-center text-white/70 text-sm">' + msg + '</p>';
         lucide.createIcons();
         return;
@@ -3776,6 +3786,49 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       });
       lucide.createIcons();
     }
+    function renderSuperListFromSearch() {
+      var listEl = document.getElementById('superUsersList');
+      if (!listEl || !superUserListCache.length) return;
+      var searchEl = document.getElementById('superSearchEmail');
+      var searchTerm = (searchEl && searchEl.value) ? searchEl.value.trim().toLowerCase() : '';
+      var list = superUserListCache.slice();
+      if (superFilterState === 'activos') list = list.filter(function (u) { return u.active; });
+      if (superFilterState === 'inactivos') list = list.filter(function (u) { return !u.active; });
+      if (searchTerm) list = list.filter(function (u) {
+        var email = (u.email || '').toLowerCase();
+        var name = (u.kiosco_name || '').toLowerCase();
+        return email.indexOf(searchTerm) !== -1 || name.indexOf(searchTerm) !== -1;
+      });
+      list.sort((a, b) => {
+        const na = (a.kiosco_name || '').toLowerCase().trim() || 'zzz';
+        const nb = (b.kiosco_name || '').toLowerCase().trim() || 'zzz';
+        return na.localeCompare(nb);
+      });
+      if (list.length === 0) {
+        listEl.innerHTML = '<p class="py-6 text-center text-white/70 text-sm">Ningún usuario coincide con la búsqueda.</p>';
+        lucide.createIcons();
+        return;
+      }
+      listEl.innerHTML = list.map(function (u) {
+        var name = (u.kiosco_name || u.email || 'Sin nombre').replace(/</g, '&lt;');
+        var trialFull = trialLabelFull(u.trial_ends_at);
+        var badge = trialFull.expired ? 'Vencida' : trialFull.text;
+        var badgeClass = trialFull.expired ? 'bg-red-500/20 text-red-300' : 'bg-[#7c3aed]/30 text-[#a78bfa]';
+        var endIso = (u.trial_ends_at || '').replace(/"/g, '&quot;');
+        return '<button type="button" class="super-user-card w-full text-left glass rounded-xl p-4 flex items-center justify-between gap-3 border border-white/10 hover:border-[#7c3aed]/40 active:scale-[0.99] transition-all touch-target" data-id="' + u.id + '" data-trial-ends-at="' + endIso + '"><div class="flex-1 min-w-0"><p class="font-semibold truncate">' + name + '</p><p class="text-xs text-white/50 truncate mt-0.5">' + (u.email || '').replace(/</g, '&lt;') + '</p></div><div class="flex items-center gap-2 shrink-0"><span class="super-list-countdown px-2 py-1 rounded-lg text-xs ' + badgeClass + '">' + badge + '</span><i data-lucide="chevron-right" class="w-5 h-5 text-white/40"></i></div></button>';
+      }).join('');
+      listEl.querySelectorAll('.super-user-card').forEach(function (btn) {
+        btn.onclick = function () {
+          var id = btn.dataset.id;
+          var user = list.find(function (u) { return u.id === id; });
+          if (user) openSuperUserDetail(user);
+        };
+      });
+      lucide.createIcons();
+    }
+    var superSearchInput = document.getElementById('superSearchEmail');
+    if (superSearchInput) superSearchInput.addEventListener('input', renderSuperListFromSearch);
+    if (superSearchInput) superSearchInput.addEventListener('search', renderSuperListFromSearch);
     document.getElementById('saveAdminContact').onclick = async () => {
       const whatsapp = (document.getElementById('adminContactWhatsapp').value || '').trim().replace(/\D/g, '');
       const whatsapp2 = (document.getElementById('adminContactWhatsapp2').value || '').trim().replace(/\D/g, '');
