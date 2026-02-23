@@ -932,63 +932,73 @@
   <!-- Modal Cobro rápido (varios productos en una sola venta) -->
   <div id="cobroRapidoModal" class="fixed inset-0 z-[66] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="cobroRapidoOverlay"></div>
-    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in max-h-[90vh] overflow-y-auto">
-      <h3 class="font-bold text-lg mb-2 text-center">Cobro rápido</h3>
-      <p class="text-sm text-white/60 text-center mb-3">Agregá uno o más productos con su monto. Una sola venta.</p>
-      <p class="text-xs text-white/50 mb-1">Producto</p>
-      <div id="cobroRapidoProductosWrap" class="flex flex-wrap gap-2 mb-2">
-        <!-- Se llenan con JS -->
+    <div class="relative glass-strong rounded-2xl p-6 sm:p-8 w-full max-w-md scale-in max-h-[90vh] overflow-y-auto flex flex-col gap-6">
+      <div class="text-center">
+        <h3 class="font-bold text-xl mb-1">Cobro rápido</h3>
+        <p class="text-sm text-white/60">Agregá productos y montos. Una sola venta.</p>
       </div>
-      <div id="cobroRapidoOtroWrap" class="hidden mb-2">
-        <input type="text" id="cobroRapidoOtroNombre" placeholder="Nombre del producto" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+      <div class="space-y-3">
+        <p class="text-xs font-medium text-white/70 uppercase tracking-wide">Producto</p>
+        <div id="cobroRapidoProductosWrap" class="flex flex-wrap gap-2">
+          <!-- Se llenan con JS -->
+        </div>
+        <div id="cobroRapidoOtroWrap" class="hidden">
+          <input type="text" id="cobroRapidoOtroNombre" placeholder="Nombre del producto" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        </div>
       </div>
-      <p class="text-xs text-white/50 mb-1">Monto ($)</p>
-      <div class="flex gap-2 mb-3">
-        <input type="number" id="cobroRapidoMonto" placeholder="Monto ($)" min="1" step="1" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-center">
-        <button type="button" id="cobroRapidoAgregarBtn" class="btn-glow rounded-xl px-4 py-3 font-medium shrink-0 touch-target">Agregar</button>
+      <div class="space-y-2">
+        <p class="text-xs font-medium text-white/70 uppercase tracking-wide">Monto ($)</p>
+        <div class="flex gap-3">
+          <input type="number" id="cobroRapidoMonto" placeholder="Ej. 500" min="1" step="1" class="flex-1 glass rounded-xl px-4 py-3.5 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-center text-lg">
+          <button type="button" id="cobroRapidoAgregarBtn" class="btn-glow rounded-xl px-5 py-3.5 font-medium shrink-0 touch-target">Agregar</button>
+        </div>
       </div>
-      <div id="cobroRapidoListaWrap" class="mb-3">
-        <p class="text-xs text-white/50 mb-1">Items en esta venta</p>
-        <div id="cobroRapidoLista" class="space-y-1.5 max-h-32 overflow-y-auto"></div>
-        <p id="cobroRapidoListaEmpty" class="text-sm text-white/40 py-2">Aún no agregaste nada. Elegí producto y monto y tocá Agregar.</p>
-        <p id="cobroRapidoTotal" class="text-right font-bold text-[#a78bfa] mt-2 hidden">Total: $0</p>
+      <div id="cobroRapidoListaWrap" class="space-y-2 border-t border-white/10 pt-4">
+        <p class="text-xs font-medium text-white/70 uppercase tracking-wide">Items en esta venta</p>
+        <div id="cobroRapidoLista" class="space-y-2 max-h-36 overflow-y-auto"></div>
+        <p id="cobroRapidoListaEmpty" class="text-sm text-white/40 py-3 text-center">Aún no agregaste nada.</p>
+        <p id="cobroRapidoTotal" class="text-right font-bold text-lg text-[#a78bfa] mt-3 hidden">Total: $0</p>
       </div>
-      <div id="cobroRapidoAtajoWrap" class="hidden mb-3">
-        <button type="button" id="cobroRapidoAtajoBtn" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target">
+      <div id="cobroRapidoAtajoWrap" class="hidden">
+        <button type="button" id="cobroRapidoAtajoBtn" class="w-full btn-glow rounded-xl py-3.5 font-semibold flex items-center justify-center gap-2 touch-target">
           <i data-lucide="zap" class="w-5 h-5"></i>
           <span id="cobroRapidoAtajoLabel">Cobrar con Efectivo</span>
         </button>
       </div>
-      <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-      <div id="cobroRapidoWhatsappWrap" class="hidden mb-4">
-        <label class="block text-xs text-white/70 mb-1">WhatsApp (obligatorio para fiado / transf. pendiente)</label>
-        <input type="tel" id="cobroRapidoWhatsapp" placeholder="Ej: 54911 1234-5678" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
-        <p id="cobroRapidoWhatsappErr" class="text-red-300 text-xs mt-1 hidden">Ingresá el número de WhatsApp.</p>
+      <div class="space-y-2 border-t border-white/10 pt-4">
+        <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+        <div id="cobroRapidoWhatsappWrap" class="hidden space-y-1">
+          <label class="block text-xs text-white/70">WhatsApp (fiado / transf. pendiente)</label>
+          <input type="tel" id="cobroRapidoWhatsapp" placeholder="Ej: 54911 1234-5678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+          <p id="cobroRapidoWhatsappErr" class="text-red-300 text-xs hidden">Ingresá el número de WhatsApp.</p>
+        </div>
       </div>
-      <p class="text-sm text-white/60 mb-2">Otro método de pago</p>
-      <div class="grid grid-cols-2 gap-2 mb-4">
-        <button type="button" data-quick-payment="efectivo" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
-          <i data-lucide="banknote" class="w-6 h-6 text-[#a78bfa]"></i>
-          <span class="text-xs font-medium">Efectivo</span>
-        </button>
-        <button type="button" data-quick-payment="tarjeta" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
-          <i data-lucide="credit-card" class="w-6 h-6 text-[#a78bfa]"></i>
-          <span class="text-xs font-medium">Tarjeta</span>
-        </button>
-        <button type="button" data-quick-payment="transferencia" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
-          <i data-lucide="smartphone" class="w-6 h-6 text-[#a78bfa]"></i>
-          <span class="text-xs font-medium">Transferencia</span>
-        </button>
-        <button type="button" data-quick-payment="fiado" class="quick-payment-option glass rounded-xl py-3 flex flex-col items-center gap-1 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
-          <i data-lucide="user-check" class="w-6 h-6 text-[#a78bfa]"></i>
-          <span class="text-xs font-medium">Fiado</span>
-        </button>
-        <button type="button" data-quick-payment="transferencia_pendiente" class="quick-payment-option col-span-2 glass rounded-xl py-2.5 flex flex-col items-center gap-1 border border-white/10 hover:border-[#f59e0b]/50 touch-target">
-          <i data-lucide="clock" class="w-5 h-5 text-[#fbbf24]"></i>
-          <span class="text-xs font-medium">Transf. pendiente</span>
-        </button>
+      <div class="space-y-3">
+        <p class="text-xs font-medium text-white/70 uppercase tracking-wide">Método de pago</p>
+        <div class="grid grid-cols-2 gap-3">
+          <button type="button" data-quick-payment="efectivo" class="quick-payment-option glass rounded-xl py-3.5 flex flex-col items-center gap-1.5 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+            <i data-lucide="banknote" class="w-6 h-6 text-[#a78bfa]"></i>
+            <span class="text-xs font-medium">Efectivo</span>
+          </button>
+          <button type="button" data-quick-payment="tarjeta" class="quick-payment-option glass rounded-xl py-3.5 flex flex-col items-center gap-1.5 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+            <i data-lucide="credit-card" class="w-6 h-6 text-[#a78bfa]"></i>
+            <span class="text-xs font-medium">Tarjeta</span>
+          </button>
+          <button type="button" data-quick-payment="transferencia" class="quick-payment-option glass rounded-xl py-3.5 flex flex-col items-center gap-1.5 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+            <i data-lucide="smartphone" class="w-6 h-6 text-[#a78bfa]"></i>
+            <span class="text-xs font-medium">Transferencia</span>
+          </button>
+          <button type="button" data-quick-payment="fiado" class="quick-payment-option glass rounded-xl py-3.5 flex flex-col items-center gap-1.5 border border-white/10 hover:border-[#7c3aed]/50 touch-target">
+            <i data-lucide="user-check" class="w-6 h-6 text-[#a78bfa]"></i>
+            <span class="text-xs font-medium">Fiado</span>
+          </button>
+          <button type="button" data-quick-payment="transferencia_pendiente" class="quick-payment-option col-span-2 glass rounded-xl py-3 flex flex-col items-center gap-1.5 border border-white/10 hover:border-[#f59e0b]/50 touch-target">
+            <i data-lucide="clock" class="w-5 h-5 text-[#fbbf24]"></i>
+            <span class="text-xs font-medium">Transf. pendiente</span>
+          </button>
+        </div>
       </div>
-      <button type="button" id="closeCobroRapido" class="w-full btn-neomorphic rounded-xl py-2.5 text-sm touch-target">Cancelar</button>
+      <button type="button" id="closeCobroRapido" class="w-full btn-neomorphic rounded-xl py-3 text-sm touch-target">Cancelar</button>
     </div>
   </div>
 
