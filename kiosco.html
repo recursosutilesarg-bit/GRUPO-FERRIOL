@@ -106,16 +106,16 @@
     .header-gradient {
       background: linear-gradient(90deg,
         rgba(30,27,75,0.98) 0%,
-        rgba(55,48,163,0.9) 28%,
-        rgba(34,197,94,0.75) 42%,
-        rgba(22,163,74,0.85) 50%,
-        rgba(34,197,94,0.75) 58%,
-        rgba(55,48,163,0.9) 72%,
+        rgba(55,48,163,0.95) 30%,
+        rgba(34,197,94,0.9) 45%,
+        rgba(22,163,74,0.95) 50%,
+        rgba(34,197,94,0.9) 55%,
+        rgba(55,48,163,0.95) 70%,
         rgba(30,27,75,0.98) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-bottom: 2px solid rgba(124,58,237,0.6);
-      box-shadow: inset 0 0 0 1px rgba(124,58,237,0.25);
+      border-bottom: 2px solid rgba(124,58,237,0.7);
+      box-shadow: inset 1px 0 0 rgba(124,58,237,0.4), inset -1px 0 0 rgba(124,58,237,0.4), 0 2px 0 0 rgba(167,139,250,0.25);
     }
     .notif-panel {
       background: rgba(30,27,75,0.97);
@@ -329,11 +329,11 @@
     </div>
   </header>
 
-  <!-- Navigation súper (solo panel Kiosqueros) — arriba solo para super -->
+  <!-- Navigation admin (panel Negocios) — visible solo para super -->
   <nav id="navSuper" class="sticky top-[60px] z-40 glass border-b border-white/10 hidden">
     <div class="flex gap-1 p-2">
       <button data-nav="super" class="nav-item active flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium touch-target">
-        <i data-lucide="crown" class="w-4 h-4"></i> Kiosqueros
+        <i data-lucide="crown" class="w-4 h-4"></i> Negocios
       </button>
     </div>
   </nav>
@@ -596,18 +596,21 @@
             <i data-lucide="history" class="w-5 h-5 text-[#a78bfa]"></i>
             Historial
           </h2>
+          <div class="flex flex-col gap-3">
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" class="historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target bg-[#7c3aed]/30 border border-[#7c3aed]/50" data-tab="ventas">Ventas</button>
             <button type="button" class="historial-tab-btn px-3 py-1.5 rounded-xl text-sm font-medium transition-all touch-target glass border border-white/10" data-tab="deudores">Deudores</button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
             <button type="button" class="historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border border-white/20" data-filter="hoy">Hoy</button>
             <button type="button" class="historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border border-white/20" data-filter="semana">Semana</button>
             <button type="button" class="historial-chip px-2.5 py-1.5 rounded-xl text-xs font-medium touch-target transition-all border border-white/20" data-filter="mes">Mes</button>
-            <div class="relative">
-              <button type="button" id="historialFiltroBtn" class="historial-filter-btn px-3 py-1.5 rounded-xl text-sm glass border border-white/10 text-left touch-target flex items-center justify-between gap-1 min-w-[7rem]" data-filter="hoy" title="Más períodos">
+            <div class="relative ml-auto">
+              <button type="button" id="historialFiltroBtn" class="historial-filter-btn px-4 py-2 rounded-xl text-sm glass border border-white/20 text-left touch-target flex items-center justify-between gap-2 min-w-[8.5rem]" data-filter="hoy" title="Más períodos">
                 <span class="historial-filtro-label">Hoy</span>
-                <i data-lucide="chevron-down" class="w-4 h-4 shrink-0"></i>
+                <i data-lucide="chevron-down" class="w-4 h-4 shrink-0 opacity-70"></i>
               </button>
-              <div id="historialFiltroDropdown" class="hidden absolute top-full left-0 mt-1 w-40 rounded-xl glass-strong border border-white/10 py-1 z-10 shadow-xl">
+              <div id="historialFiltroDropdown" class="hidden absolute top-full right-0 mt-1 w-44 rounded-xl glass-strong border border-white/20 py-1 z-20 shadow-xl">
                 <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="hoy">Hoy</button>
                 <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="ayer">Ayer</button>
                 <button type="button" class="historial-filter w-full px-3 py-2 text-left text-sm hover:bg-white/10" data-filter="semana">Esta semana</button>
@@ -662,13 +665,13 @@
       <div class="glass rounded-2xl p-6 slide-up">
         <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
           <i data-lucide="settings" class="w-5 h-5 text-[#a78bfa]"></i>
-          Configuración del kiosco
+          Configuración del negocio
         </h2>
         <p class="text-sm text-white/70 mb-4">Podés exportar o importar una copia de tus datos (productos, ventas del día, saldos a cobrar) más abajo en esta pantalla.</p>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm text-white/70 mb-2">Nombre del kiosco</label>
-            <input type="text" id="configKioscoName" placeholder="Ej: Kiosco del Barrio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+            <label class="block text-sm text-white/70 mb-2">Nombre del negocio</label>
+            <input type="text" id="configKioscoName" placeholder="Ej: Mi Negocio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
           </div>
           <div>
             <label class="block text-sm text-white/70 mb-2">Mensaje de cobro por WhatsApp (usá <code class="text-[#a78bfa]">{cliente}</code> y <code class="text-[#a78bfa]">{monto}</code>)</label>
@@ -749,49 +752,58 @@
       </div>
     </section>
 
-    <!-- Panel Súper: lista de kiosqueros -->
+    <!-- Panel Admin: secciones Ajustes y Negocios -->
     <section id="panel-super" class="panel hidden">
       <div class="glass rounded-2xl p-4 sm:p-6 slide-up space-y-6 sm:space-y-8">
-        <!-- Botón destacado: Nuevo kiosquero -->
-        <div class="flex justify-end">
-          <button type="button" id="btnOpenNewKiosqueroModal" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target">
-            <i data-lucide="user-plus" class="w-5 h-5"></i> Nuevo kiosquero
-          </button>
-        </div>
-        <!-- Lista Kiosqueros — Membresías -->
+        <!-- Sección Negocios: agregar / quitar -->
         <div>
-          <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
-            <i data-lucide="crown" class="w-5 h-5 text-[#a78bfa]"></i>
-            Kiosqueros — Membresías
+          <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
+            <i data-lucide="store" class="w-5 h-5 text-[#a78bfa]"></i>
+            Negocios
           </h2>
-          <p class="text-xs text-white/50 mb-3">Tocá un negocio para ver detalles y gestionar membresía (cuenta regresiva en días, horas, minutos y segundos), estado y contraseña.</p>
-          <div id="superUsersList" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
-            <!-- Lista por nombre de negocio (se llena con JS) -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button type="button" id="btnOpenNewKiosqueroModal" class="btn-glow rounded-xl py-3 px-5 font-semibold flex items-center justify-center gap-2 touch-target">
+              <i data-lucide="user-plus" class="w-5 h-5"></i> Agregar negocio
+            </button>
+          </div>
+          <p class="text-xs text-white/50 mb-3">Tocá un negocio para ver detalles, membresía y estado. Para quitar a una persona se pide contraseña de admin (configurarla en Ajustes).</p>
+          <div class="flex gap-2 mb-2">
+            <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-[#7c3aed]/50 bg-[#7c3aed]/30" data-filter="todos">Todos</button>
+            <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-white/20 glass" data-filter="activos">Activos</button>
+            <button type="button" class="super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border border-white/20 glass" data-filter="inactivos">Inactivos</button>
+          </div>
+          <div id="superUsersList" class="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+            <!-- Lista por JS -->
           </div>
         </div>
-        <!-- Notificaciones a todos los kiosqueros -->
-        <div class="glass rounded-xl p-4 border border-white/10">
-          <h3 class="font-semibold mb-3 flex items-center gap-2">
-            <i data-lucide="bell" class="w-4 h-4 text-[#a78bfa]"></i>
-            Notificaciones
-          </h3>
-          <p class="text-xs text-white/50 mb-2">Escribí un mensaje y enviálo a todos los kiosqueros. Lo verán en la campana de la app.</p>
-          <textarea id="adminNotificationMessage" rows="3" placeholder="Ej: Mañana cerramos a las 18 hs. / Recordá hacer cierre de caja." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base resize-y mb-3"></textarea>
-          <button type="button" id="sendNotificationBtn" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
-            <i data-lucide="send" class="w-4 h-4"></i> Enviar a todos
-          </button>
-          <p id="adminNotificationMsg" class="text-xs mt-2 text-green-300 hidden"></p>
-        </div>
-        <!-- Ajustes: WhatsApp administrador -->
+        <!-- Sección Ajustes -->
         <div class="glass rounded-xl p-4 border border-white/10">
           <h3 class="font-semibold mb-3 flex items-center gap-2">
             <i data-lucide="settings" class="w-4 h-4 text-[#a78bfa]"></i>
             Ajustes
           </h3>
-          <p class="text-xs text-white/50 mb-2">WhatsApp del administrador (con código de país, ej. 54911 1234-5678). Los kiosqueros verán este contacto cuando la cuenta esté desactivada o se termine la prueba.</p>
+          <p class="text-xs text-white/50 mb-2">Números de contacto que verán los usuarios cuando la cuenta esté desactivada o se termine la prueba.</p>
+          <label class="block text-xs text-white/60 mb-1">Contacto 1 (WhatsApp)</label>
           <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
-          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar WhatsApp</button>
+          <label class="block text-xs text-white/60 mb-1">Contacto 2 (WhatsApp)</label>
+          <input type="tel" id="adminContactWhatsapp2" placeholder="Ej. 5491198765432 (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+          <label class="block text-xs text-white/60 mb-1">Contraseña para quitar usuarios (opcional)</label>
+          <input type="password" id="adminDeletePassword" placeholder="Al quitar un negocio se pedirá esta contraseña" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar ajustes</button>
           <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+        </div>
+        <!-- Notificaciones -->
+        <div class="glass rounded-xl p-4 border border-white/10">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <i data-lucide="bell" class="w-4 h-4 text-[#a78bfa]"></i>
+            Notificaciones
+          </h3>
+          <p class="text-xs text-white/50 mb-2">Enviá un mensaje a todos los negocios. Lo verán en la campana de la app.</p>
+          <textarea id="adminNotificationMessage" rows="3" placeholder="Ej: Mañana cerramos a las 18 hs." class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base resize-y mb-3"></textarea>
+          <button type="button" id="sendNotificationBtn" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
+            <i data-lucide="send" class="w-4 h-4"></i> Enviar a todos
+          </button>
+          <p id="adminNotificationMsg" class="text-xs mt-2 text-green-300 hidden"></p>
         </div>
         <!-- Otro administrador -->
         <div class="glass rounded-xl p-4 border border-white/10">
@@ -799,19 +811,18 @@
             <i data-lucide="user-cog" class="w-4 h-4 text-[#a78bfa]"></i>
             Agregar otro administrador
           </h3>
-          <p class="text-xs text-white/50 mb-2">Para que <strong>rama40401698@gmail.com</strong> sea administrador: que cree una cuenta en la app (Crear cuenta) si no tiene. Luego en Supabase → SQL Editor ejecutá:</p>
-          <pre class="text-xs bg-black/30 rounded-lg p-3 overflow-x-auto text-[#a78bfa] mb-2" id="sqlAddAdmin">UPDATE profiles SET role = 'super' WHERE id = (SELECT id FROM auth.users WHERE email = 'rama40401698@gmail.com');</pre>
-          <p class="text-xs text-white/50">Así tu hermano podrá entrar al panel de Kiosqueros y notificaciones como vos.</p>
+          <p class="text-xs text-white/50 mb-2">En Supabase → SQL Editor ejecutá (cambiá el email):</p>
+          <pre class="text-xs bg-black/30 rounded-lg p-3 overflow-x-auto text-[#a78bfa] mb-2" id="sqlAddAdmin">UPDATE profiles SET role = 'super' WHERE id = (SELECT id FROM auth.users WHERE email = 'tu-email@ejemplo.com');</pre>
         </div>
       </div>
     </section>
 
-    <!-- Modal Nuevo kiosquero (registro desde admin) -->
+    <!-- Modal Nuevo negocio (registro desde admin) -->
     <div id="newKiosqueroModal" class="fixed inset-0 z-[74] hidden items-center justify-center p-4">
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="newKiosqueroModalOverlay"></div>
       <div class="relative glass-strong rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto scale-in">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="font-bold text-lg">Nuevo kiosquero</h3>
+          <h3 class="font-bold text-lg">Nuevo negocio</h3>
           <button type="button" id="newKiosqueroModalClose" class="btn-neomorphic rounded-xl p-2 touch-target">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
@@ -829,7 +840,7 @@
         </div>
         <input type="text" id="newKiosqueroKioscoName" placeholder="Nombre del negocio" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-4">
         <button type="button" id="btnCreateUserInModal" class="btn-glow rounded-xl py-3 w-full font-semibold flex items-center justify-center gap-2 touch-target">
-          <i data-lucide="user-plus" class="w-5 h-5"></i> Crear kiosquero
+          <i data-lucide="user-plus" class="w-5 h-5"></i> Crear negocio
         </button>
         <p id="createUserMsgModal" class="text-sm mt-3 text-green-300 hidden"></p>
       </div>
@@ -944,26 +955,28 @@
       </div>
       <div class="mb-3 flex gap-2 items-end">
         <div class="flex-1">
-          <p class="text-xs text-white/50 mb-1">Monto ($)</p>
+          <p class="text-xs text-white/50 mb-1">Precio final ($)</p>
           <input type="number" id="cobroRapidoMonto" placeholder="0" min="1" step="1" class="w-full glass rounded-lg px-3 py-2.5 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-center">
         </div>
         <div class="w-20">
           <p class="text-xs text-white/50 mb-1">Margen %</p>
           <input type="number" id="cobroRapidoMargen" placeholder="0" min="0" step="1" class="w-full glass rounded-lg px-2 py-2.5 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-center text-sm" title="Ganancia % para calcular rentabilidad">
         </div>
-        <button type="button" id="cobroRapidoAgregarBtn" class="btn-glow rounded-lg px-4 py-2.5 font-medium touch-target shrink-0">+</button>
       </div>
       <div id="cobroRapidoListaWrap" class="mb-3 min-h-[2.5rem]">
         <div id="cobroRapidoLista" class="space-y-1 max-h-24 overflow-y-auto"></div>
-        <p id="cobroRapidoListaEmpty" class="text-xs text-white/40 py-1.5">Sin ítems. Agregá producto y monto.</p>
+        <p id="cobroRapidoListaEmpty" class="text-xs text-white/40 py-1.5">Sin ítems. Agregá producto y precio final.</p>
         <p id="cobroRapidoTotal" class="text-right font-bold text-[#a78bfa] mt-1 hidden">Total: $0</p>
       </div>
-      <div id="cobroRapidoAtajoWrap" class="hidden mb-3">
+      <div id="cobroRapidoAtajoWrap" class="hidden mb-2">
         <button type="button" id="cobroRapidoAtajoBtn" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 touch-target">
           <i data-lucide="zap" class="w-5 h-5"></i>
           <span id="cobroRapidoAtajoLabel">Cobrar con Efectivo</span>
         </button>
       </div>
+      <button type="button" id="cobroRapidoAgregarBtn" class="w-full btn-neomorphic rounded-xl py-2.5 font-medium flex items-center justify-center gap-2 touch-target mb-3">
+        <i data-lucide="plus" class="w-4 h-4"></i> Agregar producto
+      </button>
       <input type="text" id="cobroRapidoCliente" placeholder="Cliente (opcional)" class="w-full glass rounded-xl px-4 py-2.5 border border-white/20 text-white placeholder-white/40 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
       <div id="cobroRapidoWhatsappWrap" class="hidden mb-3">
         <label class="block text-xs text-white/70 mb-1">WhatsApp</label>
@@ -1536,22 +1549,13 @@
         p.nombre.toLowerCase().includes(search) || (p.codigo || '').includes(search)
       );
       list.innerHTML = items.map(p => {
-        const status = getStockStatus(p.stock);
-        const stockInicial = p.stockInicial || p.stock || 1;
         const quedan = Math.max(0, Number(p.stock) || 0);
-        const pct = stockInicial > 0 ? Math.round(quedan / stockInicial * 100) : 0;
-        const barClass = pct <= 0 ? 'bg-red-500' : pct <= 20 ? 'bg-amber-500' : 'bg-green-500';
         return `
           <div class="inventory-item glass rounded-xl p-3 sm:p-4 flex gap-3 items-center border border-white/10 touch-target cursor-pointer active:scale-[0.99] transition-transform" data-codigo="${p.codigo}" role="button" tabindex="0">
             <div class="flex-1 min-w-0" data-action="edit">
               <p class="font-semibold truncate text-base">${(p.nombre || '').replace(/</g, '&lt;')}</p>
               <p class="text-[#a78bfa] font-medium text-sm sm:text-base">$${(p.precio ?? 0).toLocaleString('es-AR')}</p>
-              <div class="mt-1.5 flex items-center gap-2">
-                <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden min-w-[60px]">
-                  <div class="h-full rounded-full ${barClass} transition-all duration-300" style="width: ${Math.min(100, pct)}%"></div>
-                </div>
-                <span class="text-xs text-white/70 shrink-0">${pct}% · ${quedan} quedan</span>
-              </div>
+              <p class="text-xs text-white/60 mt-1">quedan (${quedan})</p>
             </div>
             <button type="button" class="add-to-cart-btn btn-glow rounded-xl p-2.5 touch-target shrink-0" data-codigo="${p.codigo}" title="Agregar al carrito">
               <i data-lucide="plus" class="w-5 h-5"></i>
@@ -3561,6 +3565,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
             <button type="button" class="super-detail-email w-full py-2.5 rounded-xl text-sm bg-[#7c3aed]/30 text-[#a78bfa] border border-[#7c3aed]/50 touch-target flex items-center justify-center gap-2">
               <i data-lucide="mail" class="w-4 h-4"></i> Cómo cambiar el email (Supabase)
             </button>
+            <button type="button" class="super-detail-quitar w-full py-2.5 rounded-xl text-sm bg-red-500/20 text-red-300 border border-red-500/40 touch-target flex items-center justify-center gap-2">
+              <i data-lucide="user-minus" class="w-4 h-4"></i> Quitar negocio (pide contraseña admin)
+            </button>
           </div>
         </div>
       `;
@@ -3617,6 +3624,20 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         if (supabaseAuthUrl && confirm(msg)) window.open(supabaseAuthUrl, '_blank');
         else alert(msg);
       };
+      content.querySelector('.super-detail-quitar').onclick = async () => {
+        var pwdInput = document.getElementById('adminDeletePassword');
+        var storedPwd = (pwdInput && pwdInput.value) ? pwdInput.value : '';
+        if (!storedPwd) { alert('Configurá primero la contraseña para quitar usuarios en Ajustes.'); return; }
+        var entered = prompt('Ingresá la contraseña de admin para quitar este negocio:');
+        if (entered === null) return;
+        if (entered !== storedPwd) { alert('Contraseña incorrecta.'); return; }
+        if (!confirm('¿Desactivar este negocio? Ya no podrá iniciar sesión.')) return;
+        if (!supabaseClient) return;
+        const { error } = await supabaseClient.from('profiles').update({ active: false }).eq('id', u.id);
+        if (error) { alert('Error: ' + error.message); return; }
+        document.getElementById('superUserDetailClose').click();
+        renderSuper();
+      };
       const countdownEl = content.querySelector('#superDetailCountdown');
       if (countdownEl) {
         superDetailCountdownInterval = setInterval(function () {
@@ -3635,15 +3656,31 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     };
     document.getElementById('superUserDetailOverlay').onclick = () => { if (superDetailCountdownInterval) clearInterval(superDetailCountdownInterval); superDetailCountdownInterval = null; document.getElementById('superUserDetailClose').click(); };
 
+    var superFilterState = 'todos';
     async function renderSuper() {
       if (!supabaseClient) return;
       try {
-        const { data: settings } = await supabaseClient.from('app_settings').select('key, value').eq('key', 'admin_whatsapp').maybeSingle();
+        const { data: settingsRows } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_whatsapp', 'admin_whatsapp_2', 'admin_delete_password']);
         var whatsappInput = document.getElementById('adminContactWhatsapp');
-        if (whatsappInput) whatsappInput.value = (settings && settings.value) ? settings.value : '';
+        var whatsapp2Input = document.getElementById('adminContactWhatsapp2');
+        var deletePwdInput = document.getElementById('adminDeletePassword');
+        if (settingsRows) {
+          settingsRows.forEach(function (r) {
+            if (r.key === 'admin_whatsapp' && whatsappInput) whatsappInput.value = r.value || '';
+            if (r.key === 'admin_whatsapp_2' && whatsapp2Input) whatsapp2Input.value = r.value || '';
+            if (r.key === 'admin_delete_password' && deletePwdInput) deletePwdInput.value = r.value || '';
+          });
+        }
+        if (superFilterState !== 'todos') {
+          document.querySelectorAll('.super-filter-btn').forEach(function (b) {
+            b.className = 'super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border touch-target ' + (b.dataset.filter === superFilterState ? 'border-[#7c3aed]/50 bg-[#7c3aed]/30' : 'border-white/20 glass');
+          });
+        }
       } catch (_) {}
       const { data: allProfiles, error: errProfiles } = await supabaseClient.from('profiles').select('id, email, role, active, kiosco_name, trial_ends_at');
-      const list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
+      var list = (allProfiles || []).filter(u => u.id !== currentUser?.id);
+      if (superFilterState === 'activos') list = list.filter(u => u.active);
+      if (superFilterState === 'inactivos') list = list.filter(u => !u.active);
       superUserListCache = list.slice();
       list.sort((a, b) => {
         const na = (a.kiosco_name || '').toLowerCase().trim() || 'zzz';
@@ -3657,7 +3694,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         return;
       }
       if (list.length === 0 && currentUser?.role === 'super') {
-        listEl.innerHTML = '<p class="py-6 text-center text-white/70 text-sm">No hay otros usuarios. Creá uno abajo o ejecutá <strong>supabase_rls_super_profiles.sql</strong> en Supabase si no ves a nadie.</p>';
+        var msg = superFilterState === 'activos' ? 'No hay negocios activos.' : superFilterState === 'inactivos' ? 'No hay negocios inactivos.' : 'No hay otros negocios. Agregá uno con el botón de arriba.';
+        listEl.innerHTML = '<p class="py-6 text-center text-white/70 text-sm">' + msg + '</p>';
         lucide.createIcons();
         return;
       }
@@ -3690,21 +3728,36 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       lucide.createIcons();
     }
     document.getElementById('saveAdminContact').onclick = async () => {
-      const whatsapp = document.getElementById('adminContactWhatsapp').value.trim().replace(/\D/g, '');
+      const whatsapp = (document.getElementById('adminContactWhatsapp').value || '').trim().replace(/\D/g, '');
+      const whatsapp2 = (document.getElementById('adminContactWhatsapp2').value || '').trim().replace(/\D/g, '');
+      const deletePwd = (document.getElementById('adminDeletePassword').value || '').trim();
       const msgEl = document.getElementById('adminContactMsg');
       if (!supabaseClient) return;
       try {
-        await supabaseClient.from('app_settings').upsert([{ key: 'admin_whatsapp', value: whatsapp }], { onConflict: 'key' });
+        await supabaseClient.from('app_settings').upsert([
+          { key: 'admin_whatsapp', value: whatsapp },
+          { key: 'admin_whatsapp_2', value: whatsapp2 },
+          { key: 'admin_delete_password', value: deletePwd }
+        ], { onConflict: 'key' });
         adminContact.whatsapp = whatsapp;
-        msgEl.textContent = 'WhatsApp guardado.';
+        msgEl.textContent = 'Ajustes guardados.';
         msgEl.classList.remove('hidden');
         setTimeout(() => msgEl.classList.add('hidden'), 3000);
       } catch (e) {
-        msgEl.textContent = 'Error: ' + (e.message || 'Revisá que exista la tabla app_settings (ejecutá supabase_app_settings.sql).');
+        msgEl.textContent = 'Error: ' + (e.message || 'Revisá que exista la tabla app_settings.');
         msgEl.classList.remove('hidden');
       }
       lucide.createIcons();
     };
+    document.querySelectorAll('.super-filter-btn').forEach(function (btn) {
+      btn.onclick = function () {
+        superFilterState = btn.dataset.filter || 'todos';
+        document.querySelectorAll('.super-filter-btn').forEach(function (b) {
+          b.className = 'super-filter-btn px-3 py-1.5 rounded-lg text-sm font-medium border touch-target ' + (b.dataset.filter === superFilterState ? 'border-[#7c3aed]/50 bg-[#7c3aed]/30' : 'border-white/20 glass');
+        });
+        renderSuper();
+      };
+    });
 
     var notificationsCache = [];
     var NOTIF_LAST_READ_KEY = 'ferriol_notif_last_read';
@@ -3766,7 +3819,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         var err = (await supabaseClient.from('notifications').insert({ message: msg })).error;
         if (err) throw err;
         if (textarea) textarea.value = '';
-        if (msgEl) { msgEl.textContent = 'Enviado a todos los kiosqueros.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-green-300'; setTimeout(function () { msgEl.classList.add('hidden'); }, 4000); }
+        if (msgEl) { msgEl.textContent = 'Enviado a todos los negocios.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-green-300'; setTimeout(function () { msgEl.classList.add('hidden'); }, 4000); }
       } catch (e) {
         if (msgEl) { msgEl.textContent = 'Error: ' + (e.message || 'Creá la tabla notifications en Supabase (ver comentarios en el código).'); msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-red-300'; }
       }
