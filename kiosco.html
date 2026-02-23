@@ -792,20 +792,26 @@
           </div>
         </div>
         <!-- Sección Ajustes -->
-        <div id="super-section-ajustes" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
-          <h2 class="font-bold text-xl mb-3 flex items-center gap-2">
+        <div id="super-section-ajustes" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden" style="display: none;">
+          <h2 class="font-bold text-xl mb-4 flex items-center gap-2">
             <i data-lucide="settings" class="w-5 h-5 text-[#a78bfa]"></i>
             Ajustes
           </h2>
-          <p class="text-xs text-white/50 mb-3">Números de contacto que verán los usuarios cuando la cuenta esté desactivada o se termine la prueba.</p>
-          <label class="block text-xs text-white/60 mb-1">Contacto 1 (WhatsApp)</label>
-          <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
-          <label class="block text-xs text-white/60 mb-1">Contacto 2 (WhatsApp)</label>
-          <input type="tel" id="adminContactWhatsapp2" placeholder="Ej. 5491198765432 (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
-          <label class="block text-xs text-white/60 mb-1">Contraseña para quitar usuarios (opcional)</label>
-          <input type="password" id="adminDeletePassword" placeholder="Al quitar un negocio se pedirá esta contraseña" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
-          <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar ajustes</button>
-          <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+          <div class="space-y-4">
+            <div>
+              <p class="text-xs text-white/50 mb-2">Números de contacto que verán los usuarios cuando la cuenta esté desactivada o se termine la prueba.</p>
+              <label class="block text-xs text-white/70 mb-1">Contacto 1 (WhatsApp)</label>
+              <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+              <label class="block text-xs text-white/70 mb-1">Contacto 2 (WhatsApp)</label>
+              <input type="tel" id="adminContactWhatsapp2" placeholder="Ej. 5491198765432 (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+            </div>
+            <div>
+              <label class="block text-xs text-white/70 mb-1">Contraseña para quitar usuarios (opcional)</label>
+              <input type="password" id="adminDeletePassword" placeholder="Al quitar un negocio se pedirá esta contraseña" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+            </div>
+            <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar ajustes</button>
+            <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+          </div>
         </div>
         <!-- Sección Notificaciones -->
         <div id="super-section-notificaciones" class="super-section glass rounded-2xl p-4 sm:p-6 slide-up hidden">
@@ -2361,9 +2367,13 @@
       state.superSection = sectionName || 'negocios';
       document.querySelectorAll('.super-section').forEach(function (el) {
         el.classList.add('hidden');
+        el.style.display = 'none';
       });
       var section = document.getElementById('super-section-' + state.superSection);
-      if (section) section.classList.remove('hidden');
+      if (section) {
+        section.classList.remove('hidden');
+        section.style.display = 'block';
+      }
       document.querySelectorAll('.super-nav-btn').forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.superSection === state.superSection);
       });
