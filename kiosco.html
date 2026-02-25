@@ -827,10 +827,16 @@
               <h3 class="font-semibold mb-2 flex items-center gap-2 text-sm text-white/90">
                 <i data-lucide="database-backup" class="w-4 h-4 text-[#a78bfa]"></i> Respaldo de todos los usuarios
               </h3>
-              <p class="text-xs text-white/50 mb-3">Exportá una copia con productos, clientes y deudas de todos los negocios. Así tenés un respaldo por si algo sale mal. Los usuarios también pueden exportar su propia copia desde Configuración.</p>
-              <button type="button" id="btnExportAllUsersBackup" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
-                <i data-lucide="download" class="w-4 h-4"></i> Exportar copia de todos los usuarios
-              </button>
+              <p class="text-xs text-white/50 mb-3">Exportá una copia o importá para complementar: al importar se suman los datos del archivo a lo que ya tiene cada usuario (no se reemplaza nada).</p>
+              <div class="flex flex-wrap gap-2 mb-2">
+                <button type="button" id="btnExportAllUsersBackup" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
+                  <i data-lucide="download" class="w-4 h-4"></i> Exportar copia
+                </button>
+                <label class="btn-neomorphic rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target cursor-pointer">
+                  <i data-lucide="upload" class="w-4 h-4"></i> Importar copia
+                  <input type="file" id="inputImportAllUsersBackup" accept=".json,application/json" class="hidden">
+                </label>
+              </div>
               <p id="adminBackupAllMsg" class="text-xs mt-2 hidden"></p>
             </div>
           </div>
@@ -1216,10 +1222,16 @@
     // Historial de cierres de caja (facturación y ganancia por día):
     // CREATE TABLE cierres_caja ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, fecha date NOT NULL, fecha_cierre timestamptz NOT NULL DEFAULT now(), total_facturado numeric NOT NULL DEFAULT 0, ganancia numeric NOT NULL DEFAULT 0, created_at timestamptz DEFAULT now() );
     // ALTER TABLE cierres_caja ENABLE ROW LEVEL SECURITY; CREATE POLICY "cierres_caja_policy" ON cierres_caja FOR ALL USING (auth.uid() = user_id);
-    // Para que el admin pueda exportar copia de TODOS los usuarios, agregá políticas que permitan al rol super leer:
-    // CREATE POLICY "super_select_products" ON products FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
-    // CREATE POLICY "super_select_clientes" ON clientes FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
-    // CREATE POLICY "super_select_saldos" ON saldos_acobrar FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    // Para que el admin pueda EXPORTAR e IMPORTAR copia de todos los usuarios, agregá estas políticas (super puede leer, insertar y borrar):
+    // SELECT (exportar):
+    //   CREATE POLICY "super_select_products" ON products FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    //   CREATE POLICY "super_select_clientes" ON clientes FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    //   CREATE POLICY "super_select_saldos" ON saldos_acobrar FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    // INSERT y DELETE (importar/restaurar):
+    //   CREATE POLICY "super_all_products" ON products FOR ALL USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    //   CREATE POLICY "super_all_clientes" ON clientes FOR ALL USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    //   CREATE POLICY "super_all_saldos" ON saldos_acobrar FOR ALL USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    // (Si ya tenés "super_select_*", podés agregar solo las de ALL para no duplicar.)
     const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
     // URL de tu app en producción (para enlaces de recuperar contraseña)
@@ -4071,7 +4083,78 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       if (btn) btn.disabled = false;
       lucide.createIcons();
     }
+    async function importAllUsersBackup(file) {
+      if (!file || !currentUser || currentUser.role !== 'super' || !supabaseClient) return;
+      var msgEl = document.getElementById('adminBackupAllMsg');
+      var btn = document.getElementById('inputImportAllUsersBackup');
+      if (msgEl) { msgEl.textContent = 'Importando (complementando datos)...'; msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-white/70'; }
+      var reader = new FileReader();
+      reader.onload = async function () {
+        try {
+          var backup = JSON.parse(reader.result);
+          if (!backup || backup.type !== 'admin_full_backup' || !Array.isArray(backup.users)) throw new Error('Archivo no válido. Tenés que usar el archivo que exportaste desde "Exportar copia".');
+          var ok = 0, err = 0;
+          for (var i = 0; i < backup.users.length; i++) {
+            var u = backup.users[i];
+            var uid = u.userId;
+            if (!uid) continue;
+            try {
+              if (u.products && typeof u.products === 'object') {
+                var existingP = await supabaseClient.from('products').select('codigo').eq('user_id', uid);
+                var existingCodigos = (existingP.data || []).map(function (r) { return r.codigo; });
+                var toInsert = Object.entries(u.products).filter(function (e) { return existingCodigos.indexOf(e[1].codigo || e[0]) === -1; }).map(function (e) {
+                  var p = e[1];
+                  var cod = p.codigo || e[0];
+                  return { user_id: uid, codigo: cod, nombre: p.nombre, precio: p.precio || 0, stock: p.stock || 0, stock_inicial: p.stockInicial ?? p.stock ?? 0, costo: p.costo != null ? Number(p.costo) : 0 };
+                });
+                if (toInsert.length) await supabaseClient.from('products').insert(toInsert);
+              }
+              if (u.clientes && u.clientes.length) {
+                var existingC = await supabaseClient.from('clientes').select('nombre, telefono').eq('user_id', uid);
+                var existingPairs = (existingC.data || []).map(function (r) { return (r.nombre || '').toLowerCase().trim() + '|' + (r.telefono || '').trim(); });
+                var cToInsert = u.clientes.filter(function (c) {
+                  var key = (c.nombre || '').toLowerCase().trim() + '|' + (c.telefono || '').trim();
+                  return existingPairs.indexOf(key) === -1;
+                }).map(function (c) { return { user_id: uid, nombre: c.nombre || null, telefono: c.telefono || null, email: c.email || null, direccion: c.direccion || null, notas: c.notas || null }; });
+                if (cToInsert.length) await supabaseClient.from('clientes').insert(cToInsert);
+              }
+              if (u.saldosACobrar && u.saldosACobrar.length) {
+                var existingS = await supabaseClient.from('saldos_acobrar').select('id').eq('user_id', uid);
+                var existingIds = (existingS.data || []).map(function (r) { return r.id; });
+                var sToInsert = u.saldosACobrar.filter(function (s) { return existingIds.indexOf(String(s.id || '')) === -1; }).map(function (s) {
+                  return { user_id: uid, id: String(s.id || ''), client_name: s.clientName || '', whatsapp: s.whatsapp || '', items: s.items || [], total: Number(s.total) || 0, method: s.method || 'fiado', paid: !!s.paid, created_at: s.createdAt || new Date().toISOString() };
+                });
+                if (sToInsert.length) await supabaseClient.from('saldos_acobrar').insert(sToInsert);
+              }
+              ok++;
+            } catch (e) {
+              err++;
+              console.warn('Error complementando usuario ' + (u.email || uid) + ':', e);
+            }
+          }
+          if (msgEl) {
+            if (err > 0) msgEl.textContent = 'Complementados: ' + ok + ' usuario(s). Fallaron: ' + err + '.';
+            else msgEl.textContent = 'Importación lista: se sumaron los datos del archivo a los existentes en ' + ok + ' usuario(s). No se reemplazó nada.';
+            msgEl.className = 'text-xs mt-2 ' + (err > 0 ? 'text-amber-300' : 'text-green-400');
+            setTimeout(function () { msgEl.classList.add('hidden'); }, 8000);
+          }
+        } catch (e) {
+          if (msgEl) { msgEl.textContent = 'Error: ' + (e.message || 'Archivo no válido'); msgEl.className = 'text-xs mt-2 text-red-400'; }
+        }
+        if (btn) btn.value = '';
+        lucide.createIcons();
+      };
+      reader.readAsText(file);
+    }
     document.getElementById('btnExportAllUsersBackup').onclick = exportAllUsersBackup;
+    document.getElementById('inputImportAllUsersBackup').onchange = function (e) {
+      var f = e.target.files[0];
+      if (f) {
+        if (!confirm('¿Importar y complementar datos? Se sumarán los productos, clientes y deudas del archivo a lo que ya tiene cada usuario (no se borra nada existente). Los usuarios pueden recargar la app para ver los cambios.')) { e.target.value = ''; return; }
+        importAllUsersBackup(f);
+      }
+      e.target.value = '';
+    };
 
     document.querySelectorAll('.super-filter-btn').forEach(function (btn) {
       btn.onclick = function () {
