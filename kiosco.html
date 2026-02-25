@@ -107,9 +107,9 @@
       background: linear-gradient(90deg,
         rgba(30,27,75,0.98) 0%,
         rgba(55,48,163,0.95) 30%,
-        rgba(34,197,94,0.9) 45%,
-        rgba(22,163,74,0.95) 50%,
-        rgba(34,197,94,0.9) 55%,
+        rgba(55,48,163,0.95) 45%,
+        rgba(55,48,163,0.95) 50%,
+        rgba(55,48,163,0.95) 55%,
         rgba(55,48,163,0.95) 70%,
         rgba(30,27,75,0.98) 100%);
       backdrop-filter: blur(16px);
@@ -208,9 +208,7 @@
         <div id="loginErr" class="login-err"></div>
         <div id="loginContactAdminWrap" class="hidden mt-3 p-3 rounded-xl bg-[#7c3aed]/20 border border-[#7c3aed]/40">
           <p class="text-sm text-white/80 mb-2">Contactá por WhatsApp para darte de alta o renovar:</p>
-          <a id="loginContactWhatsAppBtn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium text-sm touch-target">
-            <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
-          </a>
+          <div id="loginContactWhatsAppLinks" class="space-y-2"></div>
         </div>
         <form id="loginForm" onsubmit="return false;">
           <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
@@ -390,15 +388,13 @@
     <!-- Dashboard Holográfico -->
     <section id="panel-dashboard" class="panel">
       <div class="space-y-6">
-        <!-- Modal Renovar (dentro: Contactar por WhatsApp) -->
+        <!-- Modal Renovar (varios contactos WhatsApp) -->
         <div id="renovarModal" class="fixed inset-0 z-[64] hidden items-center justify-center p-4">
           <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="renovarModalOverlay"></div>
           <div class="relative glass-strong rounded-2xl p-6 w-full max-w-sm scale-in">
             <h3 class="font-bold text-lg mb-3">Renovar</h3>
             <p class="text-sm text-white/70 mb-4">Para renovar tu plan o aclarar dudas, contactá por WhatsApp.</p>
-            <a id="renovarWhatsAppLink" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium touch-target">
-              <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
-            </a>
+            <div id="renovarWhatsAppLinks" class="space-y-2 mb-3"></div>
             <button type="button" id="closeRenovarModal" class="w-full mt-3 py-2.5 rounded-xl border border-white/20 text-white/80 text-sm touch-target">Cerrar</button>
           </div>
         </div>
@@ -491,10 +487,10 @@
             </div>
           </div>
         </div>
-        <p class="text-center text-sm text-white/60 mt-4">Apunta la cámara al código de barras</p>
+        <p class="text-center text-sm text-white/60 mt-4">Mantené presionado el botón para escanear. Soltá para dejar de escanear.</p>
         <div class="mt-4 flex flex-col sm:flex-row gap-3">
-          <button id="startScanner" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95 touch-target">
-            <i data-lucide="camera" class="w-5 h-5"></i> Activar cámara
+          <button id="scanHoldBtn" class="flex-1 btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 transition-transform active:scale-95 touch-target select-none">
+            <i data-lucide="scan" class="w-5 h-5"></i> Mantener presionado para escanear
           </button>
           <div class="flex gap-2">
             <input type="text" id="manualCode" placeholder="Código manual" class="flex-1 glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base" inputmode="numeric">
@@ -567,9 +563,17 @@
         <button id="generateTicket" class="w-full btn-glow rounded-xl py-3 font-semibold flex items-center justify-center gap-2 mb-3">
           <i data-lucide="share-2" class="w-5 h-5"></i> Generar ticket digital
         </button>
-        <button id="cerrarCaja" class="w-full btn-neomorphic rounded-xl py-3 font-semibold flex items-center justify-center gap-2">
+        <button id="cerrarCaja" class="w-full btn-neomorphic rounded-xl py-3 font-semibold flex items-center justify-center gap-2 mb-6">
           <i data-lucide="check-circle" class="w-5 h-5"></i> Cerrar caja y reiniciar
         </button>
+        <div class="border-t border-white/10 pt-4">
+          <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm text-white/80">
+            <i data-lucide="history" class="w-4 h-4 text-[#a78bfa]"></i> Historial de cierres
+          </h3>
+          <div id="cierresCajaList" class="space-y-2 max-h-[40vh] overflow-y-auto text-sm">
+            <p class="text-white/50 text-center py-4">Cargando...</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -808,6 +812,10 @@
               <input type="tel" id="adminContactWhatsapp" placeholder="Ej. 5491112345678" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
               <label class="block text-xs text-white/70 mb-1">Contacto 2 (WhatsApp)</label>
               <input type="tel" id="adminContactWhatsapp2" placeholder="Ej. 5491198765432 (opcional)" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+              <label class="block text-xs text-white/70 mb-1">Contacto 3 (WhatsApp, opcional)</label>
+              <input type="tel" id="adminContactWhatsapp3" placeholder="Opcional" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
+              <label class="block text-xs text-white/70 mb-1">Contacto 4 (WhatsApp, opcional)</label>
+              <input type="tel" id="adminContactWhatsapp4" placeholder="Opcional" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] text-base mb-3">
             </div>
             <div>
               <label class="block text-xs text-white/70 mb-1">Contraseña para quitar usuarios (opcional)</label>
@@ -815,6 +823,16 @@
             </div>
             <button type="button" id="saveAdminContact" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold">Guardar ajustes</button>
             <p id="adminContactMsg" class="text-xs mt-2 text-green-300 hidden"></p>
+            <div class="border-t border-white/10 pt-4 mt-6">
+              <h3 class="font-semibold mb-2 flex items-center gap-2 text-sm text-white/90">
+                <i data-lucide="database-backup" class="w-4 h-4 text-[#a78bfa]"></i> Respaldo de todos los usuarios
+              </h3>
+              <p class="text-xs text-white/50 mb-3">Exportá una copia con productos, clientes y deudas de todos los negocios. Así tenés un respaldo por si algo sale mal. Los usuarios también pueden exportar su propia copia desde Configuración.</p>
+              <button type="button" id="btnExportAllUsersBackup" class="btn-glow rounded-xl py-2.5 px-4 text-sm font-semibold flex items-center gap-2 touch-target">
+                <i data-lucide="download" class="w-4 h-4"></i> Exportar copia de todos los usuarios
+              </button>
+              <p id="adminBackupAllMsg" class="text-xs mt-2 hidden"></p>
+            </div>
           </div>
         </div>
         <!-- Sección Notificaciones -->
@@ -1195,6 +1213,13 @@
     // Notificaciones del admin a los kiosqueros:
     // CREATE TABLE notifications ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), created_at timestamptz DEFAULT now(), message text NOT NULL );
     // ALTER TABLE notifications ENABLE ROW LEVEL SECURITY; CREATE POLICY "notifications_select" ON notifications FOR SELECT TO authenticated USING (true); CREATE POLICY "notifications_insert" ON notifications FOR INSERT TO authenticated WITH CHECK (true);
+    // Historial de cierres de caja (facturación y ganancia por día):
+    // CREATE TABLE cierres_caja ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, fecha date NOT NULL, fecha_cierre timestamptz NOT NULL DEFAULT now(), total_facturado numeric NOT NULL DEFAULT 0, ganancia numeric NOT NULL DEFAULT 0, created_at timestamptz DEFAULT now() );
+    // ALTER TABLE cierres_caja ENABLE ROW LEVEL SECURITY; CREATE POLICY "cierres_caja_policy" ON cierres_caja FOR ALL USING (auth.uid() = user_id);
+    // Para que el admin pueda exportar copia de TODOS los usuarios, agregá políticas que permitan al rol super leer:
+    // CREATE POLICY "super_select_products" ON products FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    // CREATE POLICY "super_select_clientes" ON clientes FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
+    // CREATE POLICY "super_select_saldos" ON saldos_acobrar FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) = 'super');
     const SUPABASE_URL = 'https://ctvdrqxnrrjfwifixecf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0dmRycXhucnJqZndpZml4ZWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNzY5NjcsImV4cCI6MjA4Njk1Mjk2N30.U2Y5IBY7fSFjmgiGkyYX8BLdRyU1ZNFqVEEIaT7QIJI';
     // URL de tu app en producción (para enlaces de recuperar contraseña)
@@ -1791,41 +1816,68 @@
       openPaymentModal();
     }
 
-    function updateDashboard() {
+    function getTodayRange() {
+      var now = new Date();
+      var start = new Date(now); start.setHours(0, 0, 0, 0);
+      var end = new Date(now); end.setHours(23, 59, 59, 999);
+      return { start: start.toISOString(), end: end.toISOString() };
+    }
+    async function getMetricasDelDia() {
+      var range = getTodayRange();
+      if (supabaseClient && currentUser && currentUser.id) {
+        try {
+          var res = await supabaseClient.from('ventas').select('id, fecha_hora, total, metodo_pago, items').eq('user_id', currentUser.id).gte('fecha_hora', range.start).lte('fecha_hora', range.end);
+          if (!res.error && res.data && res.data.length > 0) {
+            var efectivo = 0, tarjeta = 0, transferencia = 0, fiado = 0, transferencia_pendiente = 0, total = 0, ganancia = 0;
+            res.data.forEach(function (v) {
+              var t = Number(v.total) || 0;
+              total += t;
+              var metodo = (v.metodo_pago || '').toLowerCase().replace(/\s/g, '_');
+              if (metodo === 'efectivo') efectivo += t;
+              else if (metodo === 'tarjeta') tarjeta += t;
+              else if (metodo === 'transferencia') transferencia += t;
+              else if (metodo === 'fiado') fiado += t;
+              else if (metodo === 'transferencia_pendiente') transferencia_pendiente += t;
+              else efectivo += t;
+              (v.items || []).forEach(function (i) {
+                var costo = i.costo != null ? Number(i.costo) : 0;
+                ganancia += ((Number(i.precio) || 0) - costo) * (i.cant || 0);
+              });
+            });
+            return { total, efectivo, tarjeta, transferencia, fiado, transferencia_pendiente, ganancia, count: res.data.length };
+          }
+        } catch (_) {}
+      }
+      var d = getData();
+      var ventas = d.ventas || {};
+      var fiado = ventas.fiado || 0, transfPend = ventas.transferencia_pendiente || 0;
+      var total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado + transfPend;
+      var ganancia = (state.transaccionesList || []).reduce(function (sum, t) {
+        return sum + (t.items || []).reduce(function (s, i) {
+          var costo = i.costo != null ? Number(i.costo) : 0;
+          return s + (i.precio - costo) * (i.cant || 0);
+        }, 0);
+      }, 0);
+      return { total, efectivo: ventas.efectivo || 0, tarjeta: ventas.tarjeta || 0, transferencia: ventas.transferencia || 0, fiado, transferencia_pendiente: transfPend, ganancia, count: d.transacciones || 0 };
+    }
+    async function updateDashboard() {
       checkMidnightReset();
-      const d = getData();
-      const ventas = d.ventas || {};
-      const fiado = ventas.fiado || 0;
-      const transfPend = ventas.transferencia_pendiente || 0;
-      const total = (ventas.efectivo || 0) + (ventas.tarjeta || 0) + (ventas.transferencia || 0) + fiado + transfPend;
-      document.getElementById('metricVentas').textContent = `$${total.toLocaleString('es-AR')}`;
-      var utilidadDia = (state.transaccionesList || []).reduce(function (sum, t) {
-        return sum + (t.items || []).reduce(function (s, i) {
-          var costo = i.costo != null ? Number(i.costo) : 0;
-          return s + (i.precio - costo) * (i.cant || 0);
-        }, 0);
-      }, 0);
-      document.getElementById('metricTrans').textContent = '$' + Math.round(utilidadDia).toLocaleString('es-AR');
-
-      document.getElementById('cajaEfectivo').textContent = `$${(ventas.efectivo || 0).toLocaleString('es-AR')}`;
-      document.getElementById('cajaTarjeta').textContent = `$${(ventas.tarjeta || 0).toLocaleString('es-AR')}`;
-      document.getElementById('cajaTransf').textContent = `$${(ventas.transferencia || 0).toLocaleString('es-AR')}`;
-      document.getElementById('cajaFiado').textContent = `$${fiado.toLocaleString('es-AR')}`;
-      const cajaTransfPendEl = document.getElementById('cajaTransfPend');
-      if (cajaTransfPendEl) cajaTransfPendEl.textContent = `$${transfPend.toLocaleString('es-AR')}`;
-      document.getElementById('cajaTotal').textContent = `$${total.toLocaleString('es-AR')}`;
-      var utilidadDia = (state.transaccionesList || []).reduce(function (sum, t) {
-        return sum + (t.items || []).reduce(function (s, i) {
-          var costo = i.costo != null ? Number(i.costo) : 0;
-          return s + (i.precio - costo) * (i.cant || 0);
-        }, 0);
-      }, 0);
+      var m = await getMetricasDelDia();
+      document.getElementById('metricVentas').textContent = '$' + m.total.toLocaleString('es-AR');
+      document.getElementById('metricTrans').textContent = '$' + Math.round(m.ganancia).toLocaleString('es-AR');
+      document.getElementById('cajaEfectivo').textContent = '$' + m.efectivo.toLocaleString('es-AR');
+      document.getElementById('cajaTarjeta').textContent = '$' + m.tarjeta.toLocaleString('es-AR');
+      document.getElementById('cajaTransf').textContent = '$' + m.transferencia.toLocaleString('es-AR');
+      document.getElementById('cajaFiado').textContent = '$' + m.fiado.toLocaleString('es-AR');
+      var cajaTransfPendEl = document.getElementById('cajaTransfPend');
+      if (cajaTransfPendEl) cajaTransfPendEl.textContent = '$' + m.transferencia_pendiente.toLocaleString('es-AR');
+      document.getElementById('cajaTotal').textContent = '$' + m.total.toLocaleString('es-AR');
       var cajaUtilidadEl = document.getElementById('cajaUtilidad');
-      if (cajaUtilidadEl) cajaUtilidadEl.textContent = '$' + Math.round(utilidadDia).toLocaleString('es-AR');
+      if (cajaUtilidadEl) cajaUtilidadEl.textContent = '$' + Math.round(m.ganancia).toLocaleString('es-AR');
       var resumenEl = document.getElementById('resumenDiaTexto');
       var resumenVentasEl = document.getElementById('resumenDiaVentas');
-      if (resumenEl) resumenEl.textContent = 'Entraron $' + total.toLocaleString('es-AR');
-      if (resumenVentasEl) resumenVentasEl.textContent = (d.transacciones || 0) + ' ventas';
+      if (resumenEl) resumenEl.textContent = 'Entraron $' + m.total.toLocaleString('es-AR');
+      if (resumenVentasEl) resumenVentasEl.textContent = m.count + ' ventas';
       var porMetodoEl = document.getElementById('resumenDiaPorMetodo');
       if (porMetodoEl) {
         var methods = [
@@ -1835,14 +1887,13 @@
           { key: 'fiado', label: 'Fiado', icon: 'user-check', color: 'text-amber-400', bg: 'bg-amber-500/20' },
           { key: 'transferencia_pendiente', label: 'Pend.', icon: 'clock', color: 'text-orange-400', bg: 'bg-orange-500/20' }
         ];
-        porMetodoEl.innerHTML = methods.map(function (m) {
-          var val = ventas[m.key] || 0;
+        porMetodoEl.innerHTML = methods.map(function (x) {
+          var val = m[x.key] || 0;
           if (val === 0) return '';
-          return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium ' + m.bg + ' ' + m.color + '"><i data-lucide="' + m.icon + '" class="w-3 h-3"></i>' + m.label + ' $' + val.toLocaleString('es-AR') + '</span>';
+          return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium ' + x.bg + ' ' + x.color + '"><i data-lucide="' + x.icon + '" class="w-3 h-3"></i>' + x.label + ' $' + val.toLocaleString('es-AR') + '</span>';
         }).filter(Boolean).join('');
         lucide.createIcons();
       }
-
       renderSaldosACobrar();
       renderFrequentProducts();
     }
@@ -2237,9 +2288,8 @@
       errEl.textContent = 'Tu período de prueba terminó. La cuenta se desactivó. Contactá por WhatsApp para renovar.';
       errEl.classList.add('show');
       var wrap = document.getElementById('loginContactAdminWrap');
-      var link = document.getElementById('loginContactWhatsAppBtn');
-      if (wrap && link) {
-        link.href = getWhatsAppUrl(window._adminWhatsappForContact || adminContact.whatsapp, 'Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
+      if (wrap) {
+        fillLoginContactLinks('Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
         wrap.classList.remove('hidden');
       }
     }
@@ -2279,19 +2329,17 @@
       if (subEl) subEl.textContent = 'Sistema de prueba';
     }
     function loadAdminContactForTrialEnded() {
-      if (!supabaseClient) return Promise.resolve();
-      return supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle().then(function (r) {
-        if (r.data && r.data.value) adminContact.whatsapp = r.data.value;
-      }).catch(function () {});
+      return loadAdminContact();
     }
     document.getElementById('trialRenovarBtn') && document.getElementById('trialRenovarBtn').addEventListener('click', function () {
-      var link = document.getElementById('renovarWhatsAppLink');
-      if (!getWhatsAppUrl(adminContact.whatsapp)) { alert('El administrador aún no configuró su WhatsApp.'); return; }
-      if (link) link.href = getWhatsAppUrl(adminContact.whatsapp, 'Hola, necesito ayuda con mi cuenta de Ferriol OS.');
-      document.getElementById('renovarModal').classList.remove('hidden');
-      document.getElementById('renovarModal').classList.add('flex');
-      if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'renovar' }, '', location.href);
-      lucide.createIcons();
+      loadAdminContact().then(function () {
+        fillRenovarWhatsAppLinks();
+        if (!adminContact.whatsappList || adminContact.whatsappList.length === 0) { alert('El administrador aún no configuró su WhatsApp.'); return; }
+        document.getElementById('renovarModal').classList.remove('hidden');
+        document.getElementById('renovarModal').classList.add('flex');
+        if (!state._restoringFromHistory) history.pushState({ panel: state.currentPanel, modal: 'renovar' }, '', location.href);
+        lucide.createIcons();
+      });
     });
     document.getElementById('closeRenovarModal') && document.getElementById('closeRenovarModal').addEventListener('click', closeRenovarModal);
     document.getElementById('renovarModalOverlay') && document.getElementById('renovarModalOverlay').addEventListener('click', closeRenovarModal);
@@ -2341,11 +2389,14 @@
         if (currentUser && currentUser.role === 'kiosquero') { loadAdminContact(); loadNotifications(); }
       }
       if (name === 'scanner') {
+        if (typeof window._startScannerCamera === 'function') window._startScannerCamera();
+        if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
         setTimeout(function () {
           var manualInput = document.getElementById('manualCode');
           if (manualInput) manualInput.focus();
         }, 150);
-      }
+      } else if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
+      if (name === 'caja') renderCierresCajaHistorial();
       if (name === 'historial') {
         switchHistorialTab('ventas');
         renderHistorial(state.historialFilter || 'hoy');
@@ -2921,21 +2972,35 @@
       } catch (_) {}
     }
 
-    document.getElementById('startScanner').onclick = async () => {
+    function stopScanInterval() {
+      if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+    }
+    window._stopScannerInterval = stopScanInterval;
+    async function startScannerCamera() {
+      if (scannerStream) return;
       try {
         scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         video.srcObject = scannerStream;
         await video.play();
-        if (typeof BarcodeDetector !== 'undefined') {
-          scanInterval = setInterval(scanFrame, 400);
-        }
       } catch (e) {
         alert('No se pudo acceder a la cámara');
       }
-    };
+    }
+    window._startScannerCamera = startScannerCamera;
+    var scanHoldBtn = document.getElementById('scanHoldBtn');
+    if (scanHoldBtn) {
+      scanHoldBtn.addEventListener('pointerdown', async function (e) {
+        e.preventDefault();
+        await startScannerCamera();
+        if (scannerStream && typeof BarcodeDetector !== 'undefined' && !scanInterval) scanInterval = setInterval(scanFrame, 400);
+      });
+      scanHoldBtn.addEventListener('pointerup', stopScanInterval);
+      scanHoldBtn.addEventListener('pointerleave', stopScanInterval);
+      scanHoldBtn.addEventListener('pointercancel', stopScanInterval);
+    }
 
     window.addEventListener('visibilitychange', () => {
-      if (document.hidden && scanInterval) clearInterval(scanInterval);
+      if (document.hidden) stopScanInterval();
     });
 
     // Generar ticket digital
@@ -2978,20 +3043,54 @@
       t.classList.add('hidden');
     };
 
-    document.getElementById('cerrarCaja').onclick = () => {
-      if (confirm('¿Reiniciar caja? Se mantendrá el inventario y los productos vendidos volverán a cero para el nuevo día.')) {
-        const d = getData();
-        d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
-        d.transacciones = 0;
-        d.lastCierreDate = new Date().toISOString().slice(0, 10);
-        state.transaccionesList = [];
-        Object.keys(d.products || {}).forEach(function (codigo) {
-          var p = d.products[codigo];
-          if (p) p.stockInicial = p.stock;
-        });
-        setData(d);
-        updateDashboard();
+    async function renderCierresCajaHistorial() {
+      var listEl = document.getElementById('cierresCajaList');
+      if (!listEl) return;
+      if (!supabaseClient || !currentUser?.id) {
+        listEl.innerHTML = '<p class="text-white/50 text-center py-4">Configurá Supabase para ver el historial.</p>';
+        lucide.createIcons();
+        return;
       }
+      try {
+        var res = await supabaseClient.from('cierres_caja').select('id, fecha, fecha_cierre, total_facturado, ganancia').eq('user_id', currentUser.id).order('fecha_cierre', { ascending: false }).limit(50);
+        if (res.error) throw res.error;
+        var rows = res.data || [];
+        if (rows.length === 0) {
+          listEl.innerHTML = '<p class="text-white/50 text-center py-4">Aún no hay cierres guardados.</p>';
+        } else {
+          listEl.innerHTML = rows.map(function (r) {
+            var fecha = (r.fecha || r.fecha_cierre || '').toString().slice(0, 10);
+            var total = Number(r.total_facturado || 0);
+            var gan = Number(r.ganancia || 0);
+            return '<div class="glass rounded-xl p-3 border border-white/10 flex justify-between items-center gap-2"><div><span class="text-white/70">' + fecha + '</span></div><div class="text-right"><span class="font-semibold text-[#a78bfa]">$' + total.toLocaleString('es-AR') + '</span><span class="text-green-400/90 text-xs ml-2">$' + Math.round(gan).toLocaleString('es-AR') + ' gan.</span></div></div>';
+          }).join('');
+        }
+      } catch (e) {
+        listEl.innerHTML = '<p class="text-white/50 text-center py-4">Creá la tabla cierres_caja en Supabase (ver comentarios en el código).</p>';
+      }
+      lucide.createIcons();
+    }
+    document.getElementById('cerrarCaja').onclick = async () => {
+      if (!confirm('¿Reiniciar caja? Se mantendrá el inventario y los productos vendidos volverán a cero para el nuevo día.')) return;
+      var m = await getMetricasDelDia();
+      if (supabaseClient && currentUser?.id) {
+        try {
+          var hoy = new Date().toISOString().slice(0, 10);
+          await supabaseClient.from('cierres_caja').insert({ user_id: currentUser.id, fecha: hoy, fecha_cierre: new Date().toISOString(), total_facturado: m.total, ganancia: Math.round(m.ganancia) });
+        } catch (_) {}
+      }
+      var d = getData();
+      d.ventas = { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 };
+      d.transacciones = 0;
+      d.lastCierreDate = new Date().toISOString().slice(0, 10);
+      state.transaccionesList = [];
+      Object.keys(d.products || {}).forEach(function (codigo) {
+        var p = d.products[codigo];
+        if (p) p.stockInicial = p.stock;
+      });
+      setData(d);
+      updateDashboard();
+      renderCierresCajaHistorial();
     };
 
     document.getElementById('exportDeudoresCSVBtn').onclick = function () { exportDeudoresCSV(); lucide.createIcons(); };
@@ -3232,9 +3331,9 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           errEl.textContent = 'Tu cuenta está desactivada. Contactá al administrador por WhatsApp para darte de alta.';
           errEl.classList.add('show');
           var wrap = document.getElementById('loginContactAdminWrap');
-          var link = document.getElementById('loginContactWhatsAppBtn');
-          if (wrap && link) {
-            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi cuenta de Ferriol OS está desactivada y quiero darme de alta.');
+          if (wrap) {
+            await loadAdminContact();
+            fillLoginContactLinks('Hola, mi cuenta de Ferriol OS está desactivada y quiero darme de alta.');
             wrap.classList.remove('hidden');
           }
           return;
@@ -3243,23 +3342,22 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
           try {
             await supabaseClient.from('profiles').update({ active: false }).eq('id', uid);
-            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
-            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
-          } catch (_) { window._adminWhatsappForContact = ''; }
+            await loadAdminContact();
+          } catch (_) {}
           await supabaseClient.auth.signOut();
           document.getElementById('loginFormWrap').classList.remove('hidden');
           document.getElementById('signUpBox').classList.add('hidden');
           errEl.textContent = 'Tu período de prueba terminó. La cuenta se desactivó. Contactá por WhatsApp para renovar.';
           errEl.classList.add('show');
           var wrap = document.getElementById('loginContactAdminWrap');
-          var link = document.getElementById('loginContactWhatsAppBtn');
-          if (wrap && link) {
-            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
+          if (wrap) {
+            fillLoginContactLinks('Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
             wrap.classList.remove('hidden');
           }
           return;
         }
-        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt };
+        var userCreatedAt = (authData && authData.user && authData.user.created_at) ? authData.user.created_at : null;
+        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt, created_at: userCreatedAt };
         await showApp();
       } catch (err) {
         console.error('Error en login:', err);
@@ -3491,11 +3589,18 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     }
     document.getElementById('saveConfig').onclick = () => saveConfig();
 
-    function exportBackup() {
+    async function exportBackup() {
       if (!currentUser?.id) return;
       var d = getData();
+      var clientesExport = [];
+      if (supabaseClient && currentUser.id) {
+        try {
+          var res = await supabaseClient.from('clientes').select('id, nombre, telefono, email, direccion, notas').eq('user_id', currentUser.id);
+          if (!res.error && res.data) clientesExport = res.data;
+        } catch (_) {}
+      }
       var backup = {
-        version: 1,
+        version: 2,
         exportedAt: new Date().toISOString(),
         userId: currentUser.id,
         kioscoName: currentUser.kioscoName || '',
@@ -3503,6 +3608,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         ventas: d.ventas || { efectivo: 0, tarjeta: 0, transferencia: 0, fiado: 0, transferencia_pendiente: 0 },
         transacciones: d.transacciones || 0,
         saldosACobrar: d.saldosACobrar || [],
+        clientes: clientesExport,
         lastCierreDate: d.lastCierreDate || null,
         transaccionesList: (state && state.transaccionesList) ? state.transaccionesList : []
       };
@@ -3513,14 +3619,14 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       a.click();
       URL.revokeObjectURL(a.href);
       var msg = document.getElementById('backupMessage');
-      if (msg) { msg.textContent = 'Copia exportada. Guardá el archivo en un lugar seguro.'; msg.classList.remove('hidden'); msg.className = 'text-sm mt-2 text-green-400'; setTimeout(function () { msg.classList.add('hidden'); }, 4000); }
+      if (msg) { msg.textContent = 'Copia exportada (productos, clientes, deudas). Guardá el archivo en un lugar seguro.'; msg.classList.remove('hidden'); msg.className = 'text-sm mt-2 text-green-400'; setTimeout(function () { msg.classList.add('hidden'); }, 4000); }
       lucide.createIcons();
     }
     function importBackup(file) {
       if (!file || !currentUser?.id) return;
       var msgEl = document.getElementById('backupMessage');
       var reader = new FileReader();
-      reader.onload = function () {
+      reader.onload = async function () {
         try {
           var backup = JSON.parse(reader.result);
           if (!backup || typeof backup !== 'object') throw new Error('Archivo no válido');
@@ -3530,12 +3636,21 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
           if (backup.saldosACobrar && Array.isArray(backup.saldosACobrar)) _dataCache.saldosACobrar = backup.saldosACobrar;
           if (backup.lastCierreDate !== undefined) _dataCache.lastCierreDate = backup.lastCierreDate;
           if (backup.transaccionesList && Array.isArray(backup.transaccionesList) && state) state.transaccionesList = backup.transaccionesList;
+          if (backup.clientes && Array.isArray(backup.clientes) && supabaseClient && currentUser.id) {
+            await supabaseClient.from('clientes').delete().eq('user_id', currentUser.id);
+            var rows = backup.clientes.map(function (c) {
+              return { user_id: currentUser.id, nombre: c.nombre || null, telefono: c.telefono || null, email: c.email || null, direccion: c.direccion || null, notas: c.notas || null };
+            });
+            if (rows.length) await supabaseClient.from('clientes').insert(rows);
+            clientesCache = backup.clientes.map(function (c, i) { return { id: c.id || '', nombre: c.nombre, telefono: c.telefono, email: c.email, direccion: c.direccion, notas: c.notas }; });
+          }
           saveToLocalStorage();
           setData({ products: _dataCache.products, ventas: _dataCache.ventas, transacciones: _dataCache.transacciones, saldosACobrar: _dataCache.saldosACobrar, lastCierreDate: _dataCache.lastCierreDate });
-          if (msgEl) { msgEl.textContent = 'Datos restaurados correctamente. Recargá la página si no ves los cambios.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-sm mt-2 text-green-400'; setTimeout(function () { msgEl.classList.add('hidden'); }, 5000); }
+          if (msgEl) { msgEl.textContent = 'Datos restaurados (productos, clientes, deudas). Recargá la página si no ves los cambios.'; msgEl.classList.remove('hidden'); msgEl.className = 'text-sm mt-2 text-green-400'; setTimeout(function () { msgEl.classList.add('hidden'); }, 5000); }
           renderInventory();
           updateDashboard();
           renderSaldosACobrar();
+          if (typeof loadClientes === 'function') loadClientes().then(function () { if (typeof renderClientes === 'function') renderClientes(); });
         } catch (e) {
           if (msgEl) { msgEl.textContent = 'Error: ' + (e.message || 'archivo no válido'); msgEl.classList.remove('hidden'); msgEl.className = 'text-sm mt-2 text-red-400'; }
         }
@@ -3545,7 +3660,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     document.getElementById('btnExportBackup').onclick = exportBackup;
     document.getElementById('inputImportBackup').onchange = function (e) { var f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; };
 
-    var adminContact = { whatsapp: '' };
+    var adminContact = { whatsapp: '', whatsappList: [] };
     function getWhatsAppUrl(num, text) {
       var digits = (num || '').replace(/\D/g, '');
       if (!digits) return '';
@@ -3556,11 +3671,49 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     async function loadAdminContact() {
       if (!supabaseClient) return;
       try {
-        const { data, error } = await supabaseClient.from('app_settings').select('key, value').eq('key', 'admin_whatsapp').maybeSingle();
-        if (!error && data && data.value) adminContact.whatsapp = data.value;
-        var renovarLink = document.getElementById('renovarWhatsAppLink');
-        if (renovarLink) renovarLink.href = getWhatsAppUrl(adminContact.whatsapp, 'Hola, necesito ayuda con mi cuenta de Ferriol OS.');
+        var res = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_whatsapp', 'admin_whatsapp_2', 'admin_whatsapp_3', 'admin_whatsapp_4']);
+        var list = [];
+        if (res.data && res.data.length) {
+          var order = { admin_whatsapp: 0, admin_whatsapp_2: 1, admin_whatsapp_3: 2, admin_whatsapp_4: 3 };
+          res.data.sort(function (a, b) { return (order[a.key] || 9) - (order[b.key] || 9); });
+          res.data.forEach(function (r) {
+            var v = (r.value || '').trim().replace(/\D/g, '');
+            if (v) list.push(v);
+          });
+        }
+        adminContact.whatsappList = list;
+        adminContact.whatsapp = list[0] || '';
       } catch (_) {}
+    }
+    function fillRenovarWhatsAppLinks() {
+      var container = document.getElementById('renovarWhatsAppLinks');
+      if (!container) return;
+      var list = adminContact.whatsappList && adminContact.whatsappList.length ? adminContact.whatsappList : (adminContact.whatsapp ? [adminContact.whatsapp] : []);
+      var msg = 'Hola, necesito ayuda con mi cuenta de Ferriol OS.';
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-white/60 text-sm">El administrador aún no configuró su WhatsApp.</p>';
+      } else {
+        container.innerHTML = list.map(function (num, i) {
+          var label = list.length > 1 ? 'Contactar por WhatsApp (' + (i + 1) + ')' : 'Contactar por WhatsApp';
+          return '<a href="' + getWhatsAppUrl(num, msg) + '" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium touch-target"><i data-lucide="message-circle" class="w-5 h-5"></i> ' + label + '</a>';
+        }).join('');
+      }
+      lucide.createIcons();
+    }
+    function fillLoginContactLinks(message) {
+      var container = document.getElementById('loginContactWhatsAppLinks');
+      if (!container) return;
+      var list = adminContact.whatsappList && adminContact.whatsappList.length ? adminContact.whatsappList : (adminContact.whatsapp ? [adminContact.whatsapp] : []);
+      var msg = message || 'Hola, necesito ayuda con mi cuenta de Ferriol OS.';
+      if (list.length === 0) {
+        container.innerHTML = '<a href="#" class="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium text-sm touch-target"><i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp</a>';
+      } else {
+        container.innerHTML = list.map(function (num, i) {
+          var label = list.length > 1 ? 'Contactar por WhatsApp (' + (i + 1) + ')' : 'Contactar por WhatsApp';
+          return '<a href="' + getWhatsAppUrl(num, msg) + '" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-medium text-sm touch-target"><i data-lucide="message-circle" class="w-5 h-5"></i> ' + label + '</a>';
+        }).join('');
+      }
+      lucide.createIcons();
     }
     var superUserListCache = [];
     function trialLabel(endsAt) {
@@ -3726,14 +3879,18 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     async function renderSuper() {
       if (!supabaseClient) return;
       try {
-        const { data: settingsRows } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_whatsapp', 'admin_whatsapp_2', 'admin_delete_password']);
+        const { data: settingsRows } = await supabaseClient.from('app_settings').select('key, value').in('key', ['admin_whatsapp', 'admin_whatsapp_2', 'admin_whatsapp_3', 'admin_whatsapp_4', 'admin_delete_password']);
         var whatsappInput = document.getElementById('adminContactWhatsapp');
         var whatsapp2Input = document.getElementById('adminContactWhatsapp2');
+        var whatsapp3Input = document.getElementById('adminContactWhatsapp3');
+        var whatsapp4Input = document.getElementById('adminContactWhatsapp4');
         var deletePwdInput = document.getElementById('adminDeletePassword');
         if (settingsRows) {
           settingsRows.forEach(function (r) {
             if (r.key === 'admin_whatsapp' && whatsappInput) whatsappInput.value = r.value || '';
             if (r.key === 'admin_whatsapp_2' && whatsapp2Input) whatsapp2Input.value = r.value || '';
+            if (r.key === 'admin_whatsapp_3' && whatsapp3Input) whatsapp3Input.value = r.value || '';
+            if (r.key === 'admin_whatsapp_4' && whatsapp4Input) whatsapp4Input.value = r.value || '';
             if (r.key === 'admin_delete_password' && deletePwdInput) deletePwdInput.value = r.value || '';
           });
         }
@@ -3846,6 +4003,8 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     document.getElementById('saveAdminContact').onclick = async () => {
       const whatsapp = (document.getElementById('adminContactWhatsapp').value || '').trim().replace(/\D/g, '');
       const whatsapp2 = (document.getElementById('adminContactWhatsapp2').value || '').trim().replace(/\D/g, '');
+      const whatsapp3 = (document.getElementById('adminContactWhatsapp3').value || '').trim().replace(/\D/g, '');
+      const whatsapp4 = (document.getElementById('adminContactWhatsapp4').value || '').trim().replace(/\D/g, '');
       const deletePwd = (document.getElementById('adminDeletePassword').value || '').trim();
       const msgEl = document.getElementById('adminContactMsg');
       if (!supabaseClient) return;
@@ -3853,9 +4012,12 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         await supabaseClient.from('app_settings').upsert([
           { key: 'admin_whatsapp', value: whatsapp },
           { key: 'admin_whatsapp_2', value: whatsapp2 },
+          { key: 'admin_whatsapp_3', value: whatsapp3 },
+          { key: 'admin_whatsapp_4', value: whatsapp4 },
           { key: 'admin_delete_password', value: deletePwd }
         ], { onConflict: 'key' });
         adminContact.whatsapp = whatsapp;
+        adminContact.whatsappList = [whatsapp, whatsapp2, whatsapp3, whatsapp4].filter(Boolean);
         msgEl.textContent = 'Ajustes guardados.';
         msgEl.classList.remove('hidden');
         setTimeout(() => msgEl.classList.add('hidden'), 3000);
@@ -3865,6 +4027,52 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       }
       lucide.createIcons();
     };
+    async function exportAllUsersBackup() {
+      if (!currentUser || currentUser.role !== 'super' || !supabaseClient) return;
+      var msgEl = document.getElementById('adminBackupAllMsg');
+      var btn = document.getElementById('btnExportAllUsersBackup');
+      if (msgEl) { msgEl.textContent = 'Exportando...'; msgEl.classList.remove('hidden'); msgEl.className = 'text-xs mt-2 text-white/70'; }
+      if (btn) btn.disabled = true;
+      try {
+        var profilesRes = await supabaseClient.from('profiles').select('id, email, kiosco_name').neq('id', currentUser.id);
+        if (profilesRes.error) throw profilesRes.error;
+        var users = (profilesRes.data || []).filter(function (p) { return p.id; });
+        var backup = { version: 1, type: 'admin_full_backup', exportedAt: new Date().toISOString(), exportedBy: currentUser.id, users: [] };
+        for (var i = 0; i < users.length; i++) {
+          var u = users[i];
+          var uid = u.id;
+          var products = {};
+          var clientes = [];
+          var saldosACobrar = [];
+          try {
+            var pRes = await supabaseClient.from('products').select('*').eq('user_id', uid);
+            if (!pRes.error && pRes.data) pRes.data.forEach(function (p) { products[p.codigo] = { nombre: p.nombre, codigo: p.codigo, precio: p.precio, stock: p.stock, stockInicial: p.stock_inicial || p.stock, costo: p.costo != null ? Number(p.costo) : 0 }; });
+          } catch (_) {}
+          try {
+            var cRes = await supabaseClient.from('clientes').select('id, nombre, telefono, email, direccion, notas').eq('user_id', uid);
+            if (!cRes.error && cRes.data) clientes = cRes.data;
+          } catch (_) {}
+          try {
+            var sRes = await supabaseClient.from('saldos_acobrar').select('*').eq('user_id', uid);
+            if (!sRes.error && sRes.data) saldosACobrar = sRes.data.map(function (s) { return { id: s.id, clientName: s.client_name || '', whatsapp: s.whatsapp || '', items: s.items || [], total: Number(s.total) || 0, method: s.method || 'fiado', paid: !!s.paid, createdAt: s.created_at }; });
+          } catch (_) {}
+          backup.users.push({ userId: uid, email: u.email || '', kioscoName: u.kiosco_name || '', products: products, clientes: clientes, saldosACobrar: saldosACobrar });
+        }
+        var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'ferriol-respaldo-todos-' + new Date().toISOString().slice(0, 10) + '.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        if (msgEl) { msgEl.textContent = 'Copia exportada: ' + backup.users.length + ' usuario(s). Guardá el archivo en un lugar seguro.'; msgEl.className = 'text-xs mt-2 text-green-400'; setTimeout(function () { msgEl.classList.add('hidden'); }, 6000); }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = 'Error: ' + (e.message || 'No se pudo exportar. Revisá que las políticas RLS permitan al admin leer productos, clientes y saldos_acobrar de otros usuarios.'); msgEl.className = 'text-xs mt-2 text-amber-300'; }
+      }
+      if (btn) btn.disabled = false;
+      lucide.createIcons();
+    }
+    document.getElementById('btnExportAllUsersBackup').onclick = exportAllUsersBackup;
+
     document.querySelectorAll('.super-filter-btn').forEach(function (btn) {
       btn.onclick = function () {
         superFilterState = btn.dataset.filter || 'todos';
@@ -3879,20 +4087,22 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     var NOTIF_LAST_READ_KEY = 'ferriol_notif_last_read';
     function getNotifLastRead() {
       try {
-        var s = localStorage.getItem(NOTIF_LAST_READ_KEY);
+        var key = (currentUser && currentUser.id) ? NOTIF_LAST_READ_KEY + '_' + currentUser.id : NOTIF_LAST_READ_KEY;
+        var s = localStorage.getItem(key);
         return s ? new Date(s).getTime() : 0;
       } catch (_) { return 0; }
     }
     function setNotifLastRead() {
       try {
+        var key = (currentUser && currentUser.id) ? NOTIF_LAST_READ_KEY + '_' + currentUser.id : NOTIF_LAST_READ_KEY;
         var latest = 0;
-        notificationsCache.forEach(function (n) {
+        (notificationsCache || []).forEach(function (n) {
           if (n.created_at) {
             var t = new Date(n.created_at).getTime();
             if (t > latest) latest = t;
           }
         });
-        localStorage.setItem(NOTIF_LAST_READ_KEY, latest ? new Date(latest).toISOString() : new Date().toISOString());
+        localStorage.setItem(key, latest ? new Date(latest).toISOString() : new Date().toISOString());
       } catch (_) {}
     }
     async function loadNotifications() {
@@ -3900,18 +4110,20 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       try {
         var res = await supabaseClient.from('notifications').select('id, created_at, message').order('created_at', { ascending: false }).limit(50);
         notificationsCache = (res.data || []);
+        var notifSince = (currentUser && currentUser.created_at) ? new Date(currentUser.created_at).getTime() : 0;
+        var visible = notificationsCache.filter(function (n) { return n.created_at && new Date(n.created_at).getTime() >= notifSince; });
         var lastRead = getNotifLastRead();
-        var unread = notificationsCache.filter(function (n) { return n.created_at && new Date(n.created_at).getTime() > lastRead; });
+        var unread = visible.filter(function (n) { return new Date(n.created_at).getTime() > lastRead; });
         var listEl = document.getElementById('notifList');
         var emptyEl = document.getElementById('notifEmpty');
         var countEl = document.getElementById('notifCount');
         if (listEl) {
-          if (notificationsCache.length === 0) {
+          if (visible.length === 0) {
             listEl.innerHTML = '';
-            if (emptyEl) { emptyEl.classList.remove('hidden'); }
+            if (emptyEl) emptyEl.classList.remove('hidden');
           } else {
             if (emptyEl) emptyEl.classList.add('hidden');
-            listEl.innerHTML = notificationsCache.map(function (n) {
+            listEl.innerHTML = visible.map(function (n) {
               var fecha = n.created_at ? new Date(n.created_at).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '';
               var msg = (n.message || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
               return '<div class="glass rounded-xl p-3 border border-white/10"><p class="text-white/90 text-sm">' + msg + '</p><p class="text-white/50 text-xs mt-1">' + fecha + '</p></div>';
@@ -4031,17 +4243,15 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         if (!profile) return;
         if (profile.role === 'kiosquero' && !profile.active) {
           try {
-            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
-            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
-          } catch (_) { window._adminWhatsappForContact = ''; }
+            await loadAdminContact();
+          } catch (_) {}
           await supabaseClient.auth.signOut();
           document.getElementById('loginFormWrap').classList.remove('hidden');
           document.getElementById('loginErr').textContent = 'Tu cuenta está desactivada. Contactá por WhatsApp para darte de alta.';
           document.getElementById('loginErr').classList.add('show');
           var wrap = document.getElementById('loginContactAdminWrap');
-          var link = document.getElementById('loginContactWhatsAppBtn');
-          if (wrap && link) {
-            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi cuenta de Ferriol OS está desactivada y quiero darme de alta.');
+          if (wrap) {
+            fillLoginContactLinks('Hola, mi cuenta de Ferriol OS está desactivada y quiero darme de alta.');
             wrap.classList.remove('hidden');
           }
           document.getElementById('appWrap').classList.add('hidden');
@@ -4052,24 +4262,23 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
         if (profile.role === 'kiosquero' && trialEndsAt && new Date(trialEndsAt) < new Date()) {
           try {
             await supabaseClient.from('profiles').update({ active: false }).eq('id', profile.id);
-            const { data: setData } = await supabaseClient.from('app_settings').select('value').eq('key', 'admin_whatsapp').maybeSingle();
-            window._adminWhatsappForContact = (setData && setData.value) ? setData.value : '';
-          } catch (_) { window._adminWhatsappForContact = ''; }
+            await loadAdminContact();
+          } catch (_) {}
           await supabaseClient.auth.signOut();
           document.getElementById('loginFormWrap').classList.remove('hidden');
           document.getElementById('loginErr').textContent = 'Tu período de prueba terminó. La cuenta se desactivó. Contactá por WhatsApp para renovar.';
           document.getElementById('loginErr').classList.add('show');
           var wrap = document.getElementById('loginContactAdminWrap');
-          var link = document.getElementById('loginContactWhatsAppBtn');
-          if (wrap && link) {
-            link.href = getWhatsAppUrl(window._adminWhatsappForContact, 'Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
+          if (wrap) {
+            fillLoginContactLinks('Hola, mi período de prueba de Ferriol OS terminó y quiero renovar.');
             wrap.classList.remove('hidden');
           }
           document.getElementById('appWrap').classList.add('hidden');
           document.getElementById('loginScreen').classList.remove('hidden');
           return;
         }
-        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt };
+        var userCreatedAt = (session && session.user && session.user.created_at) ? session.user.created_at : null;
+        currentUser = { id: profile.id, email: profile.email, role: profile.role, active: profile.active, kioscoName: profile.kiosco_name || '', whatsappMessage: profile.whatsapp_message || DEFAULT_WHATSAPP, trialEndsAt: trialEndsAt, created_at: userCreatedAt };
         await showApp();
       } catch (e) {
         console.error('Error en init:', e);
