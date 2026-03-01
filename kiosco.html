@@ -3200,9 +3200,11 @@
     }
     function updateCostoCampoEstado() {
       var costo = parseFloat(document.getElementById('prodCosto').value) || 0;
+      var precioFocused = document.activeElement === document.getElementById('prodPrecio');
       var costoEl = document.getElementById('prodCosto');
       var hintEl = document.getElementById('prodCostoHint');
-      if (costo > 0) {
+      var mostrarConflicto = costo > 0 && precioFocused;
+      if (mostrarConflicto) {
         costoEl.classList.add('border-red-500/80');
         costoEl.classList.remove('border-white/20');
         if (hintEl) { hintEl.classList.remove('hidden'); }
@@ -3215,6 +3217,8 @@
     document.getElementById('prodCosto').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoCampoEstado(); });
     document.getElementById('prodMargen').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoFromPrecioMargen(); updateCostoCampoEstado(); });
     document.getElementById('prodPrecio').addEventListener('input', function () { updateCostoFromPrecioMargen(); updateCostoCampoEstado(); });
+    document.getElementById('prodPrecio').addEventListener('focus', updateCostoCampoEstado);
+    document.getElementById('prodPrecio').addEventListener('blur', updateCostoCampoEstado);
     document.getElementById('saveProduct').onclick = () => {
       var margenErr = document.getElementById('prodMargenError');
       var margenVal = document.getElementById('prodMargen').value.trim();
