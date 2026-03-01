@@ -2403,10 +2403,7 @@
       if (name === 'scanner') {
         if (typeof window._startScannerCamera === 'function') window._startScannerCamera();
         if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
-        setTimeout(function () {
-          var manualInput = document.getElementById('manualCode');
-          if (manualInput) manualInput.focus();
-        }, 150);
+        // No hacer focus en manualCode: en móvil abre el teclado y tapa el escáner. El teclado se abre solo al tocar la casilla "Código manual".
       } else if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
       if (name === 'caja') renderCierresCajaHistorial();
       if (name === 'historial') {
@@ -3184,6 +3181,8 @@
     }
     function updateCostoFromPrecioMargen() {
       if (_updatingPrecioFromCosto) return;
+      var costoActual = parseFloat(document.getElementById('prodCosto').value) || 0;
+      if (costoActual > 0) return; // No sobrescribir costo si el usuario ya lo ingresó; así puede redondear el precio sin que se modifique el costo
       var precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
       var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
       if (precio > 0 && margen >= 0) {
@@ -3442,6 +3441,10 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
     document.getElementById('goToLoginBtn').onclick = () => {
       document.getElementById('signUpSuccessBox').classList.add('hidden');
       document.getElementById('loginFormWrap').classList.remove('hidden');
+      if (window._lastSignUpEmail) {
+        document.getElementById('loginEmail').value = window._lastSignUpEmail;
+        window._lastSignUpEmail = '';
+      }
     };
     document.getElementById('forgotPwd').onclick = (e) => {
       e.preventDefault();
@@ -3548,6 +3551,7 @@ async function showApp() { // <--- AGREGAMOS 'async' ACÁ
       }
       document.getElementById('signUpBox').classList.add('hidden');
       document.getElementById('signUpSuccessBox').classList.remove('hidden');
+      window._lastSignUpEmail = email;
     };
 
     function doLogout() {
