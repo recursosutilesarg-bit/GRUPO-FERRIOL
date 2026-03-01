@@ -1098,10 +1098,12 @@
           <div>
             <label class="block text-xs text-white/60 mb-1">Costo ($)</label>
             <input type="number" id="prodCosto" placeholder="Ej. 2345" min="0" step="1" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+            <p id="prodCostoHint" class="text-xs text-red-400 mt-1 hidden">Poné 0 para poder recalcular el costo desde el precio.</p>
           </div>
           <div>
             <label class="block text-xs text-white/60 mb-1">Margen de ganancia (%)</label>
             <input type="number" id="prodMargen" placeholder="Ej. 30" min="0" max="500" step="1" class="w-full glass rounded-xl px-4 py-3 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]">
+            <p id="prodMargenError" class="text-xs text-red-400 mt-1 hidden">Falta el porcentaje de ganancia.</p>
           </div>
         </div>
         <p class="text-xs text-white/50">Precio al consumidor: se redondea al número entero más cercano de 100 (ej. 3048 → $3000).</p>
@@ -1661,6 +1663,8 @@
       document.getElementById('deleteProductInModal').classList.remove('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+      if (typeof updateCostoCampoEstado === 'function') updateCostoCampoEstado();
+      document.getElementById('prodMargenError').classList.add('hidden');
       lucide.createIcons();
     }
 
@@ -3140,6 +3144,8 @@
       document.getElementById('deleteProductInModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+      if (typeof updateCostoCampoEstado === 'function') updateCostoCampoEstado();
+      document.getElementById('prodMargenError').classList.add('hidden');
       lucide.createIcons();
     };
     document.getElementById('deleteProductInModal').onclick = () => {
@@ -3192,24 +3198,31 @@
         _updatingCostoFromPrecio = false;
       }
     }
-    function confirmRecalcularCostoDesdePrecio() {
-      var precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
-      var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
-      var costoActual = parseFloat(document.getElementById('prodCosto').value) || 0;
-      if (costoActual <= 0 || precio <= 0 || margen < 0) return;
-      var costoCalc = Math.round(precio / (1 + margen / 100));
-      if (costoCalc === costoActual) return;
-      if (confirm('Recalcular el costo desde el precio? El costo actual (' + costoActual + ') se reemplazará por ' + costoCalc + '.')) {
-        _updatingCostoFromPrecio = true;
-        document.getElementById('prodCosto').value = costoCalc;
-        _updatingCostoFromPrecio = false;
+    function updateCostoCampoEstado() {
+      var costo = parseFloat(document.getElementById('prodCosto').value) || 0;
+      var costoEl = document.getElementById('prodCosto');
+      var hintEl = document.getElementById('prodCostoHint');
+      if (costo > 0) {
+        costoEl.classList.add('border-red-500/80');
+        costoEl.classList.remove('border-white/20');
+        if (hintEl) { hintEl.classList.remove('hidden'); }
+      } else {
+        costoEl.classList.remove('border-red-500/80');
+        costoEl.classList.add('border-white/20');
+        if (hintEl) { hintEl.classList.add('hidden'); }
       }
     }
-    document.getElementById('prodCosto').addEventListener('input', updatePrecioFromCostoMargen);
-    document.getElementById('prodMargen').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoFromPrecioMargen(); });
-    document.getElementById('prodPrecio').addEventListener('input', updateCostoFromPrecioMargen);
-    document.getElementById('prodPrecio').addEventListener('blur', confirmRecalcularCostoDesdePrecio);
+    document.getElementById('prodCosto').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoCampoEstado(); });
+    document.getElementById('prodMargen').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoFromPrecioMargen(); updateCostoCampoEstado(); });
+    document.getElementById('prodPrecio').addEventListener('input', function () { updateCostoFromPrecioMargen(); updateCostoCampoEstado(); });
     document.getElementById('saveProduct').onclick = () => {
+      var margenErr = document.getElementById('prodMargenError');
+      var margenVal = document.getElementById('prodMargen').value.trim();
+      if (margenVal === '' || isNaN(parseFloat(margenVal))) {
+        margenErr.classList.remove('hidden');
+        return;
+      }
+      margenErr.classList.add('hidden');
       const nombre = document.getElementById('prodNombre').value.trim();
       const codigoNuevo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
       const precio = parseInt(document.getElementById('prodPrecio').value) || 0;
