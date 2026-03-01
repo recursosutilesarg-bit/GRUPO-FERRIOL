@@ -3182,7 +3182,7 @@
     function updateCostoFromPrecioMargen() {
       if (_updatingPrecioFromCosto) return;
       var costoActual = parseFloat(document.getElementById('prodCosto').value) || 0;
-      if (costoActual > 0) return; // No sobrescribir costo si el usuario ya lo ingresó; así puede redondear el precio sin que se modifique el costo
+      if (costoActual > 0) return;
       var precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
       var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
       if (precio > 0 && margen >= 0) {
@@ -3192,9 +3192,23 @@
         _updatingCostoFromPrecio = false;
       }
     }
+    function confirmRecalcularCostoDesdePrecio() {
+      var precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
+      var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
+      var costoActual = parseFloat(document.getElementById('prodCosto').value) || 0;
+      if (costoActual <= 0 || precio <= 0 || margen < 0) return;
+      var costoCalc = Math.round(precio / (1 + margen / 100));
+      if (costoCalc === costoActual) return;
+      if (confirm('Recalcular el costo desde el precio? El costo actual (' + costoActual + ') se reemplazará por ' + costoCalc + '.')) {
+        _updatingCostoFromPrecio = true;
+        document.getElementById('prodCosto').value = costoCalc;
+        _updatingCostoFromPrecio = false;
+      }
+    }
     document.getElementById('prodCosto').addEventListener('input', updatePrecioFromCostoMargen);
     document.getElementById('prodMargen').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoFromPrecioMargen(); });
     document.getElementById('prodPrecio').addEventListener('input', updateCostoFromPrecioMargen);
+    document.getElementById('prodPrecio').addEventListener('blur', confirmRecalcularCostoDesdePrecio);
     document.getElementById('saveProduct').onclick = () => {
       const nombre = document.getElementById('prodNombre').value.trim();
       const codigoNuevo = document.getElementById('prodCodigo').value.trim() || Date.now().toString();
