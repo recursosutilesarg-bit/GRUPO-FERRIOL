@@ -1663,6 +1663,7 @@
       document.getElementById('deleteProductInModal').classList.remove('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+      _userTouchedCost = true;
       if (typeof updateCostoCampoEstado === 'function') updateCostoCampoEstado();
       document.getElementById('prodMargenError').classList.add('hidden');
       lucide.createIcons();
@@ -3144,6 +3145,7 @@
       document.getElementById('deleteProductInModal').classList.add('hidden');
       document.getElementById('productModal').classList.remove('hidden');
       document.getElementById('productModal').classList.add('flex');
+      _userTouchedCost = false;
       if (typeof updateCostoCampoEstado === 'function') updateCostoCampoEstado();
       document.getElementById('prodMargenError').classList.add('hidden');
       lucide.createIcons();
@@ -3175,6 +3177,7 @@
     };
     var _updatingPrecioFromCosto = false;
     var _updatingCostoFromPrecio = false;
+    var _userTouchedCost = false;
     function updatePrecioFromCostoMargen() {
       if (_updatingCostoFromPrecio) return;
       var costo = parseFloat(document.getElementById('prodCosto').value) || 0;
@@ -3188,7 +3191,7 @@
     function updateCostoFromPrecioMargen() {
       if (_updatingPrecioFromCosto) return;
       var costoActual = parseFloat(document.getElementById('prodCosto').value) || 0;
-      if (costoActual > 0) return;
+      if (costoActual > 0 && _userTouchedCost) return;
       var precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
       var margen = parseFloat(document.getElementById('prodMargen').value) || 0;
       if (precio > 0 && margen >= 0) {
@@ -3214,7 +3217,8 @@
         if (hintEl) { hintEl.classList.add('hidden'); }
       }
     }
-    document.getElementById('prodCosto').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoCampoEstado(); });
+    document.getElementById('prodCosto').addEventListener('focus', function () { _userTouchedCost = true; updateCostoCampoEstado(); });
+    document.getElementById('prodCosto').addEventListener('input', function () { _userTouchedCost = true; updatePrecioFromCostoMargen(); updateCostoCampoEstado(); });
     document.getElementById('prodMargen').addEventListener('input', function () { updatePrecioFromCostoMargen(); updateCostoFromPrecioMargen(); updateCostoCampoEstado(); });
     document.getElementById('prodPrecio').addEventListener('input', function () { updateCostoFromPrecioMargen(); updateCostoCampoEstado(); });
     document.getElementById('prodPrecio').addEventListener('focus', updateCostoCampoEstado);
