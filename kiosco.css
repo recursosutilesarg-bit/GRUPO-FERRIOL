@@ -1,0 +1,159 @@
+    :root {
+      --indigo-deep: #1e1b4b;
+      --indigo-mid: #3730a3;
+      --violet-electric: #7c3aed;
+      --violet-light: #a78bfa;
+      --white-pure: #ffffff; 
+      --glass-bg: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.18);
+      --glow-violet: rgba(124,58,237,0.4);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #0f0a1e 0%, #1e1b4b 40%, #312e81 70%, #1e1b4b 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--white-pure);
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,58,237,0.25), transparent),
+                  radial-gradient(ellipse 60% 40% at 100% 100%, rgba(167,139,250,0.15), transparent);
+      pointer-events: none; z-index: 0;
+    }
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+    }
+    .glass-strong {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-neomorphic {
+      background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-neomorphic:active {
+      box-shadow: inset 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    .btn-glow {
+      background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid));
+      box-shadow: 0 0 24px var(--glow-violet);
+    }
+    .laser-line { animation: laser-sweep 2s linear infinite; }
+    @keyframes laser-sweep {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100%); opacity: 0.8; }
+    }
+    .scan-corner { border-color: var(--violet-electric); }
+    .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px var(--glow-violet); }
+      50% { box-shadow: 0 0 40px var(--glow-violet); }
+    }
+    .slide-up { animation: slideUp 0.35s ease-out forwards; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .scale-in { animation: scaleIn 0.25s ease-out forwards; }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .status-alto { background: rgba(34,197,94,0.25); color: #86efac; border-color: rgba(34,197,94,0.5); }
+    .status-critico { background: rgba(245,158,11,0.25); color: #fcd34d; border-color: rgba(245,158,11,0.5); }
+    .status-agotado { background: rgba(239,68,68,0.25); color: #fca5a5; border-color: rgba(239,68,68,0.5); }
+    .nav-item.active { background: rgba(124,58,237,0.35); border-left: 3px solid var(--violet-electric); }
+    .bar-chart-bar { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .touch-target { min-height: 44px; min-width: 44px; }
+    .inventory-scroll { -webkit-overflow-scrolling: touch; }
+    .header-gradient {
+      background: linear-gradient(90deg,
+        rgba(30,27,75,0.98) 0%,
+        rgba(55,48,163,0.95) 30%,
+        rgba(55,48,163,0.95) 45%,
+        rgba(55,48,163,0.95) 50%,
+        rgba(55,48,163,0.95) 55%,
+        rgba(55,48,163,0.95) 70%,
+        rgba(30,27,75,0.98) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 2px solid rgba(124,58,237,0.7);
+      box-shadow: inset 1px 0 0 rgba(124,58,237,0.4), inset -1px 0 0 rgba(124,58,237,0.4), 0 2px 0 0 rgba(167,139,250,0.25);
+    }
+    .notif-panel {
+      background: rgba(30,27,75,0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .super-only { display: none; }
+    /* Barra inferior moderna */
+    .bottom-nav-bar { border-radius: 1.25rem 1.25rem 0 0; }
+    .bottom-nav-btn { color: rgba(255,255,255,0.7); }
+    .bottom-nav-btn:hover, .bottom-nav-btn.active { color: #fff; background: rgba(124,58,237,0.25); }
+    #headerSuperAjustesBtn.active, #headerSuperNotifBtn.active { background: rgba(124,58,237,0.35); color: #fff; box-shadow: 0 0 20px rgba(124,58,237,0.3); }
+    .scanner-circle { border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 0 0 4px rgba(124,58,237,0.3); }
+    .scanner-circle:active { transform: scale(0.95); }
+    /* Login SaaS — glassmorphism */
+    #loginScreen { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: linear-gradient(135deg, #0f0a1e 0%, #1e1b4b 50%, #312e81 100%); }
+    #loginScreen.hidden { display: none; }
+    .login-glass { background: rgba(30,27,75,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; padding: 2rem; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 24px var(--glow-violet); }
+    .login-glass h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .login-glass .sub { font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 1.5rem; }
+    .login-glass input { width: 100%; padding: 0.75rem 1rem; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; color: #fff; margin-bottom: 1rem; font-size: 1rem; }
+    .login-glass input:focus { outline: none; border-color: var(--violet-electric); box-shadow: 0 0 0 3px var(--glow-violet); }
+    .login-glass .btn-login { width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border-radius: 0.5rem; border: none; cursor: pointer; margin-top: 0.5rem; }
+    .login-glass .login-err { background: rgba(239,68,68,0.3); color: #fca5a5; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.95rem; margin-bottom: 1rem; display: none; border: 1px solid rgba(239,68,68,0.5); }
+    .login-glass .login-err.show { display: block !important; }
+    .login-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 1rem; text-align: center; }
+    .password-wrap { position: relative; margin-bottom: 1rem; }
+    .password-wrap input { margin-bottom: 0; padding-right: 2.75rem; }
+    .password-wrap .toggle-pwd { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.8); cursor: pointer; padding: 0.35rem 0.5rem; border-radius: 0.35rem; z-index: 10; min-height: 36px; font-size: 0.9rem; display: flex; align-items: center; user-select: none; }
+    .password-wrap .toggle-pwd:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .password-wrap .pwd-checkbox { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+    /* Interruptor membresía (toggle switch) */
+    .toggle-switch { position: relative; width: 52px; height: 28px; flex-shrink: 0; background: rgba(239,68,68,0.4); border-radius: 9999px; cursor: pointer; transition: background 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+    .toggle-switch.active { background: rgba(34,197,94,0.5); }
+    .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .toggle-switch.active::after { transform: translateX(24px); }
+    @media (max-width: 640px) {
+      .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+      .glass-strong { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+      #metricVentas, #metricTrans { font-size: 1.25rem; }
+    }
+    /* Panel admin optimizado para móvil */
+    @media (max-width: 768px) {
+      #panel-super .super-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      #panel-super table { min-width: 680px; }
+      #panel-super .super-membership-cell { flex-wrap: wrap; }
+      #panel-super .super-membership-cell input[type="number"] { width: 3rem; }
+      #panel-super .super-btn-add-days, #panel-super .super-btn-remove-days { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+      #panel-super .super-actions-cell { flex-wrap: wrap; gap: 0.5rem; }
+      #panel-super .super-actions-cell button { min-height: 44px; padding: 0.5rem 0.75rem; }
+    }
+    /* Banner instalar PWA — ordenado y legible */
+    #pwaInstallBanner { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 300; display: none; width: 92%; max-width: 380px; }
+    #pwaInstallBanner.show { display: block; animation: slideUp 0.35s ease-out; }
+    #pwaInstallBanner .pwa-banner-inner { background: rgba(30,27,75,0.96); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); border-radius: 1rem; padding: 1rem 1rem 1.25rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.3); }
+    #pwaInstallBanner .pwa-banner-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+    #pwaInstallBanner .pwa-banner-text { flex: 1; min-width: 0; margin: 0; font-size: 0.95rem; line-height: 1.4; color: rgba(255,255,255,0.95); }
+    #pwaInstallBanner .pwa-close { flex-shrink: 0; background: transparent; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 0.35rem; font-size: 1.1rem; line-height: 1; }
+    #pwaInstallBanner .pwa-btn-wrap { margin-top: 0.75rem; }
+    #pwaInstallBanner .pwa-btn { display: block; width: 100%; padding: 0.65rem 1rem; background: linear-gradient(135deg, var(--violet-electric), var(--indigo-mid)); color: #fff; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.95rem; }
+    #pwaInstallBanner .pwa-btn:hover { opacity: 0.95; }
+    #pwaInstallBanner .pwa-need-server { font-size: 0.85rem; color: #a78bfa; margin: 0.5rem 0 0; line-height: 1.4; }
+    #pwaInstallBanner .pwa-hint { font-size: 0.85rem; color: #a78bfa; margin: 0.75rem 0 0; padding: 0.6rem 0.75rem; background: rgba(124,58,237,0.2); border-radius: 0.5rem; line-height: 1.45; white-space: pre-line; display: none; }
+    #pwaInstallBanner .pwa-hint.show { display: block; }
