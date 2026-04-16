@@ -1,0 +1,38 @@
+Ferriol OS — Inventario de funciones (post-refactor kiosco-app.js + kiosco-pwa.js)
+Generado al separar HTML / CSS / config / app / PWA.
+
+=== kiosco-app.js — declaraciones function / async function ===
+escapeCSV, stringToLatin1Bytes, downloadCSV
+exportDeudoresCSV, exportProductosCSV, exportClientesCSV, exportVentasCSV
+getCobroRapidoProductosList, setCobroRapidoProductosList, getStorageKey
+loadFromLocalStorage, saveToLocalStorage, loadDataFromSupabase, restoreTodayFromLocalStorage
+saveDataToSupabase, getData, checkMidnightReset, setData, roundToNearest100, initData
+getStockStatus, playBeep, renderInventory, openEditProduct, deleteProduct, addToCart, removeFromCart, updateCartUI
+openPaymentModal, closePaymentModal, completeSaleWithMethod, completeSale
+getTodayRange, getMetricasDelDia, updateDashboard
+renderSaldosACobrar, renderDeudoresPanel, openDetalleDeudorModal, openDetalleVentaModal
+getFrequentProductsToday, renderFrequentProducts, updateCobroRapidoLista
+openCobroRapidoModal, getCobroRapidoProductoNombre, getCobroRapidoProductoMargen, closeCobroRapidoModal, completeQuickSale
+openCart, closeCart, showLoginScreenTrialEnded, updateTrialCountdown, loadAdminContactForTrialEnded
+closeRenovarModal, closeAllModals, showPanel, goToPanel, switchSuperSection
+showScanToast, showStockWarning, openVentasProductosModal, openTransaccionesModal
+getHistorialRange, renderHistorial, applyHistorialFilterUI, switchHistorialTab
+loadClientes, renderClientes, openClienteModal, saveCliente, deleteCliente
+doManualAdd (const flecha, handlers escáner manual)
+normalizeBarcode, findProductByCode, scanFrame, stopScanInterval, startScannerCamera
+renderCierresCajaHistorial, closeProductModal, updatePrecioFromCostoMargen, updateCostoFromPrecioMargen, updateCostoCampoEstado
+showApp, doLogin, setupPasswordToggle, sync (anidada en setupPasswordToggle)
+doLogout, fillConfigForm, saveConfig, exportBackup, importBackup, getWhatsAppUrl
+loadAdminContact, fillRenovarWhatsAppLinks, fillLoginContactLinks
+trialLabel, trialLabelFull, updateSuperListCountdowns, openSuperUserDetail, renderSuper, renderSuperListFromSearch
+exportAllUsersBackup, importAllUsersBackup
+getNotifLastRead, setNotifLastRead, loadNotifications
+openNewKiosqueroModal, closeNewKiosqueroModal
+init (IIFE async al final del archivo)
+
+=== kiosco-pwa.js ===
+getInstallHint (anidada en IIFE del banner)
++ listeners anónimos para service worker e instalación PWA
+
+=== Config global (no es función) ===
+window.FERRIOL_CONFIG en kiosco-config.js: SUPABASE_URL, SUPABASE_ANON_KEY, APP_URL

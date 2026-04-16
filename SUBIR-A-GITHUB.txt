@@ -1,0 +1,26 @@
+Ferriol OS — Qué subir al repositorio (GitHub Pages)
+
+Carpeta de trabajo (única copia del proyecto en esta PC):
+  C:\Users\BUNKER 2\FERRIOL OS
+
+Cursor / VS Code: doble clic en Ferriol-OS.code-workspace (en esta carpeta), o Archivo → Abrir espacio de trabajo desde archivo… y elegí ese archivo. Así el proyecto raíz es solo Ferriol OS.
+
+Contenido mínimo para que funcione la app en línea:
+  - kiosco.html
+  - kiosco.css
+  - kiosco-config.js
+  - kiosco-app.js
+  - kiosco-pwa.js
+  - manifest.json
+  - sw.js
+  - icons\  (carpeta completa)
+
+Opcional:
+  - run-servidor.bat  (para probar en http://localhost sin abrir el archivo directo)
+  - kiosco-FUNCTIONS-INVENTORY.txt  (solo documentación)
+
+En GitHub: subí estos archivos a la raíz del repo que publica Pages (o la carpeta del sitio),
+de modo que la URL quede por ejemplo:
+  .../GRUPO-FERRIOL/kiosco.html
+
+Si cambiás el nombre de la carpeta del repo, actualizá APP_URL en kiosco-config.js.
