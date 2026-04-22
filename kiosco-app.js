@@ -2,6 +2,7 @@
 
     // ——— Supabase: pegá tu Project URL y anon key acá ———
     // Si el panel Super no muestra usuarios: ejecutá supabase_rls_super_profiles.sql en SQL Editor.
+    // Si ves 400 en products o caja: ejecutá supabase-fix-products-caja.sql en SQL Editor (columnas + índice único en caja).
     // Si usás "Transferir pendiente", agregá en caja: ALTER TABLE caja ADD COLUMN IF NOT EXISTS transferencia_pendiente numeric DEFAULT 0;
     // Para historial de ventas y clientes, creá en Supabase (SQL Editor) estas tablas:
     // CREATE TABLE ventas ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, fecha_hora timestamptz NOT NULL DEFAULT now(), total numeric NOT NULL DEFAULT 0, metodo_pago text, cliente_nombre text, items jsonb DEFAULT '[]'::jsonb, created_at timestamptz DEFAULT now() );
@@ -270,30 +271,59 @@
       if (!supabaseClient) return;
       try {
         if (updates.products !== undefined) {
-          await supabaseClient.from('products').delete().eq('user_id', uid);
-          const rows = Object.entries(updates.products).map(([codigo, p]) => ({
-            user_id: uid,
-            codigo,
-            nombre: p.nombre,
-            precio: p.precio || 0,
-            stock: p.stock || 0,
-            stock_inicial: p.stockInicial ?? p.stock ?? 0,
-            costo: p.costo != null ? Number(p.costo) : 0
-          }));
-          if (rows.length) await supabaseClient.from('products').insert(rows);
+          var delP = await supabaseClient.from('products').delete().eq('user_id', uid);
+          if (delP.error) console.warn('products (delete):', delP.error.message || delP.error, delP.error.details || '', delP.error.hint || '');
+          const rows = Object.entries(updates.products)
+            .map(function (ref) {
+              var codigo = String(ref[0] || '').trim();
+              var p = ref[1];
+              if (!codigo) return null;
+              return {
+                user_id: uid,
+                codigo: codigo.slice(0, 200),
+                nombre: String((p && p.nombre) != null ? p.nombre : '').trim() || codigo.slice(0, 80),
+                precio: Number(p.precio) || 0,
+                stock: Math.max(0, parseInt(p.stock, 10) || 0),
+                stock_inicial: Math.max(0, parseInt(p.stockInicial != null ? p.stockInicial : p.stock, 10) || 0),
+                costo: (function () { var c = Number(p.costo); return Number.isFinite(c) ? c : 0; })()
+              };
+            })
+            .filter(Boolean);
+          if (rows.length) {
+            var insP = await supabaseClient.from('products').insert(rows);
+            if (insP.error) {
+              console.warn('products (insert 400):', insP.error.message, insP.error.details || '', insP.error.hint || '', '— En Supabase ejecutá el archivo supabase-fix-products-caja.sql (columnas costo, stock_inicial) y revisá políticas RLS para DELETE/INSERT en products.');
+            }
+          }
         }
         if (updates.ventas !== undefined || updates.transacciones !== undefined) {
           const v = updates.ventas || _dataCache.ventas;
           const t = updates.transacciones !== undefined ? updates.transacciones : _dataCache.transacciones;
-          await supabaseClient.from('caja').upsert({
+          const cajaRow = {
             user_id: uid,
-            efectivo: v.efectivo || 0,
-            tarjeta: v.tarjeta || 0,
-            transferencia: v.transferencia || 0,
-            fiado: v.fiado || 0,
-            transferencia_pendiente: (v.transferencia_pendiente || 0),
-            transacciones: t
-          }, { onConflict: 'user_id' });
+            efectivo: Number(v.efectivo) || 0,
+            tarjeta: Number(v.tarjeta) || 0,
+            transferencia: Number(v.transferencia) || 0,
+            fiado: Number(v.fiado) || 0,
+            transferencia_pendiente: Number(v.transferencia_pendiente) || 0,
+            transacciones: Number(t) || 0
+          };
+          var cajaEx = await supabaseClient.from('caja').select('user_id').eq('user_id', uid).maybeSingle();
+          if (cajaEx.error && cajaEx.error.code !== 'PGRST116') console.warn('caja (lectura):', cajaEx.error.message || cajaEx.error);
+          if (cajaEx.data) {
+            var up = await supabaseClient.from('caja').update({
+              efectivo: cajaRow.efectivo,
+              tarjeta: cajaRow.tarjeta,
+              transferencia: cajaRow.transferencia,
+              fiado: cajaRow.fiado,
+              transferencia_pendiente: cajaRow.transferencia_pendiente,
+              transacciones: cajaRow.transacciones
+            }).eq('user_id', uid);
+            if (up.error) console.warn('caja (update):', up.error.message || up.error);
+          } else {
+            var ins = await supabaseClient.from('caja').insert(cajaRow);
+            if (ins.error) console.warn('caja (insert):', ins.error.message || ins.error, '— Si falta una columna, en Supabase: ALTER TABLE caja ADD COLUMN IF NOT EXISTS transferencia_pendiente numeric DEFAULT 0;');
+          }
         }
         if (updates.saldosACobrar !== undefined) {
           var list = updates.saldosACobrar || [];
@@ -665,7 +695,10 @@
       var ganancia = (state.transaccionesList || []).reduce(function (sum, t) {
         return sum + (t.items || []).reduce(function (s, i) {
           var costo = i.costo != null ? Number(i.costo) : 0;
-          return s + (i.precio - costo) * (i.cant || 0);
+          var precio = Number(i.precio) || 0;
+          var cant = i.cant || 0;
+          var g = (precio - costo) * cant;
+          return s + (Number.isFinite(g) ? g : 0);
         }, 0);
       }, 0);
       return { total, efectivo: ventas.efectivo || 0, tarjeta: ventas.tarjeta || 0, transferencia: ventas.transferencia || 0, fiado, transferencia_pendiente: transfPend, ganancia, count: d.transacciones || 0 };
@@ -702,7 +735,9 @@
           if (val === 0) return '';
           return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium ' + x.bg + ' ' + x.color + '"><i data-lucide="' + x.icon + '" class="w-3 h-3"></i>' + x.label + ' $' + val.toLocaleString('es-AR') + '</span>';
         }).filter(Boolean).join('');
-        lucide.createIcons();
+        try {
+          if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        } catch (_) {}
       }
       renderSaldosACobrar();
       renderFrequentProducts();
@@ -1001,6 +1036,16 @@
       if (!sel || !sel.dataset.margen) return 0;
       return parseFloat(sel.dataset.margen) || 0;
     }
+    function costoDesdeMargen(amount, margenPct) {
+      var a = Number(amount);
+      var m = Number(margenPct);
+      if (!Number.isFinite(a) || a <= 0) return 0;
+      if (!Number.isFinite(m) || m <= 0) return 0;
+      var denom = 1 + m / 100;
+      if (!Number.isFinite(denom) || denom <= 0) return 0;
+      var c = Math.round(a / denom);
+      return Number.isFinite(c) && c >= 0 ? c : 0;
+    }
     function closeCobroRapidoModal() {
       document.getElementById('cobroRapidoModal').classList.add('hidden');
       document.getElementById('cobroRapidoModal').classList.remove('flex');
@@ -1012,20 +1057,32 @@
         items = state.cobroRapidoItems.map(function (it) {
           var nombre = it.nombre || 'Venta rápida';
           var codigoRapida = '_rapida_' + (nombre.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta') + '_' + Date.now();
-          return { nombre: nombre, codigo: codigoRapida, precio: it.precio || 0, cant: 1, costo: it.costo || 0 };
+          var pr = Number(it.precio) || 0;
+          var co = it.costo != null ? Number(it.costo) : 0;
+          if (!Number.isFinite(co) || co < 0) co = 0;
+          return { nombre: nombre, codigo: codigoRapida, precio: pr, cant: 1, costo: co };
         });
-        total = items.reduce(function (s, it) { return s + (it.precio || 0); }, 0);
+        total = items.reduce(function (s, it) { return s + (Number(it.precio) || 0); }, 0);
       } else {
         var montoEl = document.getElementById('cobroRapidoMonto');
         var amount = parseInt((montoEl.value || '').replace(/\D/g, ''), 10) || 0;
         if (amount <= 0) { alert('Agregá al menos un producto (producto + monto → Agregar) o ingresá un monto.'); return; }
         var productName = getCobroRapidoProductoNombre();
         var margen = getCobroRapidoProductoMargen();
-        var costo = margen > 0 ? Math.round(amount / (1 + margen / 100)) : 0;
+        var costo = costoDesdeMargen(amount, margen);
         var codigoRapida = '_rapida_' + (productName.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'venta');
         items = [{ nombre: productName, codigo: codigoRapida, precio: amount, cant: 1, costo: costo }];
         total = amount;
       }
+      items = (items || []).map(function (it) {
+        return {
+          nombre: it.nombre,
+          codigo: it.codigo,
+          precio: Number(it.precio) || 0,
+          cant: Number(it.cant) || 1,
+          costo: (function (c) { return Number.isFinite(c) && c >= 0 ? c : 0; })(Number(it.costo))
+        };
+      });
       var fechaHora = new Date().toISOString();
       if (method === 'fiado' || method === 'transferencia_pendiente') {
         var list = _dataCache.saldosACobrar || [];
@@ -1071,7 +1128,11 @@
       d.transacciones = (d.transacciones || 0) + 1;
       d.lastCierreDate = new Date().toISOString().slice(0, 10);
       setData(d);
-      await updateDashboard();
+      try {
+        await updateDashboard();
+      } catch (e) {
+        console.warn('No se pudo refrescar el panel tras cobro rápido:', e && e.message ? e.message : e);
+      }
       state.cobroRapidoItems = [];
       try { localStorage.setItem(LAST_QUICK_PAYMENT_KEY, method); } catch (_) {}
       closeCobroRapidoModal();
@@ -1315,7 +1376,7 @@
       if (amount <= 0) { alert('Ingresá un monto mayor a 0.'); return; }
       var productName = getCobroRapidoProductoNombre();
       var margen = getCobroRapidoProductoMargen();
-      var costo = margen > 0 ? Math.round(amount / (1 + margen / 100)) : 0;
+      var costo = costoDesdeMargen(amount, margen);
       state.cobroRapidoItems = state.cobroRapidoItems || [];
       state.cobroRapidoItems.push({ nombre: productName, precio: amount, costo: costo });
       document.getElementById('cobroRapidoMonto').value = '';
@@ -1336,7 +1397,9 @@
         }
       }
       document.getElementById('cobroRapidoWhatsappErr').classList.add('hidden');
-      completeQuickSale(lastMethod, clientName, whatsappRaw || whatsappDigits);
+      completeQuickSale(lastMethod, clientName, whatsappRaw || whatsappDigits).catch(function (err) {
+        console.warn('Cobro rápido (atajo):', err && err.message ? err.message : err);
+      });
     };
     document.querySelectorAll('.quick-payment-option').forEach(function (btn) {
       btn.onclick = function () {
@@ -1353,7 +1416,9 @@
           }
         }
         document.getElementById('cobroRapidoWhatsappErr').classList.add('hidden');
-        completeQuickSale(method, clientName, whatsappRaw || whatsappDigits);
+        completeQuickSale(method, clientName, whatsappRaw || whatsappDigits).catch(function (err) {
+          console.warn('Cobro rápido:', err && err.message ? err.message : err);
+        });
       };
     });
 
@@ -2384,16 +2449,24 @@ async function showApp() {
       }
       const newId = data?.user?.id;
       const trialEndsAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
-      if (newId) {
-        await supabaseClient.from('profiles').upsert({
-          id: newId,
-          email: email,
-          role: 'kiosquero',
-          active: true,
-          kiosco_name: kioscoName || null,
-          trial_ends_at: trialEndsAt,
-          phone: phone || null
-        }, { onConflict: 'id' });
+      if (!newId) {
+        errEl.textContent = 'Registro recibido. Si tu proyecto pide confirmar el email, abrí el enlace del correo (y spam) antes de iniciar sesión. Después usá el mismo email y contraseña.';
+        errEl.classList.add('show');
+        return;
+      }
+      var upProf = await supabaseClient.from('profiles').upsert({
+        id: newId,
+        email: email,
+        role: 'kiosquero',
+        active: true,
+        kiosco_name: kioscoName || null,
+        trial_ends_at: trialEndsAt,
+        phone: phone || null
+      }, { onConflict: 'id' });
+      if (upProf.error) {
+        errEl.textContent = 'Usuario registrado, pero el perfil no se guardó: ' + (upProf.error.message || '') + ' Usá «Volver al inicio de sesión» e intentá entrar con el mismo email y contraseña. Si no entrás, revisá en Supabase la tabla profiles (columna phone, políticas RLS).';
+        errEl.classList.add('show');
+        return;
       }
       document.getElementById('signUpBox').classList.add('hidden');
       document.getElementById('signUpSuccessBox').classList.remove('hidden');
@@ -3171,12 +3244,38 @@ async function showApp() {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session?.user) return;
         const uid = session.user.id;
-        const { data: profile, error: profileErr } = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
-        if (profileErr) {
-          console.error('Error 500 en profiles:', profileErr);
+        let { data: profile, error: profileErr } = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
+        if (profileErr && profileErr.code !== 'PGRST116') {
+          console.error('Error al leer profiles:', profileErr);
+          var loginErrInit = document.getElementById('loginErr');
+          if (loginErrInit) {
+            loginErrInit.textContent = 'Error al leer tu perfil. Revisá conexión o políticas RLS en Supabase (tabla profiles).';
+            loginErrInit.classList.add('show');
+          }
           return;
         }
-        if (!profile) return;
+        if (!profile) {
+          var trialEndsInit = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+          var insProf = await supabaseClient.from('profiles').insert({
+            id: uid,
+            email: session.user.email,
+            role: 'kiosquero',
+            active: true,
+            trial_ends_at: trialEndsInit
+          });
+          if (insProf.error) {
+            console.error('Perfil ausente y no se pudo crear:', insProf.error);
+            var loginErrIns = document.getElementById('loginErr');
+            if (loginErrIns) {
+              loginErrIns.textContent = 'Tu usuario existe pero falta el perfil. Revisá en Supabase la tabla profiles (RLS: permitir INSERT/SELECT propio id) o contactá al administrador.';
+              loginErrIns.classList.add('show');
+            }
+            return;
+          }
+          var rProf = await supabaseClient.from('profiles').select('*').eq('id', uid).single();
+          profile = rProf.data;
+          if (!profile) return;
+        }
         if (profile.role === 'kiosquero' && !profile.active) {
           try {
             await loadAdminContact();
