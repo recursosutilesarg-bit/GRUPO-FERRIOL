@@ -485,8 +485,6 @@
 
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      input.focus();
-      input.select();
 
       // Empujamos un estado al historial para que "Atrás" cierre el modal
       history.pushState({ panel: state.currentPanel, qtyModal: true }, '', location.href);
