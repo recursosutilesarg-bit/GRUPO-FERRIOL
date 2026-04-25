@@ -488,16 +488,31 @@
       input.focus();
       input.select();
 
-      function close() {
+      // Empujamos un estado al historial para que "Atrás" cierre el modal
+      history.pushState({ panel: state.currentPanel, qtyModal: true }, '', location.href);
+
+      function closeModal() {
+        window.removeEventListener('popstate', onBackPress);
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        cleanup();
+        // Si el estado actual todavía tiene qtyModal, volvemos atrás para limpiarlo
+        if (history.state && history.state.qtyModal) history.back();
+      }
+
+      // Cuando el usuario presiona "Atrás" en el celular
+      function onBackPress() {
+        window.removeEventListener('popstate', onBackPress);
         modal.classList.add('hidden');
         modal.classList.remove('flex');
         cleanup();
       }
+      window.addEventListener('popstate', onBackPress);
 
       function doConfirm() {
         const qty = parseInt(input.value, 10);
         if (!qty || qty < 1) { input.focus(); return; }
-        close();
+        closeModal();
         addToCart(codigo, qty);
       }
 
@@ -518,12 +533,12 @@
         const v = Math.min(p.stock, parseInt(input.value, 10) + 1);
         input.value = v;
       };
-      document.getElementById('qtyModalCancel').onclick = close;
-      document.getElementById('qtyModalOverlay').onclick = close;
+      document.getElementById('qtyModalCancel').onclick = closeModal;
+      document.getElementById('qtyModalOverlay').onclick = closeModal;
       document.getElementById('qtyModalConfirm').onclick = doConfirm;
       input.onkeydown = (e) => {
         if (e.key === 'Enter') doConfirm();
-        if (e.key === 'Escape') close();
+        if (e.key === 'Escape') closeModal();
       };
     }
 
