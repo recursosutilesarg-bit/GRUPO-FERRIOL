@@ -460,8 +460,67 @@
         });
       });
       list.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.onclick = (e) => { e.stopPropagation(); addToCart(btn.dataset.codigo); };
+        btn.onclick = (e) => { e.stopPropagation(); promptQuantityAndAdd(btn.dataset.codigo); };
       });
+    }
+
+    function promptQuantityAndAdd(codigo) {
+      const d = getData();
+      const p = (d.products || {})[codigo];
+      if (!p || p.stock <= 0) return;
+
+      const modal = document.getElementById('qtyModal');
+      const input = document.getElementById('qtyModalInput');
+      const stockEl = document.getElementById('qtyModalStock');
+      const titleEl = document.getElementById('qtyModalTitle');
+
+      titleEl.textContent = (p.nombre || '').replace(/</g, '&lt;');
+      stockEl.textContent = `Stock disponible: ${p.stock} unidad${p.stock !== 1 ? 'es' : ''} · $${(p.precio ?? 0).toLocaleString('es-AR')} c/u`;
+      input.value = 1;
+      input.max = p.stock;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      input.focus();
+      input.select();
+
+      function close() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        cleanup();
+      }
+
+      function confirm() {
+        const qty = parseInt(input.value, 10);
+        if (!qty || qty < 1) { input.focus(); return; }
+        close();
+        addToCart(codigo, qty);
+      }
+
+      function cleanup() {
+        document.getElementById('qtyModalMinus').onclick = null;
+        document.getElementById('qtyModalPlus').onclick = null;
+        document.getElementById('qtyModalCancel').onclick = null;
+        document.getElementById('qtyModalConfirm').onclick = null;
+        document.getElementById('qtyModalOverlay').onclick = null;
+        input.onkeydown = null;
+      }
+
+      document.getElementById('qtyModalMinus').onclick = () => {
+        const v = Math.max(1, parseInt(input.value, 10) - 1);
+        input.value = v;
+      };
+      document.getElementById('qtyModalPlus').onclick = () => {
+        const v = Math.min(p.stock, parseInt(input.value, 10) + 1);
+        input.value = v;
+      };
+      document.getElementById('qtyModalCancel').onclick = close;
+      document.getElementById('qtyModalOverlay').onclick = close;
+      document.getElementById('qtyModalConfirm').onclick = confirm;
+      input.onkeydown = (e) => {
+        if (e.key === 'Enter') confirm();
+        if (e.key === 'Escape') close();
+      };
     }
 
     function openEditProduct(codigo) {
@@ -501,14 +560,15 @@
       }
     }
 
-    function addToCart(codigo) {
+    function addToCart(codigo, cantidad) {
       const d = getData();
       const p = (d.products || {})[codigo];
       if (!p || p.stock <= 0) return;
+      const qty = (cantidad && cantidad > 0) ? Math.min(Math.floor(cantidad), p.stock) : 1;
       const existing = state.cart.find(i => i.codigo === codigo);
       const costo = p.costo != null ? Number(p.costo) : 0;
-      if (existing) existing.cant++;
-      else state.cart.push({ ...p, cant: 1, costo });
+      if (existing) existing.cant = Math.min(existing.cant + qty, p.stock);
+      else state.cart.push({ ...p, cant: qty, costo });
       const cartQty = state.cart.find(i => i.codigo === codigo).cant;
       const stockInicial = p.stockInicial || p.stock || 1;
       const remaining = Math.max(0, p.stock - cartQty);

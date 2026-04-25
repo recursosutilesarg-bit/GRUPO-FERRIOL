@@ -24,6 +24,7 @@
   <title>Ferriol OS — Sistema de Gestión Premium</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1057,6 +1058,26 @@
     <div class="mt-4 pt-4 border-t-2 border-gray-800 text-center font-bold text-lg" id="ticketTotal"></div>
   </div>
   </div><!-- /#appWrap -->
+
+  <!-- Modal selección de cantidad al agregar al carrito -->
+  <div id="qtyModal" class="fixed inset-0 z-[80] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60" id="qtyModalOverlay"></div>
+    <div class="relative glass-strong rounded-2xl p-6 w-full max-w-xs scale-in">
+      <h3 class="font-bold text-lg mb-1" id="qtyModalTitle">Agregar producto</h3>
+      <p class="text-sm text-white/60 mb-4" id="qtyModalStock"></p>
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <button type="button" id="qtyModalMinus" class="btn-neomorphic rounded-xl w-12 h-12 flex items-center justify-center text-2xl font-bold touch-target select-none">−</button>
+        <input id="qtyModalInput" type="number" min="1" max="9999" value="1"
+          class="w-24 text-center text-3xl font-bold bg-white/10 border border-white/20 rounded-xl py-2 focus:outline-none focus:ring-2 focus:ring-[#a78bfa]" />
+        <button type="button" id="qtyModalPlus" class="btn-neomorphic rounded-xl w-12 h-12 flex items-center justify-center text-2xl font-bold touch-target select-none">+</button>
+      </div>
+      <div class="flex gap-3">
+        <button type="button" id="qtyModalCancel" class="flex-1 btn-neomorphic rounded-xl py-3 font-medium touch-target">Cancelar</button>
+        <button type="button" id="qtyModalConfirm" class="flex-1 btn-glow rounded-xl py-3 font-semibold touch-target">Agregar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="kiosco-config.js"></script>
   <script defer src="kiosco-app.js"></script>
   <script defer src="kiosco-pwa.js"></script>
