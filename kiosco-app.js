@@ -467,7 +467,11 @@
     function promptQuantityAndAdd(codigo) {
       const d = getData();
       const p = (d.products || {})[codigo];
-      if (!p || p.stock <= 0) return;
+      if (!p) return;
+      if (p.stock <= 0) {
+        showScanToast('Sin stock: ' + (p.nombre || codigo), true);
+        return;
+      }
 
       const modal = document.getElementById('qtyModal');
       const input = document.getElementById('qtyModalInput');
@@ -490,7 +494,7 @@
         cleanup();
       }
 
-      function confirm() {
+      function doConfirm() {
         const qty = parseInt(input.value, 10);
         if (!qty || qty < 1) { input.focus(); return; }
         close();
@@ -516,9 +520,9 @@
       };
       document.getElementById('qtyModalCancel').onclick = close;
       document.getElementById('qtyModalOverlay').onclick = close;
-      document.getElementById('qtyModalConfirm').onclick = confirm;
+      document.getElementById('qtyModalConfirm').onclick = doConfirm;
       input.onkeydown = (e) => {
-        if (e.key === 'Enter') confirm();
+        if (e.key === 'Enter') doConfirm();
         if (e.key === 'Escape') close();
       };
     }
@@ -1330,6 +1334,7 @@
         if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
         // No hacer focus en manualCode: en móvil abre el teclado y tapa el escáner. El teclado se abre solo al tocar la casilla "Código manual".
       } else if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
+      if (name === 'inventory') renderInventory();
       if (name === 'caja') renderCierresCajaHistorial();
       if (name === 'historial') {
         switchHistorialTab('ventas');
