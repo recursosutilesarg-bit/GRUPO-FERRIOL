@@ -1971,14 +1971,17 @@
     window._stopScannerInterval = stopScanInterval;
     window._stopScannerCamera = stopScannerCamera;
 
+    let cameraPermissionDenied = false;
     async function startScannerCamera() {
       if (scannerStream) return;
+      if (cameraPermissionDenied) return;
       try {
         scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         video.srcObject = scannerStream;
         await video.play();
       } catch (e) {
-        alert('No se pudo acceder a la cámara');
+        cameraPermissionDenied = true;
+        showScanToast('Sin acceso a la cámara. Habilitá el permiso en la configuración del celular.', true);
       }
     }
     window._startScannerCamera = startScannerCamera;
