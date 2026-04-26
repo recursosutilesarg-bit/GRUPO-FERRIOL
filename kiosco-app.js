@@ -1343,10 +1343,10 @@
         if (currentUser && currentUser.role === 'kiosquero') { loadAdminContact(); loadNotifications(); }
       }
       if (name === 'scanner') {
-        if (typeof window._startScannerCamera === 'function') window._startScannerCamera();
-        if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
         // No hacer focus en manualCode: en móvil abre el teclado y tapa el escáner. El teclado se abre solo al tocar la casilla "Código manual".
-      } else if (typeof window._stopScannerInterval === 'function') window._stopScannerInterval();
+      } else {
+        if (typeof window._stopScannerCamera === 'function') window._stopScannerCamera();
+      }
       if (name === 'inventory') renderInventory();
       if (name === 'caja') renderCierresCajaHistorial();
       if (name === 'historial') {
@@ -1857,12 +1857,21 @@
     // Escáner con BarcodeDetector — normaliza código para mejorar detección
     let scannerStream = null;
     let scanInterval = null;
+    let scanFrameRunning = false;
+    let barcodeDetector = null;
     let lastScannedCode = '';
     let lastScanTime = 0;
     const SCAN_COOLDOWN_MS = 2500;
     const video = document.getElementById('scannerVideo');
     const canvas = document.getElementById('scannerCanvas');
     const ctx = canvas.getContext('2d');
+
+    function getBarcodeDetector() {
+      if (!barcodeDetector && typeof BarcodeDetector !== 'undefined') {
+        barcodeDetector = new BarcodeDetector();
+      }
+      return barcodeDetector;
+    }
 
     function normalizeBarcode(raw) {
       return String(raw || '').trim().replace(/\s/g, '');
@@ -1884,13 +1893,14 @@
     }
 
     async function scanFrame() {
-      if (!scannerStream || video.readyState !== 4) return;
-      if (typeof BarcodeDetector === 'undefined') return;
+      if (!scannerStream || video.readyState !== 4) { scheduleNextFrame(); return; }
+      const detector = getBarcodeDetector();
+      if (!detector) { scheduleNextFrame(); return; }
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0);
       try {
-        const codes = await new BarcodeDetector().detect(canvas);
+        const codes = await detector.detect(canvas);
         if (codes.length) {
           const rawCode = codes[0].rawValue;
           const now = Date.now();
@@ -1926,12 +1936,31 @@
           }
         }
       } catch (_) {}
+      scheduleNextFrame();
+    }
+
+    function scheduleNextFrame() {
+      if (!scanFrameRunning) return;
+      scanInterval = setTimeout(scanFrame, 400);
     }
 
     function stopScanInterval() {
-      if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+      scanFrameRunning = false;
+      if (scanInterval) { clearTimeout(scanInterval); scanInterval = null; }
     }
+
+    function stopScannerCamera() {
+      stopScanInterval();
+      if (scannerStream) {
+        scannerStream.getTracks().forEach(t => t.stop());
+        scannerStream = null;
+        video.srcObject = null;
+      }
+    }
+
     window._stopScannerInterval = stopScanInterval;
+    window._stopScannerCamera = stopScannerCamera;
+
     async function startScannerCamera() {
       if (scannerStream) return;
       try {
@@ -1948,7 +1977,10 @@
       scanHoldBtn.addEventListener('pointerdown', async function (e) {
         e.preventDefault();
         await startScannerCamera();
-        if (scannerStream && typeof BarcodeDetector !== 'undefined' && !scanInterval) scanInterval = setInterval(scanFrame, 400);
+        if (scannerStream && getBarcodeDetector() && !scanFrameRunning) {
+          scanFrameRunning = true;
+          scanFrame();
+        }
       });
       scanHoldBtn.addEventListener('pointerup', stopScanInterval);
       scanHoldBtn.addEventListener('pointerleave', stopScanInterval);
@@ -1956,7 +1988,7 @@
     }
 
     window.addEventListener('visibilitychange', () => {
-      if (document.hidden) stopScanInterval();
+      if (document.hidden) stopScannerCamera();
     });
 
     // Generar ticket digital
