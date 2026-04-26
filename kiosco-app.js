@@ -416,18 +416,24 @@
       return { label: 'Stock Alto', class: 'status-alto' };
     }
 
+    let _beepCtx = null;
     function playBeep() {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 1200;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.1);
+      try {
+        if (!_beepCtx || _beepCtx.state === 'closed') {
+          _beepCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (_beepCtx.state === 'suspended') _beepCtx.resume();
+        const osc = _beepCtx.createOscillator();
+        const gain = _beepCtx.createGain();
+        osc.connect(gain);
+        gain.connect(_beepCtx.destination);
+        osc.frequency.value = 1200;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.2, _beepCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, _beepCtx.currentTime + 0.1);
+        osc.start(_beepCtx.currentTime);
+        osc.stop(_beepCtx.currentTime + 0.1);
+      } catch (_) {}
     }
 
     function renderInventory() {
@@ -1343,7 +1349,8 @@
         if (currentUser && currentUser.role === 'kiosquero') { loadAdminContact(); loadNotifications(); }
       }
       if (name === 'scanner') {
-        // No hacer focus en manualCode: en móvil abre el teclado y tapa el escáner. El teclado se abre solo al tocar la casilla "Código manual".
+        // Iniciar preview de cámara al entrar al panel (sin escanear). No hacer focus en manualCode: abre el teclado en móvil.
+        if (typeof window._startScannerCamera === 'function') window._startScannerCamera();
       } else {
         if (typeof window._stopScannerCamera === 'function') window._stopScannerCamera();
       }
@@ -1893,6 +1900,7 @@
     }
 
     async function scanFrame() {
+      if (!scanFrameRunning) return;
       if (!scannerStream || video.readyState !== 4) { scheduleNextFrame(); return; }
       const detector = getBarcodeDetector();
       if (!detector) { scheduleNextFrame(); return; }
@@ -1904,7 +1912,9 @@
         if (codes.length) {
           const rawCode = codes[0].rawValue;
           const now = Date.now();
-          if (rawCode === lastScannedCode && now - lastScanTime < SCAN_COOLDOWN_MS) return;
+          if (rawCode === lastScannedCode && now - lastScanTime < SCAN_COOLDOWN_MS) {
+            scheduleNextFrame(); return;
+          }
           if (window._scanForProductCode) {
             lastScannedCode = rawCode;
             lastScanTime = now;
@@ -1915,7 +1925,7 @@
             document.getElementById('productModal').classList.remove('hidden');
             document.getElementById('productModal').classList.add('flex');
             lucide.createIcons();
-            return;
+            scheduleNextFrame(); return;
           }
           const data = getData();
           const found = findProductByCode(data.products, rawCode);
